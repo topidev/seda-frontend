@@ -5,12 +5,24 @@ import { GraduationCap } from 'lucide-react'
 
 export default function LoginPage() {
  
-  const { isAuthenticated } = useRedirectIfAuthenticated()
+  const { isAuthenticated, isReady } = useRedirectIfAuthenticated()
   
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
   }
-  
+  if (!isReady) {
+      return (
+          <main
+          className="min-h-screen flex items-center justify-center"
+          style={{ backgroundColor: 'var(--color-bg-primary)' }}
+          >
+          <div
+              className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: 'var(--color-primary)' }}
+          />
+          </main>
+      )
+  }
   if (isAuthenticated) return null
 
   return (
