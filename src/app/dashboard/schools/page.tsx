@@ -1,31 +1,52 @@
 'use client'
 
-import { useRequiredAuth } from "@/hooks/useAuthGuard"
-import { shiftLabel, useSchools } from "@/hooks/useSchools"
-import { GraduationCap, Plus, Users } from "lucide-react"
-import Link from "next/link"
+import { useState } from 'react'
+import { useRequiredAuth } from '@/hooks/useAuthGuard'
+import { useSchools, useCreateSchool, shiftLabel } from '@/hooks/useSchools'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { GraduationCap, Plus, Users } from 'lucide-react'
+import Link from 'next/link'
+import ProtectedPage from '@/components/ProtectedPage'
+
+const shifts = [
+  { value: 'MORNING', label: 'Matutino' },
+  { value: 'AFTERNOON', label: 'Vespertino' },
+  { value: 'EVENING', label: 'Nocturno' },
+]
 
 export default function SchoolsPage() {
-  const { isAuthenticated, isReady } = useRequiredAuth()
   const { data: schools, isLoading } = useSchools()
+  const { mutate: createSchool, isPending, isError } = useCreateSchool()
 
-  if (!isReady) {
-    return (
-      <main
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div
-          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'var(--color-primary)' }}
-        />
-      </main>
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [shift, setShift] = useState<'MORNING' | 'AFTERNOON' | 'EVENING'>('MORNING')
+
+  const handleSubmit = () => {
+    if (!name.trim()) return
+
+    createSchool(
+      { name, shift, level: 'SECONDARY' },
+      {
+        onSuccess: () => {
+          setOpen(false)
+          setName('')
+          setShift('MORNING')
+        },
+      },
     )
   }
 
-  if (!isAuthenticated) return null
 
   return (
+    <ProtectedPage>
+
+    
     <main
       className="min-h-screen p-8"
       style={{ backgroundColor: 'var(--color-bg-primary)' }}
@@ -52,24 +73,23 @@ export default function SchoolsPage() {
             </p>
           </div>
 
-          <Link href="/dashboard/schools/new">
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
-              style={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = 'var(--color-primary)'
-              }}
-            >
-              <Plus size={16} />
-              Nueva escuela
-            </button>
-          </Link>
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+            style={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'white',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'var(--color-primary)'
+            }}
+          >
+            <Plus size={16} />
+            Nueva escuela
+          </button>
         </div>
 
         {/* Loading */}
@@ -98,17 +118,16 @@ export default function SchoolsPage() {
             <p style={{ color: 'var(--color-text-secondary)' }}>
               Aún no tienes escuelas registradas
             </p>
-            <Link href="/dashboard/schools/new">
-              <button
-                className="px-4 py-2 rounded-xl cursor-pointer"
-                style={{
-                  backgroundColor: 'var(--color-primary)',
-                  color: 'white',
-                }}
-              >
-                Registrar primera escuela
-              </button>
-            </Link>
+            <button
+              onClick={() => setOpen(true)}
+              className="px-4 py-2 rounded-xl cursor-pointer"
+              style={{
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+              }}
+            >
+              Registrar primera escuela
+            </button>
           </div>
         )}
 
@@ -172,7 +191,119 @@ export default function SchoolsPage() {
           </div>
         )}
       </div>
-    </main>
-  )
 
+      {/* Modal nueva escuela */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle
+              style={{
+                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-geist)',
+              }}
+            >
+              Nueva escuela
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-5 mt-2">
+            {/* Nombre */}
+            <div className="flex flex-col gap-2">
+              <label
+                className="text-sm font-medium"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                Nombre de la escuela
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Ej. Secundaria Benito Juárez"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)'
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSubmit()
+                }}
+              />
+            </div>
+
+            {/* Turno */}
+            <div className="flex flex-col gap-2">
+              <label
+                className="text-sm font-medium"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                Turno
+              </label>
+              <div className="flex gap-2">
+                {shifts.map(s => (
+                  <button
+                    key={s.value}
+                    onClick={() => setShift(s.value as typeof shift)}
+                    className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: shift === s.value
+                        ? 'var(--color-primary)'
+                        : 'var(--color-bg-tertiary)',
+                      border: `1px solid ${shift === s.value
+                        ? 'var(--color-primary)'
+                        : 'var(--color-border)'}`,
+                      color: shift === s.value
+                        ? 'white'
+                        : 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Error */}
+            {isError && (
+              <p
+                className="text-sm"
+                style={{ color: 'var(--color-error)' }}
+              >
+                Ocurrió un error al crear la escuela. Intenta de nuevo.
+              </p>
+            )}
+
+            {/* Botón submit */}
+            <button
+              onClick={handleSubmit}
+              disabled={isPending || !name.trim()}
+              className="w-full py-3 rounded-xl font-medium transition-colors"
+              style={{
+                backgroundColor: isPending || !name.trim()
+                  ? 'var(--color-text-disabled)'
+                  : 'var(--color-primary)',
+                color: 'white',
+                cursor: isPending || !name.trim() ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {isPending ? 'Guardando...' : 'Guardar escuela'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </main>
+    </ProtectedPage>
+  )
 }

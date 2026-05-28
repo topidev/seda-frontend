@@ -23,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${inter.variable} ${geist.variable} dark`} suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
             {children}
             <ReactQueryDevtools initialIsOpen={false} />

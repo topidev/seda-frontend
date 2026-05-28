@@ -26,6 +26,33 @@ const shiftLabel = {
 
 export { shiftLabel }
 
+interface Period {
+  id: string
+  number: number
+  startDate: string
+  endDate: string
+  closed: boolean
+}
+
+interface AcademicTerm {
+  id: string
+  name: string
+  startDate: string
+  endDate: string
+  active: boolean
+  periods: Period[]
+}
+
+interface SchoolDetail extends School {
+  academicTerms: AcademicTerm[]
+}
+
+interface CreateTermDto {
+  name: string
+  startDate: string
+  endDate: string
+}
+
 export function useSchools() {
   return useQuery({
     queryKey: ['schools'],
@@ -33,6 +60,17 @@ export function useSchools() {
       const { data } = await api.get<School[]>('/schools')
       return data
     },
+  })
+}
+
+export function useSchool(schoolId: string) {
+  return useQuery({
+    queryKey: ['schools', schoolId],
+    queryFn: async () => {
+      const { data } = await api.get<SchoolDetail>(`/schools/${schoolId}`)
+      return data
+    },
+    enabled: !!schoolId,
   })
 }
 
@@ -49,5 +87,19 @@ export function useCreateSchool() {
         queryKey: ['schools']
       })
     },
+  })
+}
+
+export function useCreateTerm(schoolId: string) {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (dto: CreateTermDto) => {
+      const { data } = await api.post(`/schools/${schoolId}/terms`, dto)
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schools', schoolId] })
+    }
   })
 }
