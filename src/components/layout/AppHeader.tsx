@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { Bell, Sun, Moon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { useEffect, useState } from 'react'
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
@@ -17,6 +18,7 @@ const pageTitles: Record<string, string> = {
 export default function AppHeader() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
   const getTitle = () => {
     // Busca primero match exacto
@@ -30,6 +32,10 @@ export default function AppHeader() {
 
     return 'Dashboard'
   }
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header
@@ -74,22 +80,25 @@ export default function AppHeader() {
         </button>
 
         {/* Toggle tema */}
-        <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
-          style={{
-            backgroundColor: 'transparent',
-            color: 'var(--color-text-secondary)',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-          }}
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+        {mounted && (
+            <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
+            style={{
+              backgroundColor: 'transparent',
+              color: 'var(--color-text-secondary)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        )}
+        
       </div>
     </header>
   )
