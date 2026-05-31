@@ -14,10 +14,12 @@ export default function DashboardLayout({
         <div className="flex flex-col flex-1 min-w-0">
           <AppHeader />
           <main
-            className="flex-1 overflow-auto"
+            className="flex-1 overflow-auto p-8"
             style={{ backgroundColor: 'var(--color-bg-primary)' }}
           >
-            {children}
+            <div className="max-w-2xl mx-auto">
+              {children}
+            </div>
           </main>
         </div>
       </div>
