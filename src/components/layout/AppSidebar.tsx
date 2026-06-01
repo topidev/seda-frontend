@@ -18,6 +18,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { useTeacher } from '@/hooks/useTeacher'
 import Image from 'next/image'
@@ -33,10 +34,15 @@ const navItems = [
 export default function AppSidebar() {
   const pathname = usePathname()
   const { data: teacher } = useTeacher()
+  const { setOpenMobile } = useSidebar()
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard'
     return pathname.startsWith(href)
+  }
+
+  const handleNavClick = () => {
+    setOpenMobile(false)
   }
 
   return (
@@ -67,7 +73,7 @@ export default function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} className="w-full">
+              <Link href={item.href} className="w-full" onClick={handleNavClick}>
                 <SidebarMenuButton isActive={isActive(item.href)}>
                   <item.icon size={18} />
                   <span>{item.label}</span>
@@ -82,7 +88,7 @@ export default function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/dashboard/profile" className="w-full">
+            <Link href="/dashboard/profile" className="w-full" onClick={handleNavClick}>
               <SidebarMenuButton isActive={pathname === '/dashboard/profile'}>
                 {teacher?.photo ? (
                   <Image
