@@ -18,6 +18,7 @@ import { AppleIcon, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import BackButton from '@/components/BackButton'
 import AppInput from '@/components/AppInput'
+import AppButton from '@/components/AppButton'
 
 export default function SubjectDetailPage() {
   const params = useParams()
@@ -255,24 +256,14 @@ export default function SubjectDetailPage() {
               </p>
             )}
 
-            <button
+            <AppButton
               onClick={handleSubmit}
               disabled={isPending || !categoryName.trim() || !percentage}
-              className="w-full py-3 rounded-xl font-medium transition-colors"
-              style={{
-                backgroundColor:
-                  isPending || !categoryName.trim() || !percentage
-                    ? 'var(--color-text-disabled)'
-                    : 'var(--color-primary)',
-                color: 'white',
-                cursor:
-                  isPending || !categoryName.trim() || !percentage
-                    ? 'not-allowed'
-                    : 'pointer',
-              }}
+              isPending={isPending}
+              pendingLabel='Guardando'
             >
-              {isPending ? 'Guardando...' : 'Guardar categoría'}
-            </button>
+              Guardar categoría
+            </AppButton>
           </div>
         </DialogContent>
       </Dialog>
