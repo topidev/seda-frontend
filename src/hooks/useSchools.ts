@@ -7,6 +7,7 @@ interface School {
   shift: 'MORNING' | 'AFTERNOON' | 'EVENING'
   level: 'SECONDARY'
   active: boolean
+  academicTerms: AcademicTerm[]
   _count: {
     groups: number
   }

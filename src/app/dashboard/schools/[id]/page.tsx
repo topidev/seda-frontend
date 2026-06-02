@@ -1,6 +1,10 @@
 'use client'
 
+import AppButton from "@/components/AppButton"
+import AppInput from "@/components/AppInput"
+import BackButton from "@/components/BackButton"
 import ProtectedPage from "@/components/ProtectedPage"
+import Spinner from "@/components/Spinner"
 import { Dialog, DialogTitle, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { useRequiredAuth } from "@/hooks/useAuthGuard"
 import { shiftLabel, useCreateTerm, useSchool } from "@/hooks/useSchools"
@@ -48,24 +52,7 @@ export default function SchooldDetailPage() {
         <ProtectedPage>
             {/* Header */}
             <div className="flex items-center gap-3 mb-8">
-                <Link href="/dashboard/schools">
-                    <button
-                        className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-                        style={{
-                            backgroundColor: 'var(--color-bg-elevated)',
-                            border: '1px solid var(--color-border)',
-                            color: 'var(--color-text-secondary)',
-                        }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.borderColor = 'var(--color-primary)'
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.borderColor = 'var(--color-border)'
-                        }}
-                    >
-                        <ArrowLeft size={16} />
-                    </button>
-                </Link>
+                <BackButton href="/dashboard/schools" />
 
                 <div>
                     <h1
@@ -120,12 +107,7 @@ export default function SchooldDetailPage() {
 
             {/* Loading */}
             {isLoading && (
-                <div className="flex justify-center py-12">
-                    <div
-                        className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-                        style={{ borderColor: 'var(--color-primary)' }}
-                    />
-                </div>
+                <Spinner fullScreen />
             )}
 
             {/* Lista vacía */}
@@ -267,23 +249,11 @@ export default function SchooldDetailPage() {
                             >
                                 Nombre del ciclo
                             </label>
-                            <input
+                            <AppInput
                                 type="text"
                                 value={termName}
-                                onChange={e => setTermName(e.target.value)}
+                                onChange={setTermName}
                                 placeholder="Ej. 2024-2025"
-                                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                                style={{
-                                    backgroundColor: 'var(--color-bg-tertiary)',
-                                    border: '1px solid var(--color-border)',
-                                    color: 'var(--color-text-primary)',
-                                }}
-                                onFocus={e => {
-                                    e.currentTarget.style.borderColor = 'var(--color-primary)'
-                                }}
-                                onBlur={e => {
-                                    e.currentTarget.style.borderColor = 'var(--color-border)'
-                                }}
                             />
                         </div>
 
@@ -296,23 +266,10 @@ export default function SchooldDetailPage() {
                                 >
                                     Fecha inicio
                                 </label>
-                                <input
+                                <AppInput
                                     type="date"
                                     value={startDate}
-                                    onChange={e => setStartDate(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                                    style={{
-                                        backgroundColor: 'var(--color-bg-tertiary)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-primary)',
-                                        colorScheme: 'dark',
-                                    }}
-                                    onFocus={e => {
-                                        e.currentTarget.style.borderColor = 'var(--color-primary)'
-                                    }}
-                                    onBlur={e => {
-                                        e.currentTarget.style.borderColor = 'var(--color-border)'
-                                    }}
+                                    onChange={setStartDate}
                                 />
                             </div>
                             <div className="flex flex-col gap-2 flex-1">
@@ -322,23 +279,10 @@ export default function SchooldDetailPage() {
                                 >
                                     Fecha fin
                                 </label>
-                                <input
+                                <AppInput
                                     type="date"
                                     value={endDate}
-                                    onChange={e => setEndDate(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                                    style={{
-                                        backgroundColor: 'var(--color-bg-tertiary)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-primary)',
-                                        colorScheme: 'dark',
-                                    }}
-                                    onFocus={e => {
-                                        e.currentTarget.style.borderColor = 'var(--color-primary)'
-                                    }}
-                                    onBlur={e => {
-                                        e.currentTarget.style.borderColor = 'var(--color-border)'
-                                    }}
+                                    onChange={setEndDate}
                                 />
                             </div>
                         </div>
@@ -354,24 +298,15 @@ export default function SchooldDetailPage() {
                         )}
 
                         {/* Botón submit */}
-                        <button
+                        <AppButton
                             onClick={handleSubmit}
-                            disabled={isPending || !termName.trim() || !startDate || !endDate}
-                            className="w-full py-3 rounded-xl font-medium transition-colors"
-                            style={{
-                                backgroundColor:
-                                    isPending || !termName.trim() || !startDate || !endDate
-                                        ? 'var(--color-text-disabled)'
-                                        : 'var(--color-primary)',
-                                color: 'white',
-                                cursor:
-                                    isPending || !termName.trim() || !startDate || !endDate
-                                        ? 'not-allowed'
-                                        : 'pointer',
-                            }}
+                            disabled={!termName.trim() || !startDate || !endDate}
+                            isPending={isPending}
+                            pendingLabel="Creando..."
+                            fullWidth
                         >
-                            {isPending ? 'Creando...' : 'Crear ciclo'}
-                        </button>
+                            Crear ciclo
+                        </AppButton>
                     </div>
                 </DialogContent>
             </Dialog>

@@ -12,6 +12,8 @@ import {
 import { GraduationCap, Plus, Users } from 'lucide-react'
 import Link from 'next/link'
 import ProtectedPage from '@/components/ProtectedPage'
+import Spinner from '@/components/Spinner'
+import AppInput from '@/components/AppInput'
 
 const shifts = [
   { value: 'MORNING', label: 'Matutino' },
@@ -86,12 +88,7 @@ export default function SchoolsPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex justify-center py-12">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--color-primary)' }}
-          />
-        </div>
+        <Spinner fullScreen />
       )}
 
       {/* Lista vacía */}
@@ -211,23 +208,11 @@ export default function SchoolsPage() {
               >
                 Nombre de la escuela
               </label>
-              <input
+              <AppInput
                 type="text"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={setName}
                 placeholder="Ej. Secundaria Benito Juárez"
-                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-primary)',
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
                 onKeyDown={e => {
                   if (e.key === 'Enter') handleSubmit()
                 }}
