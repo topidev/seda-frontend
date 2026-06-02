@@ -11,6 +11,9 @@ import {
 } from '@/components/ui/dialog'
 import { BookOpen, Plus } from 'lucide-react'
 import Link from 'next/link'
+import AppButton from '@/components/AppButton'
+import AppInput from '@/components/AppInput'
+import Spinner from '@/components/Spinner'
 
 export default function SubjectsPage() {
   const { data: subjects, isLoading } = useSubjects()
@@ -72,12 +75,7 @@ export default function SubjectsPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex justify-center py-12">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--color-primary)' }}
-          />
-        </div>
+        <Spinner fullScreen />
       )}
 
       {/* Lista vacía */}
@@ -211,23 +209,11 @@ export default function SubjectsPage() {
               >
                 Nombre de la materia
               </label>
-              <input
+              <AppInput
                 type="text"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={setName}
                 placeholder="Ej. Física, Matemáticas, Historia"
-                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-primary)',
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
                 onKeyDown={e => {
                   if (e.key === 'Enter') handleSubmit()
                 }}
@@ -240,22 +226,14 @@ export default function SubjectsPage() {
               </p>
             )}
 
-            <button
+            <AppButton
               onClick={handleSubmit}
               disabled={isPending || !name.trim()}
-              className="w-full py-3 rounded-xl font-medium transition-colors"
-              style={{
-                backgroundColor:
-                  isPending || !name.trim()
-                    ? 'var(--color-text-disabled)'
-                    : 'var(--color-primary)',
-                color: 'white',
-                cursor:
-                  isPending || !name.trim() ? 'not-allowed' : 'pointer',
-              }}
+              isPending={isPending}
+              pendingLabel='Guardando'
             >
-              {isPending ? 'Guardando...' : 'Guardar materia'}
-            </button>
+              Guardar materia
+            </AppButton>
           </div>
         </DialogContent>
       </Dialog>

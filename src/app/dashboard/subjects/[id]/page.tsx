@@ -14,8 +14,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { AppleIcon, ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
+import AppInput from '@/components/AppInput'
 
 export default function SubjectDetailPage() {
   const params = useParams()
@@ -52,24 +54,7 @@ export default function SubjectDetailPage() {
     <ProtectedPage>
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/dashboard/subjects">
-          <button
-            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-bg-elevated)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--color-primary)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--color-border)'
-            }}
-          >
-            <ArrowLeft size={16} />
-          </button>
-        </Link>
+        <BackButton href="/dashboard/subjects" />
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -239,23 +224,11 @@ export default function SubjectDetailPage() {
               >
                 Nombre
               </label>
-              <input
+              <AppInput
                 type="text"
                 value={categoryName}
-                onChange={e => setCategoryName(e.target.value)}
+                onChange={setCategoryName}
                 placeholder="Ej. Tareas, Examen, Proyectos"
-                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-primary)',
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
               />
             </div>
 
@@ -266,25 +239,13 @@ export default function SubjectDetailPage() {
               >
                 Porcentaje (disponible: {100 - totalPercentage}%)
               </label>
-              <input
+              <AppInput
                 type="number"
                 value={percentage}
-                onChange={e => setPercentage(e.target.value)}
+                onChange={setPercentage}
                 placeholder="Ej. 30"
                 min={1}
                 max={100 - totalPercentage}
-                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-primary)',
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
               />
             </div>
 

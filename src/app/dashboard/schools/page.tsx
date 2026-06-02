@@ -14,6 +14,7 @@ import Link from 'next/link'
 import ProtectedPage from '@/components/ProtectedPage'
 import Spinner from '@/components/Spinner'
 import AppInput from '@/components/AppInput'
+import AppButton from '@/components/AppButton'
 
 const shifts = [
   { value: 'MORNING', label: 'Matutino' },
@@ -262,20 +263,14 @@ export default function SchoolsPage() {
             )}
 
             {/* Botón submit */}
-            <button
+            <AppButton
               onClick={handleSubmit}
               disabled={isPending || !name.trim()}
-              className="w-full py-3 rounded-xl font-medium transition-colors"
-              style={{
-                backgroundColor: isPending || !name.trim()
-                  ? 'var(--color-text-disabled)'
-                  : 'var(--color-primary)',
-                color: 'white',
-                cursor: isPending || !name.trim() ? 'not-allowed' : 'pointer',
-              }}
+              isPending={isPending}
+              pendingLabel='Guardando'
             >
-              {isPending ? 'Guardando...' : 'Guardar escuela'}
-            </button>
+              Guardar escuela
+            </AppButton>
           </div>
         </DialogContent>
       </Dialog>
