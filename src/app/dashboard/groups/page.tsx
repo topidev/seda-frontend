@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dialog'
 import { Users, Plus } from 'lucide-react'
 import Link from 'next/link'
+import Spinner from '@/components/Spinner'
+import AppButton from '@/components/AppButton'
 
 const grades = ['1', '2', '3']
 const letters = ['A', 'B', 'C', 'D', 'E']
@@ -154,12 +156,7 @@ export default function GroupsPage() {
 
       {/* Loading */}
       {isLoading && selectedSchoolId && selectedTermId && (
-        <div className="flex justify-center py-12">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--color-primary)' }}
-          />
-        </div>
+        <Spinner />
       )}
 
       {/* Sin selección */}
@@ -361,7 +358,7 @@ export default function GroupsPage() {
                       }}
                     >
                       <div
-                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0"
+                        className="w-4 h-4 rounded flex items-center justify-center shrink-0"
                         style={{
                           backgroundColor: selectedSubjectIds.includes(subject.id)
                             ? 'var(--color-primary)'
@@ -398,20 +395,14 @@ export default function GroupsPage() {
               </p>
             )}
 
-            <button
+            <AppButton
               onClick={handleSubmit}
               disabled={isPending}
-              className="w-full py-3 rounded-xl font-medium transition-colors"
-              style={{
-                backgroundColor: isPending
-                  ? 'var(--color-text-disabled)'
-                  : 'var(--color-primary)',
-                color: 'white',
-                cursor: isPending ? 'not-allowed' : 'pointer',
-              }}
+              isPending={isPending}
+              pendingLabel='Creando'
             >
-              {isPending ? 'Creando...' : 'Crear grupo'}
-            </button>
+              Crear grupo
+            </AppButton>
           </div>
         </DialogContent>
       </Dialog>

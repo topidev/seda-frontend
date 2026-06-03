@@ -12,8 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ArrowLeft, Plus, BookOpen, UserSquare } from 'lucide-react'
+import { ArrowLeft, Plus, BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import Spinner from '@/components/Spinner'
+import AppInput from '@/components/AppInput'
+import AppButton from '@/components/AppButton'
 
 export default function GroupDetailPage() {
   const params = useParams()
@@ -87,12 +90,7 @@ export default function GroupDetailPage() {
   if (isLoading) {
     return (
       <ProtectedPage>
-        <div className="flex justify-center py-12">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--color-primary)' }}
-          />
-        </div>
+        <Spinner fullScreen />
       </ProtectedPage>
     )
   }
@@ -324,45 +322,23 @@ export default function GroupDetailPage() {
                 >
                   {field.label}
                 </label>
-                <input
+                <AppInput
                   type="text"
                   value={field.value}
-                  onChange={e => field.setter(e.target.value)}
+                  onChange={field.setter}
                   placeholder={field.placeholder}
-                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                  style={{
-                    backgroundColor: 'var(--color-bg-tertiary)',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                  onFocus={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-primary)'
-                  }}
-                  onBlur={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-border)'
-                  }}
                 />
               </div>
             ))}
 
-            <button
+            <AppButton
               onClick={handleCreateStudent}
               disabled={isCreatingStudent || !name.trim() || !firstLastName.trim()}
-              className="w-full py-3 rounded-xl font-medium transition-colors mt-2"
-              style={{
-                backgroundColor:
-                  isCreatingStudent || !name.trim() || !firstLastName.trim()
-                    ? 'var(--color-text-disabled)'
-                    : 'var(--color-primary)',
-                color: 'white',
-                cursor:
-                  isCreatingStudent || !name.trim() || !firstLastName.trim()
-                    ? 'not-allowed'
-                    : 'pointer',
-              }}
+              isPending={isCreatingStudent}
+              pendingLabel='Guardando'
             >
-              {isCreatingStudent ? 'Guardando...' : 'Guardar alumno'}
-            </button>
+              Guardar alumno
+            </AppButton>
           </div>
         </DialogContent>
       </Dialog>

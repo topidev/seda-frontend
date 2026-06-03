@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ProtectedPage from "@/components/ProtectedPage";
+import Spinner from "@/components/Spinner";
 
 export default function ProfilePage() {
   const { data: teacher, isLoading, isError } = useTeacher()
@@ -24,15 +25,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <main
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: 'var(--color-bg-primary)' }}
-      >
-        <div
-          className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'var(--color-primary)' }}
-        />
-      </main>
+      <Spinner fullScreen />
     )
   }
   if (isError) {
