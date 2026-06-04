@@ -379,7 +379,7 @@ export default function StudentDetailPage() {
         open={openConfirm}
         onOpenChange={setOpenConfirm}
         title='Inactivar alumno'
-        description={`¿Seguro que quieres inactivar a ${student?.name} ${student?.firstLastName}? Su historial se conservará.`}
+        description={`¿Seguro que quieres inactivar a ${student?.name} ${student?.firstLastName}?\n Su historial se conservará.`}
         confirmLabel='Inactivar'
         onConfirm={() => {
           removeStudent()

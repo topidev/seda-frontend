@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import ProtectedPage from '@/components/ProtectedPage'
 import {
   useSubject,
@@ -14,14 +14,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { AppleIcon, ArrowLeft, Plus, Trash2 } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, Trash2 } from 'lucide-react'
 import BackButton from '@/components/BackButton'
 import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
+import { useMutation } from '@tanstack/react-query'
+import api from '@/lib/api/axios'
+import { toast } from 'sonner'
+import { queryClient } from '@/lib/query-client'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 export default function SubjectDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const subjectId = params.id as string
 
   const { data: subject, isLoading } = useSubject(subjectId)
@@ -32,9 +37,26 @@ export default function SubjectDetailPage() {
   const [categoryName, setCategoryName] = useState('')
   const [percentage, setPercentage] = useState('')
 
+  const [openConfirm, setOpenConfirm] = useState(false)
+
+
   const totalPercentage = subject?.gradeCategories.reduce(
     (sum, c) => sum + c.percentage, 0,
   ) ?? 0
+
+  const { mutate: removeSubject } = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/subjects/${subjectId}`)
+    },
+    onSuccess: () => {
+      toast.success('Materia Eliminada')
+      queryClient.invalidateQueries({ queryKey: ['subjects'] })
+      router.replace('/dashboard/subjects')
+    },
+    onError: () => {
+      toast.error('Error borrando materia')
+    }
+  })
 
   const handleSubmit = () => {
     if (!categoryName.trim() || !percentage) return
@@ -66,9 +88,32 @@ export default function SubjectDetailPage() {
           >
             {isLoading ? '...' : subject?.name}
           </h1>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            {subject?._count?.subjectTermGroups ?? 0} grupos asignados
-          </p>
+          {subject && (
+            <>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                {subject?._count?.subjectTermGroups ?? 0} grupos asignados
+              </p>
+              <button
+                onClick={() => setOpenConfirm(true)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-elevated)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-secondary)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-error)'
+                  e.currentTarget.style.color = 'var(--color-error)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)'
+                  e.currentTarget.style.color = 'var(--color-text-secondary)'
+                }}
+              >
+                <Trash2 size={15} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -267,6 +312,20 @@ export default function SubjectDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={openConfirm}
+        onOpenChange={setOpenConfirm}
+        title='Eliminar Materia'
+        description={`
+          ¿Seguro que quieres eliminar a ${subject?.name}?
+          \n Su historial se conservará.	
+        `}
+        confirmLabel="Eliminar"
+        onConfirm={() => {
+          removeSubject()
+          setOpenConfirm(false)
+        }}
+      />
     </ProtectedPage>
   )
 }

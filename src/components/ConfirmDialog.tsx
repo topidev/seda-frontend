@@ -34,14 +34,15 @@ export default function ConfirmDialog({
           <DialogTitle
             style={{
               color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-geist)'
+              fontFamily: 'var(--font-geist)',
+              textTransform: 'none'
             }}
           >
             {title}
           </DialogTitle>
         </DialogHeader>
         <p
-          className="text-sm mt-2"
+          className="text-sm mt-2 whitespace-pre-line"
           style={{ color: 'var(--color-text-secondary)' }}
         >
           {description}
