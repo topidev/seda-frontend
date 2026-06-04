@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
+import { toast } from 'sonner'
 
 interface StudentGroupTerm {
   id: string
@@ -58,7 +59,11 @@ export function useCreateStudent(groupId: string, academicTermId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
       queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
+      toast.success('Alumno creado')
     },
+    onError: () => {
+      toast.error('Error al crear alumno')
+    }
   })
 }
 
@@ -80,6 +85,10 @@ export function useAssignStudentToGroup() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
       queryClient.invalidateQueries({ queryKey: ['groups', variables.groupId] })
+      toast.success('Alumno asignado')
     },
+    onError: () => {
+      toast.error('Error al asignar alumno')
+    }
   })
 }

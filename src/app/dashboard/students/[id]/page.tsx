@@ -13,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { toast } from 'sonner'
 
 interface StudentDetail {
   id: string
@@ -52,6 +54,9 @@ export default function StudentDetailPage() {
   const [tutorName, setTutorName] = useState('')
   const [tutorPhone, setTutorPhone] = useState('')
 
+  // abrir el modal de confirmación
+  const [openConfirm, setOpenConfirm] = useState(false)
+
   const { data: student, isLoading } = useQuery({
     queryKey: ['students', studentId],
     queryFn: async () => {
@@ -78,9 +83,13 @@ export default function StudentDetailPage() {
       await api.delete(`/students/${studentId}`)
     },
     onSuccess: () => {
+      toast.success('Alumno Inactivado')
       queryClient.invalidateQueries({ queryKey: ['students'] })
       router.replace('/dashboard/students')
     },
+    onError: () => {
+      toast.error('Error al inactivar el alumno')
+    }
   })
 
   const handleOpenEdit = () => {
@@ -187,7 +196,7 @@ export default function StudentDetailPage() {
             <Pencil size={15} />
           </button>
           <button
-            onClick={() => removeStudent()}
+            onClick={() => setOpenConfirm(true)}
             className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
             style={{
               backgroundColor: 'var(--color-bg-elevated)',
@@ -365,6 +374,18 @@ export default function StudentDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={openConfirm}
+        onOpenChange={setOpenConfirm}
+        title='Inactivar alumno'
+        description={`¿Seguro que quieres inactivar a ${student?.name} ${student?.firstLastName}? Su historial se conservará.`}
+        confirmLabel='Inactivar'
+        onConfirm={() => {
+          removeStudent()
+          setOpenConfirm(false)
+        }}
+      />
     </ProtectedPage>
   )
 }

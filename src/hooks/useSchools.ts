@@ -1,5 +1,6 @@
 import api from "@/lib/api/axios"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 interface School {
   id: string
@@ -87,13 +88,17 @@ export function useCreateSchool() {
       queryClient.invalidateQueries({
         queryKey: ['schools']
       })
+      toast.success('Escuela creada')
     },
+    onError: () => {
+      toast.error('Error al crear la escuela')
+    }
   })
 }
 
 export function useCreateTerm(schoolId: string) {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (dto: CreateTermDto) => {
       const { data } = await api.post(`/schools/${schoolId}/terms`, dto)
@@ -101,6 +106,10 @@ export function useCreateTerm(schoolId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schools', schoolId] })
+      toast.success('Ciclo escolar creado')
+    },
+    onError: () => {
+      toast.error('Error al crear el ciclo escolar')
     }
   })
 }

@@ -1,6 +1,7 @@
 import { SidebarProvider } from '@/components/ui/sidebar'
 import AppSidebar from '@/components/layout/AppSidebar'
 import AppHeader from '@/components/layout/AppHeader'
+import { Toaster } from 'sonner'
 
 export default function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
           >
             <div className="max-w-2xl mx-auto">
               {children}
+              <Toaster richColors position='bottom-right' />
             </div>
           </main>
         </div>
