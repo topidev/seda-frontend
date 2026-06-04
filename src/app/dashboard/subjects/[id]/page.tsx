@@ -76,23 +76,25 @@ export default function SubjectDetailPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-8 w-full">
         <BackButton href="/dashboard/subjects" />
-        <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-geist)',
-            }}
-          >
-            {isLoading ? '...' : subject?.name}
-          </h1>
-          {subject && (
-            <>
+        {subject && (
+          <div className='flex items-center justify-between w-full'>
+            <div>
+              <h1
+                className="text-2xl font-semibold"
+                style={{
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-geist)',
+                }}
+              >
+                {isLoading ? '...' : subject?.name}
+              </h1>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 {subject?._count?.subjectTermGroups ?? 0} grupos asignados
               </p>
+            </div>
+            <div>
               <button
                 onClick={() => setOpenConfirm(true)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
@@ -112,9 +114,9 @@ export default function SubjectDetailPage() {
               >
                 <Trash2 size={15} />
               </button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sección categorías */}

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { toast } from 'sonner'
+import BackButton from '@/components/BackButton'
 
 interface StudentDetail {
   id: string
@@ -139,24 +140,7 @@ export default function StudentDetailPage() {
     <ProtectedPage>
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/dashboard/students">
-          <button
-            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-bg-elevated)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--color-primary)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--color-border)'
-            }}
-          >
-            <ArrowLeft size={16} />
-          </button>
-        </Link>
+        <BackButton href='/dashboard/students' />
         <div className="flex-1">
           <h1
             className="text-2xl font-semibold"

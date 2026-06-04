@@ -76,24 +76,26 @@ export default function SchooldDetailPage() {
 			<div className="flex items-center gap-3 mb-8">
 				<BackButton href="/dashboard/schools" />
 
-				<div>
-					<h1
-						className="text-2xl font-semibold"
-						style={{
-							color: 'var(--color-text-primary)',
-							fontFamily: 'var(--font-geist)',
-						}}
-					>
-						{isLoading ? '...' : school?.name}
-					</h1>
-					{school && (
-						<>
+				{school && (
+					<div className='flex items-center justify-between w-full'>
+						<div>
+							<h1
+								className="text-2xl font-semibold"
+								style={{
+									color: 'var(--color-text-primary)',
+									fontFamily: 'var(--font-geist)',
+								}}
+							>
+								{isLoading ? '...' : school?.name}
+							</h1>
 							<p
 								className="text-sm"
 								style={{ color: 'var(--color-text-secondary)' }}
 							>
 								{shiftLabel[school.shift]}
 							</p>
+						</div>
+						<div>
 							<button
 								onClick={() => setOpenConfirm(true)}
 								className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
@@ -113,10 +115,9 @@ export default function SchooldDetailPage() {
 							>
 								<Trash2 size={15} />
 							</button>
-						</>
-					)}
-
-				</div>
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Sección ciclos escolares */}
