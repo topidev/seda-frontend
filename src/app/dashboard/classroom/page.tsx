@@ -116,7 +116,7 @@ export default function ClassroomPage() {
                           className="text-sm"
                           style={{ color: 'var(--color-text-secondary)' }}
                         >
-                          {cls.group.studentGroupTerms.length} alumnos
+                          {cls.group.studentGroupTerms?.length ?? 0} alumnos
                         </span>
                         <span
                           className="text-xs"
