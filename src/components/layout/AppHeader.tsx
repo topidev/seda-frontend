@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
+  '/dashboard/classroom': 'Mis clases',
   '/dashboard/schools': 'Escuelas',
   '/dashboard/subjects': 'Materias',
   '/dashboard/groups': 'Grupos',
@@ -25,6 +26,7 @@ export default function AppHeader() {
     if (pageTitles[pathname]) return pageTitles[pathname]
 
     // Para rutas dinámicas como /dashboard/schools/[id]
+    if (pathname.startsWith('/dashboard/classroom')) return 'Mis clases'
     if (pathname.startsWith('/dashboard/schools')) return 'Escuelas'
     if (pathname.startsWith('/dashboard/students')) return 'Alumnos'
     if (pathname.startsWith('/dashboard/subjects')) return 'Materias'
@@ -34,8 +36,11 @@ export default function AppHeader() {
   }
 
   useEffect(() => {
-    setMounted(true)
+    const fr = requestAnimationFrame(() => setMounted(true))
+    return () => cancelAnimationFrame(fr)
   }, [])
+
+  if (!mounted) return null
 
   return (
     <header
@@ -80,25 +85,25 @@ export default function AppHeader() {
         </button>
 
         {/* Toggle tema */}
-        {mounted && (
-            <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
-            style={{
-              backgroundColor: 'transparent',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-            }}
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-        )}
-        
+        {/* {mounted && ( */}
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
+          style={{
+            backgroundColor: 'transparent',
+            color: 'var(--color-text-secondary)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+          }}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+        {/* )} */}
+
       </div>
     </header>
   )

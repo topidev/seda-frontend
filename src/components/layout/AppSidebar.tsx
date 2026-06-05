@@ -9,6 +9,7 @@ import {
   Users,
   UserSquare,
   User,
+  Monitor,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -25,6 +26,7 @@ import Image from 'next/image'
 
 const navItems = [
   { href: '/dashboard', label: 'Inicio', icon: Home },
+  { href: '/dashboard/classroom', label: 'Mis Clases', icon: Monitor },
   { href: '/dashboard/schools', label: 'Escuelas', icon: GraduationCap },
   { href: '/dashboard/subjects', label: 'Materias', icon: BookOpen },
   { href: '/dashboard/groups', label: 'Grupos', icon: Users },
@@ -51,7 +53,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-3 px-2 py-4">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
             style={{ backgroundColor: 'var(--color-primary)' }}
           >
             <GraduationCap size={16} color="white" />
@@ -74,7 +76,7 @@ export default function AppSidebar() {
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} className="w-full" onClick={handleNavClick}>
-                <SidebarMenuButton isActive={isActive(item.href)}>
+                <SidebarMenuButton className='cursor-pointer' isActive={isActive(item.href)}>
                   <item.icon size={18} />
                   <span>{item.label}</span>
                 </SidebarMenuButton>
