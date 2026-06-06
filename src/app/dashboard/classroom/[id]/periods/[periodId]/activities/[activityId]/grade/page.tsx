@@ -21,9 +21,7 @@ export default function GradeActivityPage() {
   const students = cls?.group.studentGroupTerms ?? []
 
   // Estado local de calificaciones
-  const [grades, setGrades] = useState
-  Record < string, { score: string; didNotSubmit: boolean } >
-  > ({})
+  const [grades, setGrades] = useState<Record<string, { score: string; didNotSubmit: boolean }>>({})
 
   // Inicializa con calificaciones existentes
   useEffect(() => {
@@ -132,7 +130,7 @@ export default function GradeActivityPage() {
               {/* Nombre */}
               <div className="col-span-6 flex items-center gap-3">
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                   style={{
                     backgroundColor: 'var(--color-bg-tertiary)',
                     color: 'var(--color-primary)',
