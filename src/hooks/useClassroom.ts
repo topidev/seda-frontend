@@ -74,7 +74,7 @@ interface Activity {
     studentId: string
     score: number | null
     didNotSubmit: boolean
-  }
+  }[]
 }
 
 interface FinalGrade {
