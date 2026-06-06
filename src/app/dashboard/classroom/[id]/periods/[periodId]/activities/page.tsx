@@ -16,7 +16,7 @@ import { useState } from "react"
 export default function ActivitiesPage() {
   const params = useParams()
   const subjectTermGroupId = params.id as string
-  const periodId = params.perdiodId as string
+  const periodId = params.periodId as string
 
   const { data: cls } = useClassDetail(subjectTermGroupId)
   const { data: activities, isLoading } = useActivities(subjectTermGroupId, periodId)
@@ -35,7 +35,7 @@ export default function ActivitiesPage() {
   const categories = cls?.subject.gradeCategories ?? []
 
   const handleSubmit = () => {
-    if (!title.trim() || categoryId) return
+    if (!title.trim() || !categoryId) return
 
     createActivity(
       {
