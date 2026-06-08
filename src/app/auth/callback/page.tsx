@@ -21,7 +21,7 @@ function AuthCallbackContent() {
 
     setAccessToken(token)
     router.replace('/dashboard')
-  }, [])
+  }, [searchParams, router, setAccessToken])
 
   return (
     <main
