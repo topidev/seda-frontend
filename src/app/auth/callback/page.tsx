@@ -1,10 +1,8 @@
-//auth/callback/page.tsx
 'use client'
 
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
-
 
 function AuthCallbackContent() {
   const router = useRouter()
@@ -46,7 +44,21 @@ function AuthCallbackContent() {
 }
 
 export default function AuthCallbackPage() {
-  <Suspense>
-    <AuthCallbackContent />
-  </Suspense>
+  return (
+    <Suspense
+      fallback={
+        <main
+          className="min-h-screen flex items-center justify-center"
+          style={{ backgroundColor: 'var(--color-bg-primary)' }}
+        >
+          <div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'var(--color-primary)' }}
+          />
+        </main>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
+  )
 }
