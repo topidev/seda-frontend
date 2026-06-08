@@ -74,6 +74,36 @@ export default function ClassDetailPage() {
       {/* Info del bimestre seleccionado */}
       {cls && activePeriod && (
         <div className="flex flex-col gap-3">
+{/* Card de pasar lista */}
+<Link href={`/dashboard/classroom/${subjectTermGroupId}/attendance`}>
+  <div
+    className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors"
+    style={{
+      backgroundColor: 'var(--color-bg-elevated)',
+      border: '1px solid var(--color-border)',
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.borderColor = 'var(--color-primary)'
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.borderColor = 'var(--color-border)'
+    }}
+  >
+    <div>
+      <p
+        className="font-medium"
+        style={{ color: 'var(--color-text-primary)' }}
+      >
+        Pasar lista
+      </p>
+      <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+        Registrar asistencia del día
+      </p>
+    </div>
+    <ChevronRight size={18} style={{ color: 'var(--color-text-disabled)' }} />
+  </div>
+</Link>
+
           {/* Card de actividades */}
           <Link href={`/dashboard/classroom/${subjectTermGroupId}/periods/${activePeriod}/activities`}>
             <div

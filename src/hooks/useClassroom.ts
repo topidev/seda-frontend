@@ -107,6 +107,14 @@ interface StudentGradeDto {
   didNotSubmit?: boolean
 }
 
+interface AttendanceRecord {
+  id: string
+  studentId: string
+  subjectTermGroupId: string
+  date: string
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
+}
+
 export function useMyClasses() {
   return useQuery({
     queryKey: ['classroom'],
@@ -246,5 +254,61 @@ export function useOverrideFinalGrade() {
     onError: () => {
       toast.error('Error al actualizar calificación')
     }
+  })
+}
+
+export function useAttendanceByDate(
+  subjectTermGroupId: string,
+  date: string,
+) {
+  return useQuery({
+    queryKey: ['attendance', subjectTermGroupId, date],
+    queryFn: async () => {
+      const { data } = await api.get<AttendanceRecord[]>(
+        `/classroom/${subjectTermGroupId}/attendance`,
+        { params: { date } },
+      )
+      return data
+    },
+    enabled: !!subjectTermGroupId && !!date,
+  })
+}
+
+export function useSaveAttendance(subjectTermGroupId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: {
+      date: string
+      records: { studentId: string; status: string }[]
+    }) => {
+      const { data } = await api.post(
+        `/classroom/${subjectTermGroupId}/attendance`,
+        body,
+      )
+      return data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['attendance', subjectTermGroupId, variables.date],
+      })
+      toast.success('Lista guardada correctamente')
+    },
+    onError: () => {
+      toast.error('Error al guardar la lista')
+    },
+  })
+}
+
+export function useAttendanceHistory(subjectTermGroupId: string) {
+  return useQuery({
+    queryKey: ['attendance-history', subjectTermGroupId],
+    queryFn: async () => {
+      const { data } = await api.get<AttendanceRecord[]>(
+        `/classroom/${subjectTermGroupId}/attendance/history`,
+      )
+      return data
+    },
+    enabled: !!subjectTermGroupId,
   })
 }
