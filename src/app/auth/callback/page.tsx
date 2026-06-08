@@ -1,11 +1,12 @@
 //auth/callback/page.tsx
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
 
-export default function AuthCallbackPage() {
+
+function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
@@ -18,10 +19,7 @@ export default function AuthCallbackPage() {
       return
     }
 
-    // Guarda el token en Zustand (memoria)
     setAccessToken(token)
-
-    // Redirige al dashboard
     router.replace('/dashboard')
   }, [])
 
@@ -41,4 +39,10 @@ export default function AuthCallbackPage() {
       </div>
     </main>
   )
+}
+
+export default function AuthCallbackPage() {
+  <Suspense>
+    <AuthCallbackContent />
+  </Suspense>
 }
