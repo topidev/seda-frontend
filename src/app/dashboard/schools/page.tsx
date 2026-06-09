@@ -70,7 +70,7 @@ export default function SchoolsPage() {
 
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+          className="flex mt-2 md:mt-auto items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
           style={{
             backgroundColor: 'var(--color-primary)',
             color: 'white',
@@ -142,7 +142,7 @@ export default function SchoolsPage() {
                   e.currentTarget.style.borderColor = 'var(--color-border)'
                 }}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col md:flex-row items-center gap-4">
                   {/* <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: 'var(--color-bg-tertiary)' }}

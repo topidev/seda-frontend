@@ -38,7 +38,7 @@ export default function SubjectsPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8">
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -59,7 +59,7 @@ export default function SubjectsPage() {
 
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+          className="flex mt-2 mb:mt-auto items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
           style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
           onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
@@ -123,7 +123,7 @@ export default function SubjectsPage() {
                 }}
               >
                 <div className="flex items-center gap-4">
-                  <div
+                  {/* <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                   >
@@ -131,7 +131,7 @@ export default function SubjectsPage() {
                       size={20}
                       style={{ color: 'var(--color-primary)' }}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <p
                       className="font-medium"
@@ -140,11 +140,16 @@ export default function SubjectsPage() {
                       {subject.name}
                     </p>
                     <p
-                      className="text-sm"
+                      className="text-sm flex flex-col"
                       style={{ color: 'var(--color-text-secondary)' }}
                     >
-                      {subject.gradeCategories.length} categorías ·{' '}
-                      {subject._count.subjectTermGroups} grupos asignados
+                      <span>
+                        {subject.gradeCategories.length} categorías{' '}
+                      </span>
+                      <span>
+                        {subject._count.subjectTermGroups} grupos asignados
+                      </span>
+                        
                     </p>
                   </div>
                 </div>

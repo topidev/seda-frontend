@@ -229,7 +229,7 @@ export default function ClassroomPage() {
                 {schoolClasses.map(cls => (
                   <Link key={cls.id} href={`/dashboard/classroom/${cls.id}`}>
                     <div
-                      className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors flex-col md:flex-row"
+                      className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors "
                       style={{
                         backgroundColor: 'var(--color-bg-elevated)',
                         border: '1px solid var(--color-border)',
@@ -251,9 +251,9 @@ export default function ClassroomPage() {
                             style={{ color: 'var(--color-primary)' }}
                           />
                         </div> */}
-                        <div className='text-center md:text-left'>
+                        <div className='text-left'>
                           <p
-                            className="font-medium"
+                            className="font-medium mb-2 md:mb-auto"
                             style={{ color: 'var(--color-text-primary)' }}
                           >
                             {cls.subject.name}

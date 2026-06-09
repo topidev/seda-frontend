@@ -73,8 +73,8 @@ export default function GroupsPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+        <div className='text-center md:text-left'>
           <h1
             className="text-2xl font-semibold"
             style={{
@@ -92,7 +92,7 @@ export default function GroupsPage() {
         {selectedSchoolId && selectedTermId && (
           <button
             onClick={() => setOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+            className="flex mt-2 md:mt-auto items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
             style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
             onMouseEnter={e => {
               e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
@@ -108,12 +108,12 @@ export default function GroupsPage() {
       </div>
 
       {/* Selectores */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
         {/* Selector escuela */}
         <select
           value={selectedSchoolId}
           onChange={e => handleSchoolChange(e.target.value)}
-          className="flex-1 px-4 py-3 rounded-xl outline-none transition-colors cursor-pointer"
+          className="flex-1 w-full px-4 py-3 rounded-xl outline-none transition-colors cursor-pointer"
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
             border: '1px solid var(--color-border)',
@@ -220,7 +220,7 @@ export default function GroupsPage() {
                 }}
               >
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  className="rounded-xl flex items-center justify-start"
                   style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                 >
                   <span
@@ -234,12 +234,12 @@ export default function GroupsPage() {
                   </span>
                 </div>
                 <div>
-                  <p
+                  {/* <p
                     className="font-medium"
                     style={{ color: 'var(--color-text-primary)' }}
                   >
                     {group.grade}° {group.letter}
-                  </p>
+                  </p> */}
                   <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                     {group.studentGroupTerms.length} alumnos
                   </p>

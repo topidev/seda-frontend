@@ -188,7 +188,7 @@ export default function GroupDetailPage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
-                <BookOpen size={16} style={{ color: 'var(--color-primary)' }} />
+                {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {stg.subject.name}
                 </span>

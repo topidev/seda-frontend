@@ -269,6 +269,7 @@ export default function SchooldDetailPage() {
 			{/* Modal nuevo ciclo */}
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogContent
+					className="flex flex-col"
 					style={{
 						backgroundColor: 'var(--color-bg-elevated)',
 						border: '1px solid var(--color-border)',
@@ -287,15 +288,10 @@ export default function SchooldDetailPage() {
 
 					<div className="flex flex-col gap-5 mt-2">
 						{/* Nombre */}
-						<div className="flex flex-col gap-2">
-							<label
-								className="text-sm font-medium"
-								style={{ color: 'var(--color-text-secondary)' }}
-							>
-								Nombre del ciclo
-							</label>
+						<div className="flex flex-col gap-2 w-full">
 							<AppInput
 								type="text"
+								label="Nombre del ciclo"
 								value={termName}
 								onChange={setTermName}
 								placeholder="Ej. 2024-2025"
@@ -303,7 +299,7 @@ export default function SchooldDetailPage() {
 						</div>
 
 						{/* Fechas */}
-						<div className="flex gap-3">
+						<div className="flex flex-col gap-3 md:flex-row">
 							<div className="flex flex-col gap-2 flex-1">
 								<label
 									className="text-sm font-medium"
