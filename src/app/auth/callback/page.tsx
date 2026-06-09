@@ -11,17 +11,13 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
-    console.log('token recibido:', token)
-    console.log('url completa:', window.location.href)
 
     if (!token) {
-      console.log('no hay token, redirigiendo a login')
       router.replace('/login')
       return
     }
 
     setAccessToken(token)
-    console.log('token guardado, redirigiendo a dashboard')
     router.replace('/dashboard')
   }, [searchParams, router, setAccessToken])
 

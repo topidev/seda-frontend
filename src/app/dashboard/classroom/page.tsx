@@ -112,7 +112,7 @@ export default function ClassroomPage() {
         </div>
 
         {/* Selectores */}
-        <div className="flex gap-3">
+        <div className="flex flex-col lg:flex-row gap-3">
           <select
             value={selectedSchool}
             onChange={e => setSelectedSchool(e.target.value)}
@@ -229,7 +229,7 @@ export default function ClassroomPage() {
                 {schoolClasses.map(cls => (
                   <Link key={cls.id} href={`/dashboard/classroom/${cls.id}`}>
                     <div
-                      className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors"
+                      className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors flex-col lg:flex-row"
                       style={{
                         backgroundColor: 'var(--color-bg-elevated)',
                         border: '1px solid var(--color-border)',
