@@ -13,11 +13,13 @@ interface Teacher {
 
 interface AuthState {
   accessToken: string | null
+  refreshToken: string | null
   teacher: Teacher | null
   _hasHydrated: boolean
   // Acciones
   setAccessToken: (token: string) => void
   setTeacher: (teacher: Teacher) => void
+  setRefreshToken: (token: string) => void
   setHasHydrated: (value: boolean) => void
   logout: () => void
 }
@@ -25,9 +27,12 @@ interface AuthState {
 export const useAuthStoreV1 = create<AuthState>((set) => ({
   accessToken: null,
   teacher: null,
+  refreshToken: null,
   _hasHydrated: false,
 
   setAccessToken: (token) => set({ accessToken: token }),
+
+  setRefreshToken: (token) => set({ refreshToken: token }),
 
   setTeacher: (teacher) => set({ teacher }),
 
@@ -39,10 +44,12 @@ export const useAuthStoreV1 = create<AuthState>((set) => ({
 export const useAuthStore = create<AuthState>() (
   persist((set) => ({
     accessToken: null,
+    refreshToken: null,
     teacher: null,
     _hasHydrated: false,
 
     setAccessToken: (token) => set({ accessToken: token }),
+    setRefreshToken: (token) => set({ refreshToken: token }),
     setTeacher: (teacher) => set({ teacher }),
     setHasHydrated: (value) => set({ _hasHydrated: value }),
     logout: () => set({ accessToken: null, teacher: null })

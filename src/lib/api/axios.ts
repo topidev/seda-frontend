@@ -62,12 +62,18 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
+        const currentRefreshToken = useAuthStore.getState().refreshToken
         // Llama al endpoint de refresh
-        const { data } = await api.post<{ accessToken: string }>('/auth/refresh')
+        const { data } = await api.post<{ accessToken: string, refreshToken: string }>(
+          '/auth/refresh',
+          { refreshToken: currentRefreshToken }
+        )
 
         // Guarda el nuevo token en Zustand
         useAuthStore.getState().setAccessToken(data.accessToken)
-
+        if (data.refreshToken) {
+          useAuthStore.getState().setRefreshToken(data.refreshToken)
+        }
         // Procesa la cola de requests que estaban esperando
         processQueue(null, data.accessToken)
 
