@@ -49,7 +49,7 @@ export default function SchoolsPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8">
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -143,7 +143,7 @@ export default function SchoolsPage() {
                 }}
               >
                 <div className="flex items-center gap-4">
-                  <div
+                  {/* <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                   >
@@ -151,7 +151,7 @@ export default function SchoolsPage() {
                       size={20}
                       style={{ color: 'var(--color-primary)' }}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <p
                       className="font-medium"
@@ -172,8 +172,8 @@ export default function SchoolsPage() {
                   className="flex items-center gap-1 text-sm"
                   style={{ color: 'var(--color-text-secondary)' }}
                 >
-                  <Users size={14} />
-                  {school._count.groups} grupos
+                  {/* <Users size={14} /> */}
+                  {school._count.groups} grupo{school._count.groups !== 1 ? 's' : ''}
                 </div>
               </div>
             </Link>
