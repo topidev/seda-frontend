@@ -86,11 +86,14 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         // El refresh falló, la sesión expiró
+        console.log("====> Falló <====")
+        console.log(refreshError)
         processQueue(refreshError, null)
         useAuthStore.getState().logout()
         window.location.href = '/login'
         return Promise.reject(refreshError)
       } finally {
+        console.log("====> Ya no está refrescando <====")
         isRefreshing = false
       }
     }
