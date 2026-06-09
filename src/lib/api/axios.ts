@@ -42,6 +42,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
     console.log('----> Axios Intercept! <------------')
+    console.log('Request: ', originalRequest)
 
     // Si el error es 401 y no es el endpoint de refresh
     // (evita loop infinito)
@@ -66,7 +67,9 @@ api.interceptors.response.use(
       try {
         const currentRefreshToken = useAuthStore.getState().refreshToken
         // Llama al endpoint de refresh
-        console.log("====> Regrescando el Access Token <====")
+        console.log("====> Refrescando el Access Token <====")
+        console.log("Refresh Token: ", currentRefreshToken)
+        
         const { data } = await api.post<{ accessToken: string, refreshToken: string }>(
           '/auth/refresh',
           { refreshToken: currentRefreshToken }
