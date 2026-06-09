@@ -8,11 +8,9 @@ function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
-  const setRefreshToken = useAuthStore((state) => state.setRefreshToken)
 
   useEffect(() => {
     const token = searchParams.get('token')
-    const refresh = searchParams.get('refresh')
 
     if (!token) {
       router.replace('/login')
@@ -20,9 +18,8 @@ function AuthCallbackContent() {
     }
 
     setAccessToken(token)
-    if (refresh) setRefreshToken(refresh)
     router.replace('/dashboard')
-  }, [searchParams, router, setAccessToken, setRefreshToken])
+  }, [searchParams, router, setAccessToken])
 
   return (
     <main
