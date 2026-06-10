@@ -70,7 +70,7 @@ export default function SchoolsPage() {
 
         <button
           onClick={() => setOpen(true)}
-          className="flex mt-2 md:mt-auto items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+          className="flex mt-2 md:mt-auto items-center gap-2 p-3 md:px-4 md:py-2 rounded-xl transition-colors cursor-pointer"
           style={{
             backgroundColor: 'var(--color-primary)',
             color: 'white',

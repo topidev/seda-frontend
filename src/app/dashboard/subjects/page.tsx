@@ -59,7 +59,7 @@ export default function SubjectsPage() {
 
         <button
           onClick={() => setOpen(true)}
-          className="flex mt-2 mb:mt-auto items-center gap-2 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+          className="flex mt-2 mb:mt-auto items-center gap-2 p-3 md:px-4 md:py-2 rounded-xl transition-colors cursor-pointer"
           style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
           onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
