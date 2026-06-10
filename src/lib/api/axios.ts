@@ -68,12 +68,19 @@ api.interceptors.response.use(
         // Llama al endpoint de refresh
         console.log("====> Refrescando el Access Token <====")
 
-        const { data } = await api.post<{ accessToken: string }>(
-          '/auth/refresh'
+        const currentRefreshToken = useAuthStore.getState().refreshToken
+
+        const { data } = await api.post<{ accessToken: string, refreshToken: string }>(
+          '/auth/refresh',
+          { refreshToken: currentRefreshToken }
         )
 
         // Guarda el nuevo token en Zustand
         useAuthStore.getState().setAccessToken(data.accessToken)
+
+        if (data.refreshToken) {
+          useAuthStore.getState().setRefreshToken(data.refreshToken)
+        }
 
         // Procesa la cola de requests que estaban esperando
         processQueue(null, data.accessToken)
@@ -81,6 +88,8 @@ api.interceptors.response.use(
         // Reintenta la request original con el nuevo token
         console.log("====> Reintentando <====")
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+
+        
         return api(originalRequest)
       } catch (refreshError) {
         // El refresh falló, la sesión expiró

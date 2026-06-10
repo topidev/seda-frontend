@@ -13,30 +13,32 @@ interface Teacher {
 
 interface AuthState {
   accessToken: string | null
+  refreshToken: string | null
   teacher: Teacher | null
   _hasHydrated: boolean
   // Acciones
   setAccessToken: (token: string) => void
+  setRefreshToken: (token: string) => void
   setTeacher: (teacher: Teacher) => void
   setHasHydrated: (value: boolean) => void
   logout: () => void
 }
 
-export const useAuthStoreV1 = create<AuthState>((set) => ({
-  accessToken: null,
-  teacher: null,
-  refreshToken: null,
-  _hasHydrated: false,
+// export const useAuthStoreV1 = create<AuthState>((set) => ({
+//   accessToken: null,
+//   teacher: null,
+//   refreshToken: null,
+//   _hasHydrated: false,
 
-  setAccessToken: (token) => set({ accessToken: token }),
+//   setAccessToken: (token) => set({ accessToken: token }),
 
 
-  setTeacher: (teacher) => set({ teacher }),
+//   setTeacher: (teacher) => set({ teacher }),
 
-  setHasHydrated: (value) => set({ _hasHydrated: value }),
+//   setHasHydrated: (value) => set({ _hasHydrated: value }),
 
-  logout: () => set({ accessToken: null, teacher: null }),
-}))
+//   logout: () => set({ accessToken: null, teacher: null }),
+// }))
 
 export const useAuthStore = create<AuthState>() (
   persist((set) => ({
@@ -46,6 +48,7 @@ export const useAuthStore = create<AuthState>() (
     _hasHydrated: false,
 
     setAccessToken: (token) => set({ accessToken: token }),
+    setRefreshToken: (token) => set({ refreshToken: token }),
     setTeacher: (teacher) => set({ teacher }),
     setHasHydrated: (value) => set({ _hasHydrated: value }),
     logout: () => set({ accessToken: null, teacher: null })
@@ -55,6 +58,7 @@ export const useAuthStore = create<AuthState>() (
     storage: createJSONStorage(() => sessionStorage),
     partialize: (state) => ({
       accessToken: state.accessToken,
+      refreshToken: state.refreshToken,
       teacher: state.teacher,
     }),
     onRehydrateStorage: () => (state) => {
