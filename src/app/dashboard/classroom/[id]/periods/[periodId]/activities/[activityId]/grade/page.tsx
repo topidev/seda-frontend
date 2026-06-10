@@ -105,8 +105,8 @@ export default function GradeActivityPage() {
           }}
         >
           <span className="col-span-6">Alumno</span>
-          <span className="col-span-3 text-center">Calificación</span>
-          <span className="col-span-3 text-center">No entregó</span>
+          <span className="col-span-2 text-center">Calif.</span>
+          <span className="col-span-4 text-center">No entregó</span>
         </div>
 
         {/* Filas de alumnos */}
@@ -147,7 +147,7 @@ export default function GradeActivityPage() {
               </div>
 
               {/* Calificación */}
-              <div className="col-span-3 flex justify-center">
+              <div className="col-span-2 flex justify-center">
                 <input
                   type="number"
                   value={grade?.score ?? ''}
@@ -179,7 +179,7 @@ export default function GradeActivityPage() {
               </div>
 
               {/* No entregó */}
-              <div className="col-span-3 flex justify-center">
+              <div className="col-span-4 flex justify-center">
                 <button
                   onClick={() => handleDidNotSubmit(sgt.studentId, !grade?.didNotSubmit)}
                   className="w-5 h-5 rounded flex items-center justify-center transition-colors cursor-pointer"
