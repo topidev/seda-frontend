@@ -272,7 +272,7 @@ export default function GroupDetailPage() {
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                   style={{
                     backgroundColor: 'var(--color-bg-primary)',
                     color: 'var(--color-primary)',

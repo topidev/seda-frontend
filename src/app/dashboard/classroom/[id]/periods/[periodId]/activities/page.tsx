@@ -136,13 +136,13 @@ export default function ActivitiesPage() {
             return (
               <div
                 key={activity.id}
-                className="rounded-2xl p-5"
+                className="rounded-2xl p-4 md:p-5"
                 style={{
                   backgroundColor: 'var(--color-bg-elevated)',
                   border: '1px solid var(--color-border)',
                 }}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span
@@ -177,20 +177,7 @@ export default function ActivitiesPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setConfirmId(activity.id)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                      style={{ color: 'var(--color-text-disabled)' }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = 'var(--color-error)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = 'var(--color-text-disabled)'
-                      }}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                  <div className="flex flex-col md:flex-row items-end justify-end md:items-center md:justify-center gap-2">
                     <Link
                       href={`/dashboard/classroom/${subjectTermGroupId}/periods/${periodId}/activities/${activity.id}/grade`}
                     >
@@ -214,6 +201,19 @@ export default function ActivitiesPage() {
                         <ChevronRight size={14} />
                       </button>
                     </Link>
+                    <button
+                      onClick={() => setConfirmId(activity.id)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                      style={{ color: 'var(--color-text-disabled)' }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = 'var(--color-error)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = 'var(--color-text-disabled)'
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </div>
                 </div>
               </div>
