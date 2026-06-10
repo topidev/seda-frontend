@@ -129,7 +129,7 @@ export default function GradeActivityPage() {
             >
               {/* Nombre */}
               <div className="col-span-6 flex items-center gap-3">
-                <div
+                {/* <div
                   className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                   style={{
                     backgroundColor: 'var(--color-bg-tertiary)',
@@ -137,7 +137,7 @@ export default function GradeActivityPage() {
                   }}
                 >
                   {sgt.student.name[0]}{sgt.student.firstLastName[0]}
-                </div>
+                </div> */}
                 <span
                   className="text-sm"
                   style={{ color: 'var(--color-text-primary)' }}

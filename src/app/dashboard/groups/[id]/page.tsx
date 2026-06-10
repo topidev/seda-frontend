@@ -213,7 +213,7 @@ export default function GroupDetailPage() {
           >
             Alumnos
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             {availableStudents.length > 0 && (
               <button
                 onClick={() => setOpenAssignStudent(true)}
