@@ -95,7 +95,9 @@ export default function ActivitiesPage() {
           }}
         >
           <Plus size={16} />
-          Nueva
+          <span className="hidden md:block">
+            Nueva
+          </span>
         </button>
       </div>
 

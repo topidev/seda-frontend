@@ -49,7 +49,7 @@ export default function SchoolsPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -83,7 +83,9 @@ export default function SchoolsPage() {
           }}
         >
           <Plus size={16} />
-          Nueva escuela
+          <span className="hidden md:block">
+            Nueva escuela
+          </span>
         </button>
       </div>
 

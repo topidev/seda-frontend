@@ -38,7 +38,7 @@ export default function SubjectsPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -69,7 +69,9 @@ export default function SubjectsPage() {
           }}
         >
           <Plus size={16} />
-          Nueva materia
+          <span className='hidden md:block'>
+            Nueva materia
+          </span>
         </button>
       </div>
 
