@@ -187,7 +187,7 @@ export default function DashboardPage() {
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        <div
+                        {/* <div
                           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                           style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                         >
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                             size={16}
                             style={{ color: 'var(--color-primary)' }}
                           />
-                        </div>
+                        </div> */}
                         <div>
                           <p
                             className="font-medium text-sm"

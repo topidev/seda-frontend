@@ -15,7 +15,7 @@ export default function DashboardLayout({
         <div className="flex flex-col flex-1 min-w-0">
           <AppHeader />
           <main
-            className="flex-1 overflow-auto p-8"
+            className="flex-1 overflow-auto p-4 md:p-6 lg:p-8"
             style={{ backgroundColor: 'var(--color-bg-primary)' }}
           >
             <div className="max-w-2xl mx-auto">
