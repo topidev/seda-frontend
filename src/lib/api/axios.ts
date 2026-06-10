@@ -41,14 +41,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    console.log('----> Axios Intercept! <------------')
-    console.log('Request: ', originalRequest)
 
     // Si el error es 401 y no es el endpoint de refresh
     // (evita loop infinito)
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        console.log('¡¡ Hay un refresh encurso !!')
         // Si ya hay un refresh en curso, encola esta request
         // y espera a que termine
         return new Promise((resolve, reject) => {
@@ -66,7 +63,6 @@ api.interceptors.response.use(
 
       try {
         // Llama al endpoint de refresh
-        console.log("====> Refrescando el Access Token <====")
 
         const currentRefreshToken = useAuthStore.getState().refreshToken
 
@@ -86,21 +82,17 @@ api.interceptors.response.use(
         processQueue(null, data.accessToken)
 
         // Reintenta la request original con el nuevo token
-        console.log("====> Reintentando <====")
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
 
         
         return api(originalRequest)
       } catch (refreshError) {
         // El refresh falló, la sesión expiró
-        console.log("====> Falló <====")
-        console.log(refreshError)
         processQueue(refreshError, null)
         useAuthStore.getState().logout()
         window.location.href = '/login'
         return Promise.reject(refreshError)
       } finally {
-        console.log("====> Ya no está refrescando <====")
         isRefreshing = false
       }
     }
