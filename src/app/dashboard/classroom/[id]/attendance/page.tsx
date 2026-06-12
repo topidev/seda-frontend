@@ -11,6 +11,10 @@ import {
   useAttendanceByDate,
   useSaveAttendance,
 } from '@/hooks/useClassroom'
+import { useOnlineStatus } from '@/hooks/useSync'
+import { db } from '@/lib/db'
+import { toast } from 'sonner'
+import { WifiOff } from 'lucide-react'
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
 
@@ -50,6 +54,8 @@ export default function AttendancePage() {
   const [selectedDate, setSelectedDate] = useState(today)
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({})
 
+  const isOnline = useOnlineStatus()
+
   const { data: cls, isLoading: isLoadingClass } = useClassDetail(subjectTermGroupId)
   const { data: existingAttendance, isLoading: isLoadingAttendance } = useAttendanceByDate(
     subjectTermGroupId,
@@ -85,13 +91,26 @@ export default function AttendancePage() {
     })
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const records = Object.entries(attendance).map(([studentId, status]) => ({
       studentId,
       status,
     }))
 
-    saveAttendance({ date: selectedDate, records })
+    if (isOnline) {
+      saveAttendance({ date: selectedDate, records})
+    } else {
+      await db.pendingAttendance.add({
+        subjectTermGroupId,
+        date: selectedDate,
+        records,
+        createdAt: new Date().toISOString(),
+        attempts: 0
+      })
+      toast.success('Lista guardada. Se sincronizará cuando recuperes internet.')
+    }
+
+    // saveAttendance({ date: selectedDate, records })
   }
 
   // Contadores
@@ -131,7 +150,7 @@ export default function AttendancePage() {
           </p>
         </div>
       </div>
-
+      
       {/* Selector de fecha */}
       <div
         className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4"

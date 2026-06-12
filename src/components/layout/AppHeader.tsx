@@ -1,10 +1,11 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Bell, Sun, Moon } from 'lucide-react'
+import { Bell, Sun, Moon, WifiOff } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useEffect, useState } from 'react'
+import { useOnlineStatus, usePendingCount } from '@/hooks/useSync'
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
@@ -20,6 +21,8 @@ export default function AppHeader() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const isOnline = useOnlineStatus()
+  const pendingCount = usePendingCount()
 
   const getTitle = () => {
     // Busca primero match exacto
@@ -66,6 +69,33 @@ export default function AppHeader() {
 
       {/* Acciones */}
       <div className="flex items-center gap-2">
+
+        {!isOnline && (
+          <div
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
+            style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid var(--color-warning)',
+              color: 'var(--color-warning)',
+            }}
+          >
+            <WifiOff size={13} />
+            <span className="hidden sm:inline">Sin conexión</span>
+          </div>
+        )}
+
+        {pendingCount > 0 && (
+          <div
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
+            style={{
+              backgroundColor: 'rgba(6, 182, 212, 0.1)',
+              border: '1px solid var(--color-info)',
+              color: 'var(--color-info)',
+            }}
+          >
+            {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
+          </div>
+        )}
 
         {/* Notificaciones */}
         <button

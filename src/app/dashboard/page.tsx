@@ -169,74 +169,61 @@ export default function DashboardPage() {
 
               <div className="flex flex-col gap-3">
                 {summary.recentClasses.map(cls => (
-                  <Link
+                  <div
                     key={cls.id}
-                    href={`/dashboard/classroom/${cls.id}`}
+                    className="rounded-2xl p-4 flex items-center justify-between transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-elevated)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-primary)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-border)'
+                    }}
                   >
-                    <div
-                      className="rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-colors"
-                      style={{
-                        backgroundColor: 'var(--color-bg-elevated)',
-                        border: '1px solid var(--color-border)',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.borderColor = 'var(--color-primary)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = 'var(--color-border)'
-                      }}
+                    <Link
+                      href={`/dashboard/classroom/${cls.id}`}
+                      className="flex items-center gap-3 flex-1 cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        {/* <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                      <div>
+                        <p
+                          className="font-medium text-sm"
+                          style={{ color: 'var(--color-text-primary)' }}
                         >
-                          <BookOpen
-                            size={16}
-                            style={{ color: 'var(--color-primary)' }}
-                          />
-                        </div> */}
-                        <div>
-                          <p
-                            className="font-medium text-sm"
-                            style={{ color: 'var(--color-text-primary)' }}
-                          >
-                            {cls.subject.name}
-                          </p>
-                          <p
-                            className="text-xs"
-                            style={{ color: 'var(--color-text-secondary)' }}
-                          >
-                            {cls.group.grade}°{cls.group.letter} · {cls.group.school.name}
-                          </p>
-                        </div>
+                          {cls.subject.name}
+                        </p>
+                        <p
+                          className="text-xs"
+                          style={{ color: 'var(--color-text-secondary)' }}
+                        >
+                          {cls.group.grade}°{cls.group.letter} · {cls.group.school.name}
+                        </p>
                       </div>
+                    </Link>
 
-                      <Link
-                        href={`/dashboard/classroom/${cls.id}/attendance`}
-                        onClick={e => e.stopPropagation()}
+                    <Link href={`/dashboard/classroom/${cls.id}/attendance`}>
+                      <div
+                        className="text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: 'var(--color-bg-tertiary)',
+                          border: '1px solid var(--color-border)',
+                          color: 'var(--color-text-secondary)',
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.borderColor = 'var(--color-primary)'
+                          e.currentTarget.style.color = 'var(--color-primary)'
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.borderColor = 'var(--color-border)'
+                          e.currentTarget.style.color = 'var(--color-text-secondary)'
+                        }}
                       >
-                        <div
-                          className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                          style={{
-                            backgroundColor: 'var(--color-bg-tertiary)',
-                            border: '1px solid var(--color-border)',
-                            color: 'var(--color-text-secondary)',
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.borderColor = 'var(--color-primary)'
-                            e.currentTarget.style.color = 'var(--color-primary)'
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.borderColor = 'var(--color-border)'
-                            e.currentTarget.style.color = 'var(--color-text-secondary)'
-                          }}
-                        >
-                          Pasar lista
-                        </div>
-                      </Link>
-                    </div>
-                  </Link>
+                        Pasar lista
+                      </div>
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
