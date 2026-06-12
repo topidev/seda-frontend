@@ -6,6 +6,9 @@ import ProtectedPage from '@/components/ProtectedPage'
 import BackButton from '@/components/BackButton'
 import AppButton from '@/components/AppButton'
 import { useClassDetail, useActivities, useGradeActivity } from '@/hooks/useClassroom'
+import { useOnlineStatus } from '@/hooks/useSync'
+import { db } from '@/lib/db'
+import { toast } from 'sonner'
 
 export default function GradeActivityPage() {
   const params = useParams()
@@ -19,6 +22,8 @@ export default function GradeActivityPage() {
 
   const activity = activities?.find(a => a.id === activityId)
   const students = cls?.group.studentGroupTerms ?? []
+
+  const isOnline = useOnlineStatus()
 
   // Estado local de calificaciones
   const [grades, setGrades] = useState<Record<string, { score: string; didNotSubmit: boolean }>>({})
@@ -54,7 +59,7 @@ export default function GradeActivityPage() {
     }))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const payload = students.map(sgt => ({
       studentId: sgt.studentId,
       score: grades[sgt.studentId]?.didNotSubmit
@@ -63,7 +68,18 @@ export default function GradeActivityPage() {
       didNotSubmit: grades[sgt.studentId]?.didNotSubmit ?? false,
     }))
 
-    gradeActivity(payload)
+    if (isOnline) {
+      gradeActivity(payload)
+    } else {
+      await db.pendingGrades.add({
+        activityId,
+        grades: payload,
+        createdAt: new Date().toISOString(),
+        attepmts: 0
+      })
+      toast.success('Calificaciones guardadas. Se sincronizarán cuando recuperes internet.')
+    }
+    
   }
 
   return (
