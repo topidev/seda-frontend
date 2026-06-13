@@ -1,3 +1,5 @@
+'use client'
+
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { Download, Share, X } from "lucide-react";
 import { useState } from "react";
@@ -14,8 +16,8 @@ export default function InstallBanner() {
 			<div
 				className="rounded-2xl p-4 mb-6 flex items-center gap-3"
 				style={{
-				backgroundColor: 'var(--color-bg-elevated)',
-				border: '1px solid var(--color-primary)',
+					backgroundColor: 'var(--color-bg-elevated)',
+					border: '1px solid var(--color-primary)',
 				}}
 			>
 				<div

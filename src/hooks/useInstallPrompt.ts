@@ -23,6 +23,7 @@ export function useInstallPrompt() {
         }
 
         window.addEventListener('beforeinstallprompt', handler)
+        return () => window.removeEventListener('beforeinstallprompt', handler)
     }, [])
 
     const promptInstall = async() => {
