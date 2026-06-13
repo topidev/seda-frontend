@@ -7,7 +7,8 @@ import Spinner from '@/components/Spinner'
 import api from '@/lib/api/axios'
 import { useAuthStore } from '@/store/auth.store'
 import Link from 'next/link'
-import { Users, BookOpen, Monitor, ClipboardList } from 'lucide-react'
+import { Users, Monitor, ClipboardList } from 'lucide-react'
+import InstallBanner from '@/components/InstallBanner'
 
 interface DashboardSummary {
   totalStudents: number
@@ -100,6 +101,8 @@ export default function DashboardPage() {
           })}
         </p>
       </div>
+
+      <InstallBanner />
 
       {isLoading && <Spinner />}
 
