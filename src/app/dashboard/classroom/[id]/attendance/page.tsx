@@ -53,32 +53,50 @@ export default function AttendancePage() {
   const today = new Date().toISOString().split('T')[0]
   const [selectedDate, setSelectedDate] = useState(today)
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({})
+  const [offlineClass, setOfflineClass] = useState<any>(null)
 
   const isOnline = useOnlineStatus()
 
-  const { data: cls, isLoading: isLoadingClass } = useClassDetail(subjectTermGroupId)
+  const { data: onlineClass, isLoading: isLoadingClass } = useClassDetail(subjectTermGroupId)
   const { data: existingAttendance, isLoading: isLoadingAttendance } = useAttendanceByDate(
     subjectTermGroupId,
     selectedDate,
   )
   const { mutate: saveAttendance, isPending } = useSaveAttendance(subjectTermGroupId)
 
+
+  useEffect(() => { //Con Internet
+    if (onlineClass) {
+      db.cachedClasses.put({
+        id: subjectTermGroupId,
+        data: onlineClass,
+        cachedAt: new Date().toISOString()
+      })
+    }
+
+  }, [onlineClass, subjectTermGroupId])
+
+  useEffect(() => {
+    if (!isOnline && !onlineClass) {
+      db.cachedClasses.get(subjectTermGroupId).then(cached => {
+        if (cached) setOfflineClass(cached.data)
+      })
+    }
+  }, [isOnline, onlineClass, subjectTermGroupId])
+
+  const cls = onlineClass ?? offlineClass
   const students = cls?.group.studentGroupTerms ?? []
 
-  // Inicializa asistencia cuando cambia la fecha o cargan los datos
   useEffect(() => {
     if (!students.length) return
 
     const initial: Record<string, AttendanceStatus> = {}
-
-    students.forEach(sgt => {
+    students.forEach((sgt: any) => {
       const existing = existingAttendance?.find(
-        a => a.studentId === sgt.studentId,
+        (a: any) => a.studentId === sgt.studentId,
       )
-      // Default: presente (más rápido marcar ausentes)
       initial[sgt.studentId] = existing?.status ?? 'PRESENT'
     })
-
     setAttendance(initial)
   }, [students.length, existingAttendance, selectedDate])
 
@@ -98,7 +116,7 @@ export default function AttendancePage() {
     }))
 
     if (isOnline) {
-      saveAttendance({ date: selectedDate, records})
+      saveAttendance({ date: selectedDate, records })
     } else {
       await db.pendingAttendance.add({
         subjectTermGroupId,
@@ -130,6 +148,28 @@ export default function AttendancePage() {
     )
   }
 
+  if (!cls) {
+    return (
+      <ProtectedPage>
+        <div
+          className="rounded-2xl p-12 flex flex-col items-center gap-4"
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <WifiOff size={48} style={{ color: 'var(--color-text-disabled)' }} />
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            Sin conexión y sin datos cacheados
+          </p>
+          <p className="text-sm text-center" style={{ color: 'var(--color-text-disabled)' }}>
+            Abre la app con internet al menos una vez para poder pasar lista offline
+          </p>
+        </div>
+      </ProtectedPage>
+    )
+  }
+
   return (
     <ProtectedPage>
       {/* Header */}
@@ -150,7 +190,7 @@ export default function AttendancePage() {
           </p>
         </div>
       </div>
-      
+
       {/* Selector de fecha */}
       <div
         className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4"
@@ -210,7 +250,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Lista de alumnos */}
-      {isLoadingAttendance ? (
+      {isLoadingAttendance && isOnline ? (
         <Spinner />
       ) : (
         <div
@@ -238,7 +278,7 @@ export default function AttendancePage() {
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium shrink-0"
                     style={{
                       backgroundColor: config.bg,
                       color: config.color,
