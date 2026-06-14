@@ -3,6 +3,7 @@ import withPWA from "@ducanh2912/next-pwa"
 
 const nextConfig: NextConfig = {
   /* config options here */
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -20,10 +21,6 @@ export default withPWA({
   disable: process.env.NODE_ENV === 'development', // solo activo en producción
   fallbacks: {
     document: '/offline.html',
-    // image: '/offline.html',
-    // audio: '/offline.html',
-    // video: '/offline.html',
-    // font: '/offline.html',
   },
   workboxOptions: {
     skipWaiting: true,
