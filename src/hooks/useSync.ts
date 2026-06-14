@@ -2,45 +2,46 @@ import api from "@/lib/api/axios"
 import { db } from "@/lib/db"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { useMyClasses } from "./useClassroom"
 
 export function useOnlineStatus() {
-    const [isOnline, setIsOnline] = useState(
-        typeof window !== 'undefined' ? navigator.onLine : true
-    )
+	const [isOnline, setIsOnline] = useState(
+		typeof window !== 'undefined' ? navigator.onLine : true
+	)
 
-    useEffect(() => {
-        const handleOnline = () => setIsOnline(true)
-        const handleOffline = () => setIsOnline(false)
+	useEffect(() => {
+		const handleOnline = () => setIsOnline(true)
+		const handleOffline = () => setIsOnline(false)
 
-        window.addEventListener('online', handleOnline)
-        window.addEventListener('offline', handleOffline)
+		window.addEventListener('online', handleOnline)
+		window.addEventListener('offline', handleOffline)
 
-        return() => {
-            window.removeEventListener('online', handleOnline)
-            window.removeEventListener('offline', handleOffline)
-        }
-    }, [])
+		return () => {
+			window.removeEventListener('online', handleOnline)
+			window.removeEventListener('offline', handleOffline)
+		}
+	}, [])
 
-    return isOnline
+	return isOnline
 }
 
 export function usePendingCount() {
-    const [count, setCount] = useState(0)
+	const [count, setCount] = useState(0)
 
-    useEffect(() => {
-        const updateCount = async () => {
-            const attendanceCount = await db.pendingAttendance.count()
-            const gradesCount = await db.pendingGrades.count()
-            setCount(attendanceCount + gradesCount)
-        }
+	useEffect(() => {
+		const updateCount = async () => {
+			const attendanceCount = await db.pendingAttendance.count()
+			const gradesCount = await db.pendingGrades.count()
+			setCount(attendanceCount + gradesCount)
+		}
 
-        updateCount()
+		updateCount()
 
-        const interval = setInterval(updateCount, 5000)
-        return () => clearInterval(interval)
-    }, [])
-    
-    return count
+		const interval = setInterval(updateCount, 5000)
+		return () => clearInterval(interval)
+	}, [])
+
+	return count
 }
 
 export function useSync() {
@@ -63,18 +64,18 @@ export function useSync() {
 				synced++
 			} catch {
 				await db.pendingAttendance.update(record.id!, {
-						attempts: record.attempts + 1
+					attempts: record.attempts + 1
 				})
 				failed++
 			}
 		}
 
-		if(synced > 0) {
+		if (synced > 0) {
 			toast.success(`${synced} lista${synced > 1 ? 's' : ''} sincronizada${synced > 1 ? 's' : ''}`)
 		}
 		if (failed > 0) {
-      toast.error(`${failed} lista${failed > 1 ? 's' : ''} no pudieron sincronizarse`)
-    }
+			toast.error(`${failed} lista${failed > 1 ? 's' : ''} no pudieron sincronizarse`)
+		}
 	}, [])
 
 	const syncGrades = useCallback(async () => {
@@ -83,7 +84,7 @@ export function useSync() {
 
 		let synced = 0
 
-		for(const record of pending) {
+		for (const record of pending) {
 			try {
 				await api.post(
 					`/classroom/activities/${record.activityId}/grades`,
@@ -108,10 +109,22 @@ export function useSync() {
 	}, [syncAttendance, syncGrades])
 
 	useEffect(() => {
-		if(isOnline) {
+		if (isOnline) {
 			syncAll()
 		}
 	}, [isOnline, syncAll])
 
 	return { isOnline, syncAll }
+}
+
+export function usePrefetchCriticalPages() {
+	const { data: classes } = useMyClasses()
+	useEffect(() => {
+		if (!classes || classes.length === 0) return
+
+		classes.forEach((cls) => {
+			const url = `/dashboard/classroom/${cls.id}/attendance`
+			fetch(url).catch(() => { })
+		})
+	}, [classes])
 }
