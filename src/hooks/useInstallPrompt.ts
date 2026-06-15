@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>
-    userChoice: Promise< { outcome: 'accepted' | 'dismissed' }>
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
 export function useInstallPrompt() {
@@ -11,7 +11,9 @@ export function useInstallPrompt() {
     const [isIOS, setIsIOS] = useState(false)
 
     useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsInstalled(alreadyInstalled)
 
         const ios = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase())
@@ -26,7 +28,7 @@ export function useInstallPrompt() {
         return () => window.removeEventListener('beforeinstallprompt', handler)
     }, [])
 
-    const promptInstall = async() => {
+    const promptInstall = async () => {
         if (!installPrompt) return
         await installPrompt.prompt()
         const { outcome } = await installPrompt.userChoice

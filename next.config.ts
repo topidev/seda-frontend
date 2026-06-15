@@ -1,80 +1,23 @@
-import type { NextConfig } from "next";
-import withPWA from "@ducanh2912/next-pwa"
+import type { NextConfig } from 'next'
+import withPWA from '@ducanh2912/next-pwa'
 
 const nextConfig: NextConfig = {
-  /* config options here */
   turbopack: {},
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
-        // dominio de las fotos de perfil de Google
       },
     ],
   },
-};
+}
 
 export default withPWA({
   dest: 'public',
   register: true,
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  disable: process.env.NODE_ENV === 'development', // solo activo en producción
-  fallbacks: {
-    document: '/offline.html',
-  },
+  disable: process.env.NODE_ENV === 'development',
   workboxOptions: {
-    skipWaiting: true,
-    runtimeCaching: [
-      {
-        urlPattern: /^https:\/\/seda-frontend\.vercel\.app\/.*/i,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'pages-cache',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 60 * 60 * 24
-          },
-          networkTimeoutSeconds: 3
-        }
-      },
-      {
-        urlPattern: /^https:\/\/seda-backend-production\.up\.railway\.app\/.*/i,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'api-cache',
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 60 * 60 * 24, // 24 horas
-          },
-          networkTimeoutSeconds: 10,
-        },
-      },
-      {
-        urlPattern: /\/_next\/static\/.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'static-cache',
-          expiration: {
-            maxEntries: 200,
-            maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
-          },
-        },
-      },
-      {
-        urlPattern: /\/_next\/image\?.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'image-cache',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 60 * 60 * 24 * 7, // 7 días
-          },
-        },
-      },
-    ],
-  },
+    skipWaiting: true
+  }
 })(nextConfig)
-
-
