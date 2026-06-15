@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
 export default withPWA({
   dest: 'public',
   register: true,
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
   disable: process.env.NODE_ENV === 'development', // solo activo en producción
   fallbacks: {
     document: '/offline.html',
@@ -25,6 +27,18 @@ export default withPWA({
   workboxOptions: {
     skipWaiting: true,
     runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/seda-frontend\.vercel\.app\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'pages-cache',
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24
+          },
+          networkTimeoutSeconds: 3
+        }
+      },
       {
         urlPattern: /^https:\/\/seda-backend-production\.up\.railway\.app\/.*/i,
         handler: 'NetworkFirst',
@@ -59,18 +73,6 @@ export default withPWA({
           },
         },
       },
-      {
-        urlPattern: /^https:\/\/seda-frontend\.vercel\.app\/dashboard.*/i,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'pages-cache',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 60 * 60 * 24
-          },
-          networkTimeoutSeconds: 3
-        }
-      }
     ],
   },
 })(nextConfig)
