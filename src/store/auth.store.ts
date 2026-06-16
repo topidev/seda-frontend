@@ -39,7 +39,7 @@ interface AuthState {
 //   logout: () => set({ accessToken: null, teacher: null }),
 // }))
 
-export const useAuthStore = create<AuthState>() (
+export const useAuthStore = create<AuthState>()(
   persist((set) => ({
     accessToken: null,
     refreshToken: null,
@@ -50,18 +50,18 @@ export const useAuthStore = create<AuthState>() (
     setRefreshToken: (token) => set({ refreshToken: token }),
     setTeacher: (teacher) => set({ teacher }),
     setHasHydrated: (value) => set({ _hasHydrated: value }),
-    logout: () => set({ accessToken: null, teacher: null })
+    logout: () => set({ accessToken: null, refreshToken: null, teacher: null })
   }),
-  {
-    name: 'seda-auth',
-    storage: createJSONStorage(() => sessionStorage),
-    partialize: (state) => ({
-      accessToken: state.accessToken,
-      refreshToken: state.refreshToken,
-      teacher: state.teacher,
-    }),
-    onRehydrateStorage: () => (state) => {
-      state?.setHasHydrated(true)
-    }
-  })
+    {
+      name: 'seda-auth',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        teacher: state.teacher,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      }
+    })
 )
