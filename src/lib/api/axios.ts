@@ -45,6 +45,12 @@ api.interceptors.response.use(
     // Si el error es 401 y no es el endpoint de refresh
     // (evita loop infinito)
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const currentRefreshToken = useAuthStore.getState().refreshToken
+      if (!currentRefreshToken) {
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+        return Promise.reject(error)
+      }
       if (isRefreshing) {
         // Si ya hay un refresh en curso, encola esta request
         // y espera a que termine
@@ -84,7 +90,7 @@ api.interceptors.response.use(
         // Reintenta la request original con el nuevo token
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
 
-        
+
         return api(originalRequest)
       } catch (refreshError) {
         // El refresh falló, la sesión expiró
