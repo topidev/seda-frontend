@@ -21,6 +21,8 @@ function AuthCallbackContent() {
       return
     }
 
+    useAuthStore.getState().logout()
+
     setAccessToken(token)
     if (refresh) setRefreshToken(refresh)
 
