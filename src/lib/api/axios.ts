@@ -11,11 +11,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
 
-  if (config.url?.includes('/auth/refresh')) {
-    return config
-  }
-
-  if (token) {
+  if (token && !config.url?.includes('/auth/refresh')) {
     config.headers.Authorization = `Bearer ${token}`
   }
 
@@ -49,12 +45,6 @@ api.interceptors.response.use(
     // Si el error es 401 y no es el endpoint de refresh
     // (evita loop infinito)
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const currentRefreshToken = useAuthStore.getState().refreshToken
-      if (!currentRefreshToken) {
-        useAuthStore.getState().logout()
-        window.location.href = '/login'
-        return Promise.reject(error)
-      }
       if (isRefreshing) {
         // Si ya hay un refresh en curso, encola esta request
         // y espera a que termine
@@ -72,34 +62,24 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
+
         // Llama al endpoint de refresh
-
-        const currentRefreshToken = useAuthStore.getState().refreshToken
-
-        const { data } = await api.post<{ accessToken: string, refreshToken: string }>(
-          '/auth/refresh',
-          { refreshToken: currentRefreshToken }
-        )
+        const { data } = await api.post<{ accessToken: string }>('/auth/refresh')
 
         // Guarda el nuevo token en Zustand
         useAuthStore.getState().setAccessToken(data.accessToken)
-
-        if (data.refreshToken) {
-          useAuthStore.getState().setRefreshToken(data.refreshToken)
-        }
 
         // Procesa la cola de requests que estaban esperando
         processQueue(null, data.accessToken)
 
         // Reintenta la request original con el nuevo token
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
-
+        console.log('----------> Enviando Token: ', data.accessToken.slice(-25))
 
         return api(originalRequest)
+
       } catch (refreshError: any) {
         // El refresh falló, la sesión expiró
-        console.log('Refresh error status:', refreshError?.response?.status)
-        console.log('Refresh error data:', refreshError?.response?.data)
         processQueue(refreshError, null)
         useAuthStore.getState().logout()
         window.location.href = '/login'

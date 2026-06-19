@@ -9,22 +9,23 @@ function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
-  const setRefreshToken = useAuthStore((state) => state.setRefreshToken)
+  // const setRefreshToken = useAuthStore((state) => state.setRefreshToken)
   const setTeacher = useAuthStore((state) => state.setTeacher)
+  const logout = useAuthStore((state) => state.logout)
 
   useEffect(() => {
     const token = searchParams.get('token')
-    const refresh = searchParams.get('refresh')
+    // const refresh = searchParams.get('refresh')
 
     if (!token) {
       router.replace('/login')
       return
     }
 
-    useAuthStore.getState().logout()
+    logout() //Limpiar el estado anterior
 
     setAccessToken(token)
-    if (refresh) setRefreshToken(refresh)
+    // if (refresh) setRefreshToken(refresh)
 
 
     api.get('/auth/me', {
@@ -35,7 +36,7 @@ function AuthCallbackContent() {
     }).catch(() => {
       router.replace('/login')
     })
-  }, [searchParams, router, setAccessToken, setRefreshToken, setTeacher])
+  }, [searchParams, router, setAccessToken, setTeacher, logout])
 
   return (
     <main

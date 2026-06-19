@@ -12,53 +12,37 @@ interface Teacher {
 
 interface AuthState {
   accessToken: string | null
-  refreshToken: string | null
   teacher: Teacher | null
   _hasHydrated: boolean
   // Acciones
-  setAccessToken: (token: string) => void
-  setRefreshToken: (token: string) => void
   setTeacher: (teacher: Teacher) => void
+  setAccessToken: (token: string) => void
   setHasHydrated: (value: boolean) => void
   logout: () => void
+  // refreshToken: string | null
+  // setRefreshToken: (token: string) => void
 }
-
-// export const useAuthStoreV1 = create<AuthState>((set) => ({
-//   accessToken: null,
-//   teacher: null,
-//   refreshToken: null,
-//   _hasHydrated: false,
-
-//   setAccessToken: (token) => set({ accessToken: token }),
-
-
-//   setTeacher: (teacher) => set({ teacher }),
-
-//   setHasHydrated: (value) => set({ _hasHydrated: value }),
-
-//   logout: () => set({ accessToken: null, teacher: null }),
-// }))
 
 export const useAuthStore = create<AuthState>()(
   persist((set) => ({
-    accessToken: null,
-    refreshToken: null,
     teacher: null,
+    accessToken: null,
     _hasHydrated: false,
+    // refreshToken: null,
 
-    setAccessToken: (token) => set({ accessToken: token }),
-    setRefreshToken: (token) => set({ refreshToken: token }),
     setTeacher: (teacher) => set({ teacher }),
+    setAccessToken: (token) => set({ accessToken: token }),
     setHasHydrated: (value) => set({ _hasHydrated: value }),
-    logout: () => set({ accessToken: null, refreshToken: null, teacher: null })
+    logout: () => set({ accessToken: null, teacher: null })
+    // setRefreshToken: (token) => set({ refreshToken: token }),
   }),
     {
       name: 'seda-auth',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
         teacher: state.teacher,
+        accessToken: state.accessToken,
+        // refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true)
