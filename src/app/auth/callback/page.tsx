@@ -15,7 +15,7 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
-    // const refresh = searchParams.get('refresh')
+    const refresh = searchParams.get('refresh')
 
     if (!token) {
       router.replace('/login')
@@ -23,13 +23,16 @@ function AuthCallbackContent() {
     }
 
     logout() //Limpiar el estado anterior
-
     setAccessToken(token)
     // if (refresh) setRefreshToken(refresh)
 
-
-    api.get('/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
+    api.post('/auth/set-cookie',
+      { refreshToken: refresh },
+      { headers: { Authorization: `Bearer ${token}` } }
+    ).then(() => {
+      return api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
     }).then(({ data }) => {
       setTeacher(data)
       router.replace('/dashboard')
