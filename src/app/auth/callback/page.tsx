@@ -9,7 +9,7 @@ function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
-  // const setRefreshToken = useAuthStore((state) => state.setRefreshToken)
+  const setRefreshToken = useAuthStore((state) => state.setRefreshToken)
   const setTeacher = useAuthStore((state) => state.setTeacher)
   const logout = useAuthStore((state) => state.logout)
 
@@ -24,22 +24,23 @@ function AuthCallbackContent() {
 
     logout() //Limpiar el estado anterior
     setAccessToken(token)
-    // if (refresh) setRefreshToken(refresh)
+    if (refresh) setRefreshToken(refresh)
 
-    api.post('/auth/set-cookie',
-      { refreshToken: refresh },
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).then(() => {
-      return api.get('/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    // api.post('/auth/set-cookie',
+    //   { refreshToken: refresh },
+    //   { headers: { Authorization: `Bearer ${token}` } }
+    // ).then(() => {
+    //   return 
+    api.get('/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+      // })
     }).then(({ data }) => {
       setTeacher(data)
       router.replace('/dashboard')
     }).catch(() => {
       router.replace('/login')
     })
-  }, [searchParams, router, setAccessToken, setTeacher, logout])
+  }, [searchParams, router, setAccessToken, setRefreshToken, setTeacher, logout])
 
   return (
     <main
