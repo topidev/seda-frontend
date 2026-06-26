@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRequiredAuth } from '@/hooks/useAuthGuard'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useSchools, useCreateSchool, shiftLabel } from '@/hooks/useSchools'
 import {
   Dialog,
@@ -9,12 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { GraduationCap, Plus, Users } from 'lucide-react'
+import { GraduationCap, Plus } from 'lucide-react'
 import Link from 'next/link'
 import ProtectedPage from '@/components/ProtectedPage'
 import Spinner from '@/components/Spinner'
 import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
+import { Controller, useForm } from 'react-hook-form'
 
 const shifts = [
   { value: 'MORNING', label: 'Matutino' },
@@ -22,29 +24,46 @@ const shifts = [
   { value: 'EVENING', label: 'Nocturno' },
 ]
 
+const schema = z.object({
+  name: z.string().min(2, 'El Nombre debe tener al menos 2 caracteres'),
+  shift: z.enum(['MORNING', 'AFTERNOON', 'EVENING'])
+})
+
+type FormData = z.infer<typeof schema>
+
 export default function SchoolsPage() {
   const { data: schools, isLoading } = useSchools()
   const { mutate: createSchool, isPending, isError } = useCreateSchool()
-
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [shift, setShift] = useState<'MORNING' | 'AFTERNOON' | 'EVENING'>('MORNING')
 
-  const handleSubmit = () => {
-    if (!name.trim()) return
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      shift: 'MORNING'
+    }
+  })
 
+  const onSubmit = (data: FormData) => {
     createSchool(
-      { name, shift, level: 'SECONDARY' },
+      {
+        ...data,
+        level: 'SECONDARY'
+      },
       {
         onSuccess: () => {
           setOpen(false)
-          setName('')
-          setShift('MORNING')
-        },
-      },
+          reset()
+        }
+      }
     )
   }
-
 
   return (
     <ProtectedPage>
@@ -184,7 +203,14 @@ export default function SchoolsPage() {
       )}
 
       {/* Modal nueva escuela */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={
+          (val) => {
+            setOpen(val)
+            if (!val) reset()
+          }
+        }>
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
@@ -196,13 +222,14 @@ export default function SchoolsPage() {
               style={{
                 color: 'var(--color-text-primary)',
                 fontFamily: 'var(--font-geist)',
+                textTransform: 'none'
               }}
             >
               Nueva escuela
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 mt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-2">
             {/* Nombre */}
             <div className="flex flex-col gap-2">
               <label
@@ -211,15 +238,31 @@ export default function SchoolsPage() {
               >
                 Nombre de la escuela
               </label>
-              <AppInput
-                type="text"
-                value={name}
-                onChange={setName}
+              <input
+                {...register('name')}
                 placeholder="Ej. Secundaria Benito Juárez"
-                onKeyDown={e => {
-                  if (e.key === 'Enter') handleSubmit()
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
                 }}
               />
+              {errors.name && (
+                <p className='text-xs' style={{ color: 'var(--color-error)' }}>
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             {/* Turno */}
@@ -230,30 +273,36 @@ export default function SchoolsPage() {
               >
                 Turno
               </label>
-              <div className="flex gap-2">
-                {shifts.map(s => (
-                  <button
-                    key={s.value}
-                    onClick={() => setShift(s.value as typeof shift)}
-                    className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: shift === s.value
-                        ? 'var(--color-primary)'
-                        : 'var(--color-bg-tertiary)',
-                      border: `1px solid ${shift === s.value
-                        ? 'var(--color-primary)'
-                        : 'var(--color-border)'}`,
-                      color: shift === s.value
-                        ? 'white'
-                        : 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
+              <Controller
+                name='shift'
+                control={control}
+                render={({ field }) => (
+                  <div className="flex gap-2">
+                    {shifts.map(s => (
+                      <button
+                        key={s.value}
+                        type='button'
+                        onClick={() => field.onChange(s.value)}
+                        className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: field.value === s.value
+                            ? 'var(--color-primary)'
+                            : 'var(--color-bg-tertiary)',
+                          border: `1px solid ${field.value === s.value
+                            ? 'var(--color-primary)'
+                            : 'var(--color-border)'}`,
+                          color: field.value === s.value
+                            ? 'white'
+                            : 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              />
             </div>
-
             {/* Error */}
             {isError && (
               <p
@@ -266,14 +315,13 @@ export default function SchoolsPage() {
 
             {/* Botón submit */}
             <AppButton
-              onClick={handleSubmit}
-              disabled={isPending || !name.trim()}
+              fullWidth
               isPending={isPending}
-              pendingLabel='Guardando'
+              pendingLabel='Guardando...'
             >
               Guardar escuela
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </ProtectedPage>
