@@ -14,6 +14,15 @@ import Link from 'next/link'
 import AppButton from '@/components/AppButton'
 import AppInput from '@/components/AppInput'
 import Spinner from '@/components/Spinner'
+import z from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+  name: z.string().min(2, 'El nombre debe tener por lo menos 2 caracteres')
+})
+
+type FormData = z.infer<typeof schema>
 
 export default function SubjectsPage() {
   const { data: subjects, isLoading } = useSubjects()
@@ -22,16 +31,43 @@ export default function SubjectsPage() {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
 
-  const handleSubmit = () => {
-    if (!name.trim()) return
+  // const handleSubmit = () => {
+  //   if (!name.trim()) return
+  //   createSubject(
+  //     { name },
+  //     {
+  //       onSuccess: () => {
+  //         setOpen(false)
+  //         setName('')
+  //       },
+  //     },
+  //   )
+  // }
+
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: ''
+    }
+  })
+
+  const onSubmit = (data: FormData) => {
     createSubject(
-      { name },
+      { ...data },
       {
         onSuccess: () => {
-          setOpen(false)
-          setName('')
-        },
-      },
+          setOpen(false),
+            reset()
+        }
+      }
+
     )
   }
 
@@ -151,7 +187,7 @@ export default function SubjectsPage() {
                       <span>
                         {subject._count.subjectTermGroups} grupos asignados
                       </span>
-                        
+
                     </p>
                   </div>
                 </div>
@@ -190,7 +226,14 @@ export default function SubjectsPage() {
       )}
 
       {/* Modal nueva materia */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={
+          (val) => {
+            setOpen(val)
+            if (!val) reset()
+          }
+        }>
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
@@ -208,7 +251,7 @@ export default function SubjectsPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 mt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-2">
             <div className="flex flex-col gap-2">
               <label
                 className="text-sm font-medium"
@@ -216,15 +259,31 @@ export default function SubjectsPage() {
               >
                 Nombre de la materia
               </label>
-              <AppInput
-                type="text"
-                value={name}
-                onChange={setName}
+              <input
+                {...register('name')}
                 placeholder="Ej. Física, Matemáticas, Historia"
-                onKeyDown={e => {
-                  if (e.key === 'Enter') handleSubmit()
+                className='w-full px-4 py-3 rounded-xl outline-none transition-colors'
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
                 }}
               />
+              {errors.name && (
+                <p className='text-xs' style={{ color: 'var(--color-error)' }}>
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             {isError && (
@@ -234,14 +293,13 @@ export default function SubjectsPage() {
             )}
 
             <AppButton
-              onClick={handleSubmit}
-              disabled={isPending || !name.trim()}
+              fullWidth
               isPending={isPending}
-              pendingLabel='Guardando'
+              pendingLabel='Guardando...'
             >
               Guardar materia
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </ProtectedPage>
