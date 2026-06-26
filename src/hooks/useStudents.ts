@@ -1,35 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
+import type { Student, CreateStudentDto } from '@/types'
 
-interface StudentGroupTerm {
-  id: string
-  groupId: string
-  group: { id: string; grade: string; letter: string }
-}
-
-interface Student {
-  id: string
-  name: string
-  firstLastName: string
-  secondLastName: string | null
-  birthDate: string | null
-  tutorName: string | null
-  tutorPhone: string | null
-  deletedAt: string | null
-  groupTerms: StudentGroupTerm[]
-}
-
-interface CreateStudentDto {
-  name: string
-  firstLastName: string
-  secondLastName?: string
-  birthDate?: string
-  tutorName?: string
-  tutorPhone?: string
-  groupId: string
-  academicTermId: string
-}
 
 export function useStudents(filters?: {
   groupId?: string

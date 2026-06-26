@@ -1,30 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
+import type { Subject, CreateSubjectDto, CreateGradeCategoryDto } from '@/types'
 
-interface GradeCategory {
-  id: string
-  subjectId: string
-  name: string
-  percentage: number
-}
 
-interface Subject {
-  id: string
-  name: string
-  active: boolean
-  gradeCategories: GradeCategory[]
-  _count: { subjectTermGroups: number }
-}
-
-interface CreateSubjectDto {
-  name: string
-}
-
-interface CreateGradeCategoryDto {
-  name: string
-  percentage: number
-}
 
 export function useSubjects() {
   return useQuery({

@@ -1,48 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
+import type { Group, CreateGroupDto } from '@/types'
 
-interface Student {
-  id: string
-  name: string
-  firstLastName: string
-  secondLastName: string | null
-}
-
-interface Subject {
-  id: string
-  name: string
-}
-
-interface SubjectTermGroup {
-  id: string
-  subjectId: string
-  subject: Subject
-}
-
-interface StudentGroupTerm {
-  id: string
-  studentId: string
-  student: Student
-}
-
-interface Group {
-  id: string
-  schoolId: string
-  grade: string
-  letter: string
-  active: boolean
-  subjectTermGroups: SubjectTermGroup[]
-  studentGroupTerms: StudentGroupTerm[]
-}
-
-interface CreateGroupDto {
-  schoolId: string
-  grade: string
-  letter: string
-  academicTermId: string
-  subjectIds?: string[]
-}
 
 export function useGroups(schoolId: string, academicTermId: string) {
   return useQuery({

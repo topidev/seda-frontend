@@ -1,14 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-
-interface Teacher {
-  id: string
-  email: string
-  name: string
-  lastName: string
-  photo: string | null
-  role: string
-}
+import type { Teacher } from '@/types'
 
 interface AuthState {
   teacher: Teacher | null

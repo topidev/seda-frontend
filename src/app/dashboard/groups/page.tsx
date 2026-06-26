@@ -15,6 +15,7 @@ import { Users, Plus } from 'lucide-react'
 import Link from 'next/link'
 import Spinner from '@/components/Spinner'
 import AppButton from '@/components/AppButton'
+import { usePreferencesStore } from '@/store/preferences.store'
 
 const grades = ['1', '2', '3']
 const letters = ['A', 'B', 'C', 'D', 'E']
@@ -23,8 +24,12 @@ export default function GroupsPage() {
   const { data: schools } = useSchools()
   const { data: subjects } = useSubjects()
 
-  const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
-  const [selectedTermId, setSelectedTermId] = useState<string>('')
+  // const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
+  // const [selectedTermId, setSelectedTermId] = useState<string>('')
+  const selectedSchoolId = usePreferencesStore(s => s.selectedSchoolId)
+  const setSelectedSchool = usePreferencesStore(s => s.setSelectedSchool)
+  const selectedTermId = usePreferencesStore(s => s.selectedTermId)
+  const setSelectedTerm = usePreferencesStore(s => s.setSelectedTerm)
   const [open, setOpen] = useState(false)
   const [grade, setGrade] = useState('1')
   const [letter, setLetter] = useState('A')
@@ -36,8 +41,8 @@ export default function GroupsPage() {
   const { mutate: createGroup, isPending, isError } = useCreateGroup()
 
   const handleSchoolChange = (schoolId: string) => {
-    setSelectedSchoolId(schoolId)
-    setSelectedTermId('')
+    setSelectedSchool(schoolId)
+    setSelectedTerm('')
   }
 
   const toggleSubject = (subjectId: string) => {
@@ -133,7 +138,7 @@ export default function GroupsPage() {
         {/* Selector ciclo */}
         <select
           value={selectedTermId}
-          onChange={e => setSelectedTermId(e.target.value)}
+          onChange={e => setSelectedTerm(e.target.value)}
           disabled={!selectedSchoolId}
           className="flex-1 px-4 py-3 rounded-xl outline-none transition-colors cursor-pointer"
           style={{

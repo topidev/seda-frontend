@@ -1,24 +1,7 @@
 import api from "@/lib/api/axios"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-
-interface School {
-  id: string
-  name: string
-  shift: 'MORNING' | 'AFTERNOON' | 'EVENING'
-  level: 'SECONDARY'
-  active: boolean
-  academicTerms: AcademicTerm[]
-  _count: {
-    groups: number
-  }
-}
-
-interface CreateSchoolDto {
-  name: string
-  level: 'SECONDARY'
-  shift: 'MORNING' | 'AFTERNOON' | 'EVENING'
-}
+import type { School, CreateSchoolDto, AcademicTerm, CreateTermDto } from "@/types"
 
 const shiftLabel = {
   MORNING: 'Matutino',
@@ -28,31 +11,8 @@ const shiftLabel = {
 
 export { shiftLabel }
 
-interface Period {
-  id: string
-  number: number
-  startDate: string
-  endDate: string
-  closed: boolean
-}
-
-interface AcademicTerm {
-  id: string
-  name: string
-  startDate: string
-  endDate: string
-  active: boolean
-  periods: Period[]
-}
-
 interface SchoolDetail extends School {
   academicTerms: AcademicTerm[]
-}
-
-interface CreateTermDto {
-  name: string
-  startDate: string
-  endDate: string
 }
 
 export function useSchools() {
