@@ -31,7 +31,7 @@ export default function ActivitiesPage() {
   const [maxScore, setMaxScore] = useState('10')
   const [dueDate, setDueDate] = useState('')
 
-  const period = cls?.academicTerm.periods.find(p => p.id === periodId)
+  const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
   const categories = cls?.subject.gradeCategories ?? []
 
   const handleSubmit = () => {

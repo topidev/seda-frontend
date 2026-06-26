@@ -25,7 +25,7 @@ export default function PeriodGradesPage() {
   const [overrideScore, setOverrideScore] = useState('')
   const [overrideReason, setOverrideReason] = useState('')
 
-  const period = cls?.academicTerm.periods.find(p => p.id === periodId)
+  const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
 
   const handleOpenOverride = (gradeId: string, currentScore: number) => {
     setSelectedGradeId(gradeId)
