@@ -9,28 +9,52 @@ import Spinner from "@/components/Spinner"
 import { Dialog, DialogTitle, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { shiftLabel, useCreateTerm, useSchool } from "@/hooks/useSchools"
 import api from "@/lib/api/axios"
-import { queryClient } from "@/lib/query-client"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Plus, Calendar, Trash2 } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import z from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+const createTermSchema = z.object({
+	name: z.string().min(2, 'Ej. 2024-2025'),
+	startDate: z.string().min(1, 'Selecciona una fecha de inicio'),
+	endDate: z.string().min(1, 'Selecciona una fecha de fin')
+}).refine(data => data.endDate > data.startDate, {
+	message: 'La fecha de fin debe ser posterior a la de inicio',
+	path: ['endDate']
+})
+
+type CreateTermFormData = z.infer<typeof createTermSchema>
 
 export default function SchooldDetailPage() {
 	const params = useParams()
 	const schoolId = params.id as string
 	const router = useRouter()
+	const queryClient = useQueryClient()
 
 	const { data: school, isLoading } = useSchool(schoolId)
 	const { mutate: createTerm, isPending, isError } = useCreateTerm(schoolId)
 
 	const [open, setOpen] = useState(false)
-	const [termName, setTermName] = useState('')
-	const [startDate, setStartDate] = useState('')
-	const [endDate, setEndDate] = useState('')
-
 	const [openConfirm, setOpenConfirm] = useState(false)
+	
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset
+	} = useForm<CreateTermFormData>({
+		resolver: zodResolver(createTermSchema),
+		defaultValues: {
+			name: '',
+			startDate: '',
+			endDate: ''
+		}
+	})
 
 	const { mutate: removeSchool } = useMutation({
 		mutationFn: async () => {
@@ -46,17 +70,13 @@ export default function SchooldDetailPage() {
 		}
 	})
 
-	const handleSubmit = () => {
-		if (!termName.trim() || !startDate || !endDate) return
-
+	const onSubmit = (data: CreateTermFormData) => {
 		createTerm(
-			{ name: termName, startDate, endDate },
+			data,
 			{
 				onSuccess: () => {
 					setOpen(false)
-					setTermName('')
-					setStartDate('')
-					setEndDate('')
+					reset()
 				},
 			},
 		)
@@ -69,6 +89,14 @@ export default function SchooldDetailPage() {
 			year: 'numeric'
 		})
 	}
+
+	if (isLoading) {
+    return (
+      <ProtectedPage>
+        <Spinner />
+      </ProtectedPage>
+    )
+  }
 
 	return (
 		<ProtectedPage>
@@ -267,7 +295,15 @@ export default function SchooldDetailPage() {
 			)}
 
 			{/* Modal nuevo ciclo */}
-			<Dialog open={open} onOpenChange={setOpen}>
+			<Dialog 
+				open={open} 
+				onOpenChange={
+					(val) => { 
+						setOpen(val)
+						if(!val) reset()
+					}
+				}
+			>
 				<DialogContent
 					className="flex flex-col"
 					style={{
@@ -286,46 +322,77 @@ export default function SchooldDetailPage() {
 						</DialogTitle>
 					</DialogHeader>
 
-					<div className="flex flex-col gap-5 mt-2">
+					<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-2">
 						{/* Nombre */}
 						<div className="flex flex-col gap-2 w-full">
-							<AppInput
-								type="text"
-								label="Nombre del ciclo"
-								value={termName}
-								onChange={setTermName}
-								placeholder="Ej. 2024-2025"
-							/>
+							<label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Nombre del ciclo
+              </label>
+              <input
+                {...register('name')}
+                placeholder="Ej. 2024-2025"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.name
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
+              />
+							{errors.name && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.name.message}
+                </p>
+              )}
 						</div>
 
 						{/* Fechas */}
 						<div className="flex flex-col gap-3 md:flex-row">
-							<div className="flex flex-col gap-2 flex-1">
-								<label
-									className="text-sm font-medium"
-									style={{ color: 'var(--color-text-secondary)' }}
-								>
-									Fecha inicio
-								</label>
-								<AppInput
-									type="date"
-									value={startDate}
-									onChange={setStartDate}
-								/>
-							</div>
-							<div className="flex flex-col gap-2 flex-1">
-								<label
-									className="text-sm font-medium"
-									style={{ color: 'var(--color-text-secondary)' }}
-								>
-									Fecha fin
-								</label>
-								<AppInput
-									type="date"
-									value={endDate}
-									onChange={setEndDate}
-								/>
-							</div>
+							{[
+								{ field: 'startDate' as const, label: 'Fecha inicio' },
+								{ field: 'endDate' as const, label: 'Fecha fin' },
+							].map(({ field, label }) => (
+								<div key={field} className="flex flex-col gap-2 flex-1">
+									<label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    {label}
+                  </label>
+                  <input
+                    {...register(field)}
+                    type="date"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: `1px solid ${errors[field] ? 'var(--color-error)' : 'var(--color-border)'}`,
+                      color: 'var(--color-text-primary)',
+                      colorScheme: 'dark',
+                    }}
+                    onFocus={e => {
+                      e.currentTarget.style.borderColor = errors[field]
+                        ? 'var(--color-error)'
+                        : 'var(--color-primary)'
+                    }}
+                    onBlur={e => {
+                      e.currentTarget.style.borderColor = errors[field]
+                        ? 'var(--color-error)'
+                        : 'var(--color-border)'
+                    }}
+                  />
+                  {errors[field] && (
+                    <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                      {errors[field]?.message}
+                    </p>
+                  )}
+								</div>
+							))}
 						</div>
 
 						{/* Error */}
@@ -340,15 +407,13 @@ export default function SchooldDetailPage() {
 
 						{/* Botón submit */}
 						<AppButton
-							onClick={handleSubmit}
-							disabled={!termName.trim() || !startDate || !endDate}
+							fullWidth
 							isPending={isPending}
 							pendingLabel="Creando..."
-							fullWidth
 						>
 							Crear ciclo
 						</AppButton>
-					</div>
+					</form>
 				</DialogContent>
 			</Dialog>
 
