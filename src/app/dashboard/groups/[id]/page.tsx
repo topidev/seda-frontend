@@ -17,6 +17,18 @@ import Link from 'next/link'
 import Spinner from '@/components/Spinner'
 import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
+import z from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import BackButton from '@/components/BackButton'
+
+const newStudentSchema = z.object({
+  name: z.string().min(2, 'Mínimo 2 caracteres'),
+  firstLastName: z.string().min(2, 'Mínimo 2 caracteres'),
+  secondLastName: z.string().optional()
+})
+
+type NewStudentFormData = z.infer<typeof newStudentSchema>
 
 export default function GroupDetailPage() {
   const params = useParams()
@@ -37,9 +49,22 @@ export default function GroupDetailPage() {
   const [openAssignSubject, setOpenAssignSubject] = useState(false)
 
   // Formulario nuevo alumno
-  const [name, setName] = useState('')
-  const [firstLastName, setFirstLastName] = useState('')
-  const [secondLastName, setSecondLastName] = useState('')
+  // const [name, setName] = useState('')
+  // const [firstLastName, setFirstLastName] = useState('')
+  // const [secondLastName, setSecondLastName] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<NewStudentFormData>({
+    resolver: zodResolver(newStudentSchema),
+    defaultValues: {
+      name: '',
+      firstLastName: '',
+      secondLastName: ''
+    }
+  })
 
   // Alumnos que ya están en el grupo
   const studentIdsInGroup = group?.studentGroupTerms.map(s => s.studentId) ?? []
@@ -57,17 +82,13 @@ export default function GroupDetailPage() {
     s => !subjectIdsInGroup.includes(s.id),
   ) ?? []
 
-  const handleCreateStudent = () => {
-    if (!name.trim() || !firstLastName.trim()) return
-
+  const onSubmitNewStudent = (data: NewStudentFormData) => {
     createStudent(
-      { name, firstLastName, secondLastName, groupId, academicTermId },
+      { ...data, groupId, academicTermId },
       {
         onSuccess: () => {
           setOpenNewStudent(false)
-          setName('')
-          setFirstLastName('')
-          setSecondLastName('')
+          reset()
         },
       },
     )
@@ -99,24 +120,7 @@ export default function GroupDetailPage() {
     <ProtectedPage>
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/dashboard/groups">
-          <button
-            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-bg-elevated)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--color-primary)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--color-border)'
-            }}
-          >
-            <ArrowLeft size={16} />
-          </button>
-        </Link>
+        <BackButton href='/dashboard/groups' />
         <div>
           <h1
             className="text-2xl font-semibold"
@@ -291,7 +295,13 @@ export default function GroupDetailPage() {
       </div>
 
       {/* Modal nuevo alumno */}
-      <Dialog open={openNewStudent} onOpenChange={setOpenNewStudent}>
+      <Dialog 
+        open={openNewStudent} 
+        onOpenChange={(val) => {
+          setOpenNewStudent(val)
+          if (!val) reset()
+        }}
+      >
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
@@ -309,37 +319,55 @@ export default function GroupDetailPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 mt-2">
+          <form onSubmit={handleSubmit(onSubmitNewStudent)} className="flex flex-col gap-4 mt-2">
             {[
-              { label: 'Nombre', value: name, setter: setName, placeholder: 'Ej. Juan' },
-              { label: 'Apellido paterno', value: firstLastName, setter: setFirstLastName, placeholder: 'Ej. Pérez' },
-              { label: 'Apellido materno', value: secondLastName, setter: setSecondLastName, placeholder: 'Ej. García (opcional)' },
-            ].map(field => (
-              <div key={field.label} className="flex flex-col gap-2">
+              { field: 'name' as const, label: 'Nombre', placeholder: 'Ej. Juan' },
+              { field: 'firstLastName' as const, label: 'Apellido Paterno', placeholder: 'Ej. Pérez' },
+              { field: 'secondLastName' as const, label: 'Apellido Mater', placeholder: 'Ej. García (Opcional)' },
+            ].map(({field, label, placeholder}) => (
+              <div key={field} className="flex flex-col gap-2">
                 <label
                   className="text-sm font-medium"
                   style={{ color: 'var(--color-text-secondary)' }}
                 >
-                  {field.label}
+                  {label}
                 </label>
-                <AppInput
-                  type="text"
-                  value={field.value}
-                  onChange={field.setter}
-                  placeholder={field.placeholder}
+                <input
+                  {...register(field)}
+                  placeholder={placeholder}
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    border: `1px solid ${errors[field] ? 'var(--color-error)' : 'var(--color-border)'}`,
+                    color: 'var(--color-text-primary)',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = errors[field]
+                      ? 'var(--color-error)'
+                      : 'var(--color-primary)'
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = errors[field]
+                      ? 'var(--color-error)'
+                      : 'var(--color-border)'
+                  }}
                 />
+                {errors[field] && (
+                  <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                    {errors[field]?.message}
+                  </p>
+                )}
               </div>
             ))}
 
             <AppButton
-              onClick={handleCreateStudent}
-              disabled={isCreatingStudent || !name.trim() || !firstLastName.trim()}
+              fullWidth
+              pendingLabel="Guardando..."
               isPending={isCreatingStudent}
-              pendingLabel='Guardando'
             >
               Guardar alumno
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
 
