@@ -333,7 +333,11 @@ export default function SubjectDetailPage() {
                 Porcentaje (disponible: {availablePercentage}%)
               </label>
               <input
-                {...register('percentage')}
+                {...register('percentage'), {
+                  valueAsNumber: true,
+                  min: 5,
+                  max: availablePercentage
+                }}
                 type="number"
                 placeholder="Ej. 30"
                 min={5}
