@@ -16,64 +16,83 @@ import Link from 'next/link'
 import Spinner from '@/components/Spinner'
 import AppButton from '@/components/AppButton'
 import { usePreferencesStore } from '@/store/preferences.store'
+import z from 'zod'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 const grades = ['1', '2', '3']
 const letters = ['A', 'B', 'C', 'D', 'E']
+
+const createGroupSchema = z.object({
+  grade: z.enum(['1','2','3'], { message: 'Selecciona un grado'}),
+  letter: z.enum(['A','B','C','D','E'], { message: 'Selecciona un grupo'}),
+  subjectIds: z.array(z.string()).optional()
+})
+
+type CreateGroupFormData = z.infer<typeof createGroupSchema>
 
 export default function GroupsPage() {
   const { data: schools } = useSchools()
   const { data: subjects } = useSubjects()
 
-  // const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
-  // const [selectedTermId, setSelectedTermId] = useState<string>('')
   const selectedSchoolId = usePreferencesStore(s => s.selectedSchoolId)
   const setSelectedSchool = usePreferencesStore(s => s.setSelectedSchool)
   const selectedTermId = usePreferencesStore(s => s.selectedTermId)
   const setSelectedTerm = usePreferencesStore(s => s.setSelectedTerm)
-  const [open, setOpen] = useState(false)
-  const [grade, setGrade] = useState('1')
-  const [letter, setLetter] = useState('A')
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([])
 
   const selectedSchool = schools?.find(s => s.id === selectedSchoolId)
+  const [open, setOpen] = useState(false)
 
   const { data: groups, isLoading } = useGroups(selectedSchoolId, selectedTermId)
   const { mutate: createGroup, isPending, isError } = useCreateGroup()
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset
+  } = useForm<CreateGroupFormData>({
+    resolver: zodResolver(createGroupSchema),
+    defaultValues: {
+      grade: '1',
+      letter: 'A',
+      subjectIds: []
+    }
+  })
+
+  const onSubmit = (data: CreateGroupFormData) => {
+    if (!selectedSchoolId || !selectedTermId) return
+
+    createGroup(
+      {
+        schoolId: selectedSchoolId,
+        grade: data.grade,
+        letter: data.letter,
+        academicTermId: selectedTermId,
+        subjectIds: data.subjectIds,
+      },
+      {
+        onSuccess: () => {
+          setOpen(false)
+          reset()
+        },
+      },
+    )
+  }
 
   const handleSchoolChange = (schoolId: string) => {
     setSelectedSchool(schoolId)
     setSelectedTerm('')
   }
 
-  const toggleSubject = (subjectId: string) => {
-    setSelectedSubjectIds(prev =>
-      prev.includes(subjectId)
-        ? prev.filter(id => id !== subjectId)
-        : [...prev, subjectId],
-    )
-  }
+  // const toggleSubject = (subjectId: string) => {
+  //   setSelectedSubjectIds(prev =>
+  //     prev.includes(subjectId)
+  //       ? prev.filter(id => id !== subjectId)
+  //       : [...prev, subjectId],
+  //   )
+  // }
 
-  const handleSubmit = () => {
-    if (!selectedSchoolId || !selectedTermId) return
-
-    createGroup(
-      {
-        schoolId: selectedSchoolId,
-        grade,
-        letter,
-        academicTermId: selectedTermId,
-        subjectIds: selectedSubjectIds,
-      },
-      {
-        onSuccess: () => {
-          setOpen(false)
-          setGrade('1')
-          setLetter('A')
-          setSelectedSubjectIds([])
-        },
-      },
-    )
-  }
 
   return (
     <ProtectedPage>
@@ -246,7 +265,7 @@ export default function GroupsPage() {
                     {group.grade}° {group.letter}
                   </p> */}
                   <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                    {group.studentGroupTerms.length} alumnos
+                    {group.studentGroupTerms?.length ?? 0} alumnos
                   </p>
                   <p className="text-xs mt-1" style={{ color: 'var(--color-text-disabled)' }}>
                     {group.subjectTermGroups.length} materias
@@ -259,25 +278,34 @@ export default function GroupsPage() {
       )}
 
       {/* Modal nuevo grupo */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog 
+        open={open} 
+        onOpenChange={
+          (val) => {
+            setOpen(val)
+            if (!val) reset()
+          }
+        }
+      >
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
             border: '1px solid var(--color-border)',
           }}
-        >
+          >
           <DialogHeader>
             <DialogTitle
               style={{
                 color: 'var(--color-text-primary)',
                 fontFamily: 'var(--font-geist)',
+                textTransform: 'none',
               }}
             >
               Nuevo grupo
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 mt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-2">
             {/* Grado */}
             <div className="flex flex-col gap-2">
               <label
@@ -286,28 +314,38 @@ export default function GroupsPage() {
               >
                 Grado
               </label>
-              <div className="flex gap-2">
-                {grades.map(g => (
-                  <button
-                    key={g}
-                    onClick={() => setGrade(g)}
-                    className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: grade === g
-                        ? 'var(--color-primary)'
-                        : 'var(--color-bg-tertiary)',
-                      border: `1px solid ${grade === g
-                        ? 'var(--color-primary)'
-                        : 'var(--color-border)'}`,
-                      color: grade === g ? 'white' : 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {g}°
-                  </button>
-                ))}
-              </div>
+              <Controller
+                name='grade'
+                control={control}
+                render={({ field }) => (
+                  <div className="flex gap-2">
+                    {grades.map(g => (
+                      <button
+                        key={g}
+                        onClick={() => field.onChange(g)}
+                        className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: field.value === g
+                            ? 'var(--color-primary)'
+                            : 'var(--color-bg-tertiary)',
+                          border: `1px solid ${field.value === g
+                            ? 'var(--color-primary)'
+                            : 'var(--color-border)'}`,
+                          color: field.value === g ? 'white' : 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {g}°
+                      </button>
+                    ))}
+                  </div>
+                )} 
+              />
+              {errors.grade && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.grade.message}
+                </p>
+              )}
             </div>
-
             {/* Letra */}
             <div className="flex flex-col gap-2">
               <label
@@ -316,81 +354,109 @@ export default function GroupsPage() {
               >
                 Grupo
               </label>
-              <div className="flex gap-2">
-                {letters.map(l => (
-                  <button
-                    key={l}
-                    onClick={() => setLetter(l)}
-                    className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: letter === l
-                        ? 'var(--color-primary)'
-                        : 'var(--color-bg-tertiary)',
-                      border: `1px solid ${letter === l
-                        ? 'var(--color-primary)'
-                        : 'var(--color-border)'}`,
-                      color: letter === l ? 'white' : 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
+              <Controller
+                name='letter'
+                control={control}
+                render={({ field }) => (
+                  <div className="flex gap-2">
+                    {letters.map(l => (
+                      <button
+                        key={l}
+                        onClick={() => field.onChange(l)}
+                        className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: field.value === l
+                            ? 'var(--color-primary)'
+                            : 'var(--color-bg-tertiary)',
+                          border: `1px solid ${field.value === l
+                            ? 'var(--color-primary)'
+                            : 'var(--color-border)'}`,
+                          color: field.value === l ? 'white' : 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              />
+              {errors.letter && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.letter.message}
+                </p>
+              )}
             </div>
 
             {/* Materias */}
             {subjects && subjects.length > 0 && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
                 <label
                   className="text-sm font-medium"
                   style={{ color: 'var(--color-text-secondary)' }}
                 >
                   Materias a impartir (opcional)
                 </label>
-                <div className="flex flex-col gap-2">
-                  {subjects.map(subject => (
-                    <button
-                      key={subject.id}
-                      onClick={() => toggleSubject(subject.id)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors cursor-pointer"
-                      style={{
-                        backgroundColor: selectedSubjectIds.includes(subject.id)
-                          ? 'rgba(37, 99, 235, 0.1)'
-                          : 'var(--color-bg-tertiary)',
-                        border: `1px solid ${selectedSubjectIds.includes(subject.id)
-                          ? 'var(--color-primary)'
-                          : 'var(--color-border)'}`,
-                      }}
-                    >
-                      <div
-                        className="w-4 h-4 rounded flex items-center justify-center shrink-0"
-                        style={{
-                          backgroundColor: selectedSubjectIds.includes(subject.id)
-                            ? 'var(--color-primary)'
-                            : 'transparent',
-                          border: `1.5px solid ${selectedSubjectIds.includes(subject.id)
-                            ? 'var(--color-primary)'
-                            : 'var(--color-border)'}`,
-                        }}
-                      >
-                        {selectedSubjectIds.includes(subject.id) && (
-                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path
-                              d="M1 4L3.5 6.5L9 1"
-                              stroke="white"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                      <span style={{ color: 'var(--color-text-primary)' }}>
-                        {subject.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                <Controller
+                  name='subjectIds'
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-2">
+                      {subjects.map(subject => {
+                        const isSelected = field.value?.includes(subject.id) ?? false
+                        return (
+                          <button
+                            type='button'
+                            key={subject.id}
+                            onClick={() => {
+                              const current = field.value ?? []
+                              field.onChange(
+                                isSelected 
+                                  ? current.filter(id => id !== subject.id)
+                                  : [...current, subject.id]
+                              )
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors cursor-pointer"
+                            style={{
+                              backgroundColor: isSelected
+                                ? 'rgba(37, 99, 235, 0.1)'
+                                : 'var(--color-bg-tertiary)',
+                              border: `1px solid ${isSelected
+                                ? 'var(--color-primary)'
+                                : 'var(--color-border)'}`,
+                            }}
+                          >
+                            <div
+                              className="w-4 h-4 rounded flex items-center justify-center shrink-0"
+                              style={{
+                                backgroundColor: isSelected
+                                  ? 'var(--color-primary)'
+                                  : 'transparent',
+                                border: `1.5px solid ${isSelected
+                                  ? 'var(--color-primary)'
+                                  : 'var(--color-border)'}`,
+                              }}
+                            >
+                              {isSelected && (
+                                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                  <path
+                                    d="M1 4L3.5 6.5L9 1"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                            <span style={{ color: 'var(--color-text-primary)' }}>
+                              {subject.name}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  />
               </div>
             )}
 
@@ -401,14 +467,13 @@ export default function GroupsPage() {
             )}
 
             <AppButton
-              onClick={handleSubmit}
-              disabled={isPending}
+              fullWidth
               isPending={isPending}
-              pendingLabel='Creando'
+              pendingLabel='Creando...'
             >
               Crear grupo
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </ProtectedPage>
