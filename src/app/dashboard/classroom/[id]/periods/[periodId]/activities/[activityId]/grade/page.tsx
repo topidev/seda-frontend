@@ -6,6 +6,7 @@ import ProtectedPage from '@/components/ProtectedPage'
 import BackButton from '@/components/BackButton'
 import AppButton from '@/components/AppButton'
 import { useClassDetail, useActivities, useGradeActivity } from '@/hooks/useClassroom'
+import z from 'zod'
 
 export default function GradeActivityPage() {
   const params = useParams()
@@ -19,7 +20,6 @@ export default function GradeActivityPage() {
 
   const activity = activities?.find(a => a.id === activityId)
   const students = cls?.group.studentGroupTerms ?? []
-
 
   // Estado local de calificaciones
   const [grades, setGrades] = useState<Record<string, { score: string; didNotSubmit: boolean }>>({})

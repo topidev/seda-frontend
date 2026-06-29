@@ -12,6 +12,18 @@ import { Plus, Trash2, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import z from "zod"
+
+const createActivitySchema = z.object({
+  title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
+  description: z.string().optional(),
+  categoryId: z.string().min(1, 'Selecciona una categoría'),
+  maxScore: z.coerce.number().min(1, 'El valor debe ser mayor a 0').default(10),
+  dueDate: z.string().optional(),
+})
+
+type CreateActivityFormData = z.infer<typeof createActivitySchema>
 
 export default function ActivitiesPage() {
   const params = useParams()
@@ -25,34 +37,39 @@ export default function ActivitiesPage() {
 
   const [open, setOpen] = useState(false)
   const [confirmId, setConfirmId] = useState<string | null>(null)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState('')
-  const [maxScore, setMaxScore] = useState('10')
-  const [dueDate, setDueDate] = useState('')
+  
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset
+  } = useForm<CreateActivityFormData>({
+    defaultValues: {
+      title: '',
+      description: '',
+      categoryId: '',
+      maxScore: 10,
+      dueDate: ''
+    }
+  })
 
   const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
   const categories = cls?.subject.gradeCategories ?? []
 
-  const handleSubmit = () => {
-    if (!title.trim() || !categoryId) return
-
+  const onSubmit = (data: CreateActivityFormData) => {
     createActivity(
       {
-        title,
-        description: description || undefined,
-        categoryId,
-        maxScore: Number(maxScore),
-        dueDate: dueDate || undefined
+        title: data.title,
+        description: data.description || undefined,
+        categoryId: data.categoryId,
+        maxScore: data.maxScore,
+        dueDate: data.dueDate || undefined
       },
       {
         onSuccess: () => {
           setOpen(false)
-          setTitle('')
-          setDescription('')
-          setCategoryId('')
-          setMaxScore('10')
-          setDueDate('')
+          reset()
         }
       }
     )
@@ -244,21 +261,61 @@ export default function ActivitiesPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 mt-2">
-            <AppInput
-              label="Título"
-              value={title}
-              onChange={setTitle}
-              placeholder="Ej. Tarea 1, Examen parcial"
-              onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
-            />
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
+            {/* Título */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Título
+              </label>
+              <input
+                {...register('title')}
+                placeholder="Ej. Tarea 1, Examen parcial"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.title ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.title
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.title
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
+              />
+              {errors.title && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
 
-            <AppInput
-              label="Descripción (opcional)"
-              value={description}
-              onChange={setDescription}
-              placeholder="Instrucciones o detalles"
-            />
+            {/* Descripción */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Descripción (opcional)
+              </label>
+              <input
+                {...register('description')}
+                placeholder="Instrucciones o detalles"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)'
+                }}
+              />
+            </div>
 
             {/* Categoría */}
             <div className="flex flex-col gap-2">
@@ -268,60 +325,107 @@ export default function ActivitiesPage() {
               >
                 Categoría
               </label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setCategoryId(cat.id)}
-                    className="px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: categoryId === cat.id
-                        ? 'var(--color-primary)'
-                        : 'var(--color-bg-tertiary)',
-                      border: `1px solid ${categoryId === cat.id
-                        ? 'var(--color-primary)'
-                        : 'var(--color-border)'}`,
-                      color: categoryId === cat.id
-                        ? 'white'
-                        : 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {cat.name} ({cat.percentage}%)
-                  </button>
-                ))}
-              </div>
+              <Controller
+                name="categoryId"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => field.onChange(cat.id)}
+                        className="px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: field.value === cat.id
+                            ? 'var(--color-primary)'
+                            : 'var(--color-bg-tertiary)',
+                          border: `1px solid ${field.value === cat.id
+                            ? 'var(--color-primary)'
+                            : 'var(--color-border)'}`,
+                          color: field.value === cat.id
+                            ? 'white'
+                            : 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {cat.name} ({cat.percentage}%)
+                      </button>
+                    ))}
+                  </div>
+                )}
+              />
+              {errors.categoryId && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.categoryId.message}
+                </p>
+              )}
             </div>
 
+            {/* Valor y fecha */}
             <div className="flex gap-3">
-              <div className="flex-1">
-                <AppInput
-                  label="Valor máximo"
-                  value={maxScore}
-                  onChange={setMaxScore}
+              <div className="flex flex-col gap-2 flex-1">
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  Valor máximo
+                </label>
+                <input
+                  {...register('maxScore')}
                   type="number"
                   min={1}
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    border: `1px solid ${errors.maxScore ? 'var(--color-error)' : 'var(--color-border)'}`,
+                    color: 'var(--color-text-primary)',
+                    colorScheme: 'dark',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = errors.maxScore
+                      ? 'var(--color-error)'
+                      : 'var(--color-primary)'
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = errors.maxScore
+                      ? 'var(--color-error)'
+                      : 'var(--color-border)'
+                  }}
                 />
+                {errors.maxScore && (
+                  <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                    {errors.maxScore.message}
+                  </p>
+                )}
               </div>
-              <div className="flex-1">
-                <AppInput
-                  label="Fecha de entrega"
-                  value={dueDate}
-                  onChange={setDueDate}
+              <div className="fflex flex-col gap-2 flex-1">
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  Fecha de entrega
+                </label>
+                <input
+                  {...register('dueDate')}
                   type="date"
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                    colorScheme: 'dark',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-border)'
+                  }}
                 />
               </div>
             </div>
 
             <AppButton
-              onClick={handleSubmit}
-              disabled={!title.trim() || !categoryId}
+              fullWidth
               isPending={isPending}
               pendingLabel="Creando..."
-              fullWidth
             >
               Crear actividad
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
 
