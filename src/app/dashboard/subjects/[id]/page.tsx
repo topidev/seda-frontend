@@ -18,31 +18,60 @@ import { Plus, Trash2 } from 'lucide-react'
 import BackButton from '@/components/BackButton'
 import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
-import { queryClient } from '@/lib/query-client'
+// import { queryClient } from '@/lib/query-client'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import z from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function SubjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const subjectId = params.id as string
+  const queryClient = useQueryClient()
 
   const { data: subject, isLoading } = useSubject(subjectId)
   const { mutate: createCategory, isPending, isError } = useCreateGradeCategory(subjectId)
   const { mutate: deleteCategory } = useDeleteGradeCategory(subjectId)
 
   const [open, setOpen] = useState(false)
-  const [categoryName, setCategoryName] = useState('')
-  const [percentage, setPercentage] = useState('')
+  // const [categoryName, setCategoryName] = useState('')
+  // const [percentage, setPercentage] = useState('')
 
   const [openConfirm, setOpenConfirm] = useState(false)
-
-
+  
   const totalPercentage = subject?.gradeCategories.reduce(
     (sum, c) => sum + c.percentage, 0,
   ) ?? 0
+
+  const availablePercentage = 100 - totalPercentage
+
+  const createCategorySchema = z.object({
+    categoryName: z.string().min(2, 'Mímino dos caracteres'),
+    percentage: z.number()
+      .min(5, 'Mínimo 5%')
+      .max(availablePercentage, `Máximo ${availablePercentage}% disponible`)
+  })
+
+  type CreateCategoryFormData = z.infer<typeof createCategorySchema>
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CreateCategoryFormData>({
+    resolver: zodResolver(createCategorySchema),
+    defaultValues: {
+      categoryName: '',
+      percentage: 0
+    },
+    mode: 'onChange'
+  })
+
 
   const { mutate: removeSubject } = useMutation({
     mutationFn: async () => {
@@ -58,16 +87,13 @@ export default function SubjectDetailPage() {
     }
   })
 
-  const handleSubmit = () => {
-    if (!categoryName.trim() || !percentage) return
-
+  const onSubmit = (data: CreateCategoryFormData) => {
     createCategory(
-      { name: categoryName, percentage: Number(percentage) },
+      { name: data.categoryName, percentage: data.percentage },
       {
         onSuccess: () => {
           setOpen(false)
-          setCategoryName('')
-          setPercentage('')
+          reset()
         },
       },
     )
@@ -264,7 +290,7 @@ export default function SubjectDetailPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 mt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-2">
             <div className="flex flex-col gap-2">
               <label
                 className="text-sm font-medium"
@@ -272,12 +298,31 @@ export default function SubjectDetailPage() {
               >
                 Nombre
               </label>
-              <AppInput
-                type="text"
-                value={categoryName}
-                onChange={setCategoryName}
+              <input
+                {...register('categoryName')}
                 placeholder="Ej. Tareas, Examen, Proyectos"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.categoryName ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.categoryName
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.categoryName
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
               />
+              {errors.categoryName && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.categoryName.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -285,16 +330,36 @@ export default function SubjectDetailPage() {
                 className="text-sm font-medium"
                 style={{ color: 'var(--color-text-secondary)' }}
               >
-                Porcentaje (disponible: {100 - totalPercentage}%)
+                Porcentaje (disponible: {availablePercentage}%)
               </label>
-              <AppInput
+              <input
+                {...register('percentage')}
                 type="number"
-                value={percentage}
-                onChange={setPercentage}
                 placeholder="Ej. 30"
-                min={1}
-                max={100 - totalPercentage}
+                min={5}
+                max={availablePercentage}
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.percentage ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.percentage
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.percentage
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
               />
+              {errors.percentage && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.percentage.message}
+                </p>
+              )}
             </div>
 
             {isError && (
@@ -304,14 +369,13 @@ export default function SubjectDetailPage() {
             )}
 
             <AppButton
-              onClick={handleSubmit}
-              disabled={isPending || !categoryName.trim() || !percentage}
+              fullWidth
               isPending={isPending}
               pendingLabel='Guardando'
             >
               Guardar categoría
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
       <ConfirmDialog
