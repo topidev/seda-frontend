@@ -242,7 +242,12 @@ export default function ActivitiesPage() {
       )}
 
       {/* Modal nueva actividad */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={
+        (val) => {
+          setOpen(val)
+          if (!val) reset()
+        }
+      }>
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
@@ -394,7 +399,7 @@ export default function ActivitiesPage() {
                   </p>
                 )}
               </div>
-              <div className="fflex flex-col gap-2 flex-1">
+              <div className="flex flex-col gap-2 flex-1">
                 <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                   Fecha de entrega
                 </label>
