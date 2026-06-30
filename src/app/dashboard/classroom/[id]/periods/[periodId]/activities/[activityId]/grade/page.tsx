@@ -215,6 +215,7 @@ export default function GradeActivityPage() {
       {/* Botón guardar */}
       <div className="mt-6">
         <AppButton
+          type='button'
           onClick={handleSave}
           isPending={isPending}
           pendingLabel="Guardando..."

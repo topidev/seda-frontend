@@ -250,6 +250,7 @@ export default function PeriodGradesPage() {
             />
 
             <AppButton
+              type="button"
               onClick={handleOverride}
               disabled={!overrideScore}
               isPending={isPending}

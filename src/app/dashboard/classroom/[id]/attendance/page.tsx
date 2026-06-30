@@ -253,6 +253,7 @@ export default function AttendancePage() {
 
       {/* Botón guardar */}
       <AppButton
+        type='button'
         onClick={handleSave}
         isPending={isPending}
         pendingLabel="Guardando..."

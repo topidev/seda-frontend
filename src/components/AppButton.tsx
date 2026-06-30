@@ -20,7 +20,7 @@ export default function AppButton({
   fullWidth = false,
 }: AppButtonProps) {
   const isDisabled = disabled || isPending
-  const whatType = type || "button"
+  const whatType = type || "submit"
 
   const bgColor = () => {
     if (isDisabled) return 'var(--color-text-disabled)'

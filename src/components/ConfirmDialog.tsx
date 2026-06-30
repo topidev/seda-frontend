@@ -50,6 +50,7 @@ export default function ConfirmDialog({
 
         <div className="flex gap-3 mt-4">
           <AppButton
+            type="button"
             variant="ghost"
             fullWidth
             onClick={() => onOpenChange(false)}
@@ -57,6 +58,7 @@ export default function ConfirmDialog({
             cancelar
           </AppButton>
           <AppButton
+            type="button"
             variant="danger"
             fullWidth
             onClick={onConfirm}

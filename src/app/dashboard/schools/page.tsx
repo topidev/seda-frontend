@@ -281,7 +281,7 @@ export default function SchoolsPage() {
                     {shifts.map(s => (
                       <button
                         key={s.value}
-                        type="button" 
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           field.onChange(s.value)
@@ -319,7 +319,6 @@ export default function SchoolsPage() {
             {/* Botón submit */}
             <AppButton
               fullWidth
-              type="submit"
               isPending={isPending}
               pendingLabel='Guardando...'
             >
