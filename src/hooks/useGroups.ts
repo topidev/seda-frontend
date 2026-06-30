@@ -67,3 +67,37 @@ export function useAssignSubjectToGroup(groupId: string) {
     }
   })
 }
+
+export function useRemoveSubjectFromGroup(groupId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (subjectTermGroupId: string) => {
+      await api.delete(`/groups/${groupId}/subjects/${subjectTermGroupId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
+      toast.success('Materia removida del grupo')
+    },
+    onError: () => {
+      toast.error('Error al remover la materia')
+    },
+  })
+}
+
+export function useRemoveStudentFromGroup(groupId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (studentGroupTermId: string) => {
+      await api.delete(`/groups/${groupId}/students/${studentGroupTermId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
+      toast.success('Alumno removido del grupo')
+    },
+    onError: () => {
+      toast.error('Error al remover al alumno')
+    },
+  })
+}

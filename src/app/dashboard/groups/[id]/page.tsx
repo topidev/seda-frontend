@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import ProtectedPage from '@/components/ProtectedPage'
-import { useGroup, useAssignSubjectToGroup } from '@/hooks/useGroups'
+import { useGroup, useAssignSubjectToGroup, useRemoveSubjectFromGroup, useRemoveStudentFromGroup } from '@/hooks/useGroups'
 import { useSubjects } from '@/hooks/useSubjects'
 import { useCreateStudent, useStudents, useAssignStudentToGroup } from '@/hooks/useStudents'
 import {
@@ -19,6 +19,8 @@ import z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import BackButton from '@/components/BackButton'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import { Trash2 } from 'lucide-react'
 
 const newStudentSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -41,6 +43,8 @@ export default function GroupDetailPage() {
   const { mutate: assignSubject } = useAssignSubjectToGroup(groupId)
   const { mutate: createStudent, isPending: isCreatingStudent } = useCreateStudent(groupId, academicTermId)
   const { mutate: assignStudent } = useAssignStudentToGroup()
+  const { mutate: removeSubject } = useRemoveSubjectFromGroup(groupId)
+  const { mutate: removeStudent } = useRemoveStudentFromGroup(groupId)
 
   const [openNewStudent, setOpenNewStudent] = useState(false)
   const [openAssignStudent, setOpenAssignStudent] = useState(false)
@@ -48,6 +52,8 @@ export default function GroupDetailPage() {
 
   const [assigningId, setAssigningId] = useState<string | null>(null)
   const [assigningSubjectId, setAssigningSubjectId] = useState<string | null>(null)
+  const [confirmRemoveSubjectId, setConfirmRemoveSubjectId] = useState<string | null>(null)
+  const [confirmRemoveStudentId, setConfirmRemoveStudentId] = useState<string | null>(null)
 
   const {
     register,
@@ -208,9 +214,24 @@ export default function GroupDetailPage() {
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
-                <span style={{ color: 'var(--color-text-primary)' }}>
-                  {stg.subject.name}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    {stg.subject.name}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setConfirmRemoveSubjectId(stg.id)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ color: 'var(--color-text-disabled)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--color-error)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'var(--color-text-disabled)'
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             ))}
           </div>
@@ -290,19 +311,34 @@ export default function GroupDetailPage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
-                  style={{
-                    backgroundColor: 'var(--color-bg-primary)',
-                    color: 'var(--color-primary)',
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+                    style={{
+                      backgroundColor: 'var(--color-bg-primary)',
+                      color: 'var(--color-primary)',
+                    }}
+                  >
+                    {sgt.student.name[0]}{sgt.student.firstLastName[0]}
+                  </div>
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    {sgt.student.name} {sgt.student.firstLastName}{' '}
+                    {sgt.student.secondLastName}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setConfirmRemoveStudentId(sgt.id)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                  style={{ color: 'var(--color-text-disabled)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--color-error)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'var(--color-text-disabled)'
                   }}
                 >
-                  {sgt.student.name[0]}{sgt.student.firstLastName[0]}
-                </div>
-                <span style={{ color: 'var(--color-text-primary)' }}>
-                  {sgt.student.name} {sgt.student.firstLastName}{' '}
-                  {sgt.student.secondLastName}
-                </span>
+                  <Trash2 size={14} />
+                </button>
               </div>
             ))}
           </div>
@@ -524,6 +560,34 @@ export default function GroupDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!confirmRemoveSubjectId}
+        onOpenChange={open => { if (!open) setConfirmRemoveSubjectId(null) }}
+        title="Quitar materia del grupo"
+        description="¿Seguro que deseas quitar esta materia del grupo? Las actividades y calificaciones ya creadas se conservarán."
+        confirmLabel="Quitar"
+        onConfirm={() => {
+          if (confirmRemoveSubjectId) {
+            removeSubject(confirmRemoveSubjectId)
+            setConfirmRemoveSubjectId(null)
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!confirmRemoveStudentId}
+        onOpenChange={open => { if (!open) setConfirmRemoveStudentId(null) }}
+        title="Quitar alumno del grupo"
+        description="¿Seguro que deseas quitar a este alumno del grupo? Su historial académico se conservará."
+        confirmLabel="Quitar"
+        onConfirm={() => {
+          if (confirmRemoveStudentId) {
+            removeStudent(confirmRemoveStudentId)
+            setConfirmRemoveStudentId(null)
+          }
+        }}
+      />
     </ProtectedPage>
   )
 }
