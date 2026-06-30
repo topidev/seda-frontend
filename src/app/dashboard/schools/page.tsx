@@ -281,8 +281,11 @@ export default function SchoolsPage() {
                     {shifts.map(s => (
                       <button
                         key={s.value}
-                        type='button'
-                        onClick={() => field.onChange(s.value)}
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          field.onChange(s.value)
+                        }}
                         className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
                         style={{
                           backgroundColor: field.value === s.value
@@ -316,6 +319,7 @@ export default function SchoolsPage() {
             {/* Botón submit */}
             <AppButton
               fullWidth
+              type="submit"
               isPending={isPending}
               pendingLabel='Guardando...'
             >

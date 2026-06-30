@@ -322,7 +322,11 @@ export default function GroupsPage() {
                     {grades.map(g => (
                       <button
                         key={g}
-                        onClick={() => field.onChange(g)}
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          field.onChange(g)
+                        }}
                         className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
                         style={{
                           backgroundColor: field.value === g
@@ -362,7 +366,11 @@ export default function GroupsPage() {
                     {letters.map(l => (
                       <button
                         key={l}
-                        onClick={() => field.onChange(l)}
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          field.onChange(l)
+                        }}
                         className="flex-1 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer"
                         style={{
                           backgroundColor: field.value === l
@@ -405,9 +413,10 @@ export default function GroupsPage() {
                         const isSelected = field.value?.includes(subject.id) ?? false
                         return (
                           <button
-                            type='button'
+                            type="button" 
                             key={subject.id}
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
                               const current = field.value ?? []
                               field.onChange(
                                 isSelected 
@@ -468,6 +477,7 @@ export default function GroupsPage() {
 
             <AppButton
               fullWidth
+              type="submit"
               isPending={isPending}
               pendingLabel='Creando...'
             >

@@ -338,7 +338,11 @@ export default function ActivitiesPage() {
                     {categories.map(cat => (
                       <button
                         key={cat.id}
-                        onClick={() => field.onChange(cat.id)}
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          field.onChange(cat.id)
+                        }}
                         className="px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
                         style={{
                           backgroundColor: field.value === cat.id
@@ -425,6 +429,7 @@ export default function ActivitiesPage() {
 
             <AppButton
               fullWidth
+              type="submit"
               isPending={isPending}
               pendingLabel="Creando..."
             >

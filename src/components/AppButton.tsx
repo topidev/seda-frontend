@@ -2,6 +2,7 @@ interface AppButtonProps {
   onClick?: () => void
   disabled?: boolean
   isPending?: boolean
+  type?: "button" | "submit" | "reset" | undefined
   pendingLabel?: string
   children: React.ReactNode
   variant?: 'primary' | 'danger' | 'ghost'
@@ -12,12 +13,14 @@ export default function AppButton({
   onClick,
   disabled,
   isPending,
+  type,
   pendingLabel = 'Guardando...',
   children,
   variant = 'primary',
   fullWidth = false,
 }: AppButtonProps) {
   const isDisabled = disabled || isPending
+  const whatType = type || "button"
 
   const bgColor = () => {
     if (isDisabled) return 'var(--color-text-disabled)'
@@ -46,6 +49,7 @@ export default function AppButton({
     <button
       onClick={onClick}
       disabled={isDisabled}
+      type={whatType}
       className={`${fullWidth ? 'w-full' : ''} py-3 px-4 rounded-xl font-medium transition-colors`}
       style={{
         backgroundColor: bgColor(),
