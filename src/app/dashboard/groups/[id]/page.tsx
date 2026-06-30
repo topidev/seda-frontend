@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import ProtectedPage from '@/components/ProtectedPage'
-import { useGroup, useAssignSubjectToGroup, useRemoveSubjectFromGroup, useRemoveStudentFromGroup } from '@/hooks/useGroups'
+import { useGroup, useAssignSubjectToGroup, useRemoveSubjectFromGroup, useRemoveStudentFromGroup, useDeleteGroup } from '@/hooks/useGroups'
 import { useSubjects } from '@/hooks/useSubjects'
 import { useCreateStudent, useStudents, useAssignStudentToGroup } from '@/hooks/useStudents'
 import {
@@ -35,6 +35,7 @@ export default function GroupDetailPage() {
   const searchParams = useSearchParams()
   const groupId = params.id as string
   const academicTermId = searchParams.get('academicTermId') ?? ''
+  const router = useRouter()
 
   const { data: group, isLoading } = useGroup(groupId, academicTermId)
   const { data: subjects } = useSubjects()
@@ -45,10 +46,12 @@ export default function GroupDetailPage() {
   const { mutate: assignStudent } = useAssignStudentToGroup()
   const { mutate: removeSubject } = useRemoveSubjectFromGroup(groupId)
   const { mutate: removeStudent } = useRemoveStudentFromGroup(groupId)
+  const { mutate: deleteGroup } = useDeleteGroup()
 
   const [openNewStudent, setOpenNewStudent] = useState(false)
   const [openAssignStudent, setOpenAssignStudent] = useState(false)
   const [openAssignSubject, setOpenAssignSubject] = useState(false)
+  const [confirmDeleteGroup, setConfirmDeleteGroup] = useState(false)
 
   const [assigningId, setAssigningId] = useState<string | null>(null)
   const [assigningSubjectId, setAssigningSubjectId] = useState<string | null>(null)
@@ -142,7 +145,7 @@ export default function GroupDetailPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <BackButton href='/dashboard/groups' />
-        <div>
+        <div className="flex-1">
           <h1
             className="text-2xl font-semibold"
             style={{
@@ -157,6 +160,25 @@ export default function GroupDetailPage() {
             {group?.subjectTermGroups.length ?? 0} materias
           </p>
         </div>
+        <button
+          onClick={() => setConfirmDeleteGroup(true)}
+          className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-text-secondary)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'var(--color-error)'
+            e.currentTarget.style.color = 'var(--color-error)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'var(--color-border)'
+            e.currentTarget.style.color = 'var(--color-text-secondary)'
+          }}
+        >
+          <Trash2 size={15} />
+        </button>
       </div>
 
       {/* Sección materias */}
@@ -210,7 +232,7 @@ export default function GroupDetailPage() {
             {group?.subjectTermGroups.map(stg => (
               <div
                 key={stg.id}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                className="flex items-center gap-3 justify-between px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
@@ -311,7 +333,7 @@ export default function GroupDetailPage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                     style={{
@@ -588,6 +610,21 @@ export default function GroupDetailPage() {
           }
         }}
       />
+
+      <ConfirmDialog
+        open={confirmDeleteGroup}
+        onOpenChange={setConfirmDeleteGroup}
+        title="Eliminar grupo"
+        description={`¿Seguro que deseas eliminar ${group?.grade}° ${group?.letter}? Las materias y alumnos asignados se desvincularán, pero su información se conservará.`}
+        confirmLabel="Eliminar"
+        onConfirm={() => {
+          deleteGroup(groupId, {
+            onSuccess: () => router.replace('/dashboard/groups'),
+          })
+          setConfirmDeleteGroup(false)
+        }}
+      />
+
     </ProtectedPage>
   )
 }

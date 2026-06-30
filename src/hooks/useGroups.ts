@@ -101,3 +101,20 @@ export function useRemoveStudentFromGroup(groupId: string) {
     },
   })
 }
+
+export function useDeleteGroup() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      await api.delete(`/groups/${groupId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups'] })
+      toast.success('Grupo eliminado correctamente')
+    },
+    onError: () => {
+      toast.error('Error al eliminar el grupo')
+    },
+  })
+}
