@@ -12,10 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ArrowLeft, Plus, BookOpen } from 'lucide-react'
-import Link from 'next/link'
+import { Plus, BookOpen } from 'lucide-react'
 import Spinner from '@/components/Spinner'
-import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
 import z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -42,16 +40,15 @@ export default function GroupDetailPage() {
 
   const { mutate: assignSubject } = useAssignSubjectToGroup(groupId)
   const { mutate: createStudent, isPending: isCreatingStudent } = useCreateStudent(groupId, academicTermId)
-  const { mutate: assignStudent, isPending: isAddingStudent } = useAssignStudentToGroup()
+  const { mutate: assignStudent } = useAssignStudentToGroup()
 
   const [openNewStudent, setOpenNewStudent] = useState(false)
   const [openAssignStudent, setOpenAssignStudent] = useState(false)
   const [openAssignSubject, setOpenAssignSubject] = useState(false)
 
-  // Formulario nuevo alumno
-  // const [name, setName] = useState('')
-  // const [firstLastName, setFirstLastName] = useState('')
-  // const [secondLastName, setSecondLastName] = useState('')
+  const [assigningId, setAssigningId] = useState<string | null>(null)
+  const [assigningSubjectId, setAssigningSubjectId] = useState<string | null>(null)
+
   const {
     register,
     handleSubmit,
@@ -95,16 +92,34 @@ export default function GroupDetailPage() {
   }
 
   const handleAssignStudent = (studentId: string) => {
+    setAssigningId(studentId)
     assignStudent(
       { studentId, groupId, academicTermId },
-      { onSuccess: () => setOpenAssignStudent(false) },
+      {
+        onSuccess: () => {
+          setOpenAssignStudent(false)
+          setAssigningId(null)
+        },
+        onError: () => {
+          setAssigningId(null)
+        }
+      }
     )
   }
 
   const handleAssignSubject = (subjectId: string) => {
+    setAssigningSubjectId(subjectId)
     assignSubject(
       { subjectId, academicTermId },
-      { onSuccess: () => setOpenAssignSubject(false) },
+      {
+        onSuccess: () => {
+          setOpenAssignSubject(false)
+          setAssigningSubjectId(null)
+        },
+        onError: () => {
+          setAssigningSubjectId(null)
+        }
+      }
     )
   }
 
@@ -399,37 +414,51 @@ export default function GroupDetailPage() {
                 No hay alumnos disponibles para asignar
               </p>
             ) : (
-              availableStudents.map(student => (
-                <button
-                  key={student.id}
-                  disabled={isAddingStudent}
-                  onClick={() => handleAssignStudent(student.id)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-colors"
-                  style={{
-                    backgroundColor: 'var(--color-bg-tertiary)',
-                    border: '1px solid var(--color-border)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-primary)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-border)'
-                  }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+              availableStudents.map(student => {
+                const isThisOne = assigningId === student.id
+                const isDisabled = assigningId !== null
+
+                return (
+                  <button
+                    key={student.id}
+                    disabled={isDisabled}
+                    onClick={() => handleAssignStudent(student.id)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-colors"
                     style={{
-                      backgroundColor: 'var(--color-bg-primary)',
-                      color: 'var(--color-primary)',
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: '1px solid var(--color-border)',
+                      opacity: isDisabled && !isThisOne ? 0.5 : 1,
+                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    }}
+                    onMouseEnter={e => {
+                      if (!isDisabled) e.currentTarget.style.borderColor = 'var(--color-primary)'
+                    }}
+                    onMouseLeave={e => {
+                      if (!isDisabled) e.currentTarget.style.borderColor = 'var(--color-border)'
                     }}
                   >
-                    {student.name[0]}{student.firstLastName[0]}
-                  </div>
-                  <span style={{ color: 'var(--color-text-primary)' }}>
-                    {student.name} {student.firstLastName} {student.secondLastName}
-                  </span>
-                </button>
-              ))
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                      style={{
+                        backgroundColor: 'var(--color-bg-primary)',
+                        color: 'var(--color-primary)',
+                      }}
+                    >
+                      {isThisOne ? (
+                        <div
+                          className="w-3.5 h-3.5 rounded-full border-2 border-t-transparent animate-spin"
+                          style={{ borderColor: 'var(--color-primary)' }}
+                        />
+                      ) : (
+                        `${student.name[0]}${student.firstLastName[0]}`
+                      )}
+                    </div>
+                    <span style={{ color: 'var(--color-text-primary)' }}>
+                      {student.name} {student.firstLastName} {student.secondLastName}
+                    </span>
+                  </button>
+                )
+              })
             )}
           </div>
         </DialogContent>
@@ -455,28 +484,43 @@ export default function GroupDetailPage() {
           </DialogHeader>
 
           <div className="flex flex-col gap-2 mt-2">
-            {availableSubjects.map(subject => (
-              <button
-                key={subject.id}
-                onClick={() => handleAssignSubject(subject.id)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: '1px solid var(--color-border)',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
-              >
-                <BookOpen size={16} style={{ color: 'var(--color-primary)' }} />
-                <span style={{ color: 'var(--color-text-primary)' }}>
-                  {subject.name}
-                </span>
-              </button>
-            ))}
+            {availableSubjects.map(subject => {
+              const isThisOne = assigningSubjectId === subject.id
+              const isDisabled = assigningSubjectId !== null
+              return (
+                <button
+                  key={subject.id}
+                  disabled={isDisabled}
+                  onClick={() => handleAssignSubject(subject.id)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    opacity: isDisabled && !isThisOne ? 0.5 : 1,
+                    border: '1px solid var(--color-border)',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isDisabled) e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  }}
+                  onMouseLeave={e => {
+                    if (!isDisabled) e.currentTarget.style.borderColor = 'var(--color-border)'
+                  }}
+                >
+                  {isThisOne ? (
+                    <div
+                      className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin flex-shrink-0"
+                      style={{ borderColor: 'var(--color-primary)' }}
+                    />
+                  ) : (
+                    <BookOpen size={16} style={{ color: 'var(--color-primary)' }} />
+                  )}
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    {subject.name}
+                  </span>
+                </button>
+              )
+            }
+            )}
           </div>
         </DialogContent>
       </Dialog>
