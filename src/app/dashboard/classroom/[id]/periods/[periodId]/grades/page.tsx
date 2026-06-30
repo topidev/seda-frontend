@@ -7,9 +7,21 @@ import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useClassDetail, useOverrideFinalGrade, usePeriodGrades } from "@/hooks/useClassroom"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Pencil } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import z from "zod"
+
+const overrideSchema = z.object({
+  finalScore: z.number()
+    .min(0, 'Minimo 0')
+    .max(10, 'Máximo 10'),
+  overrideReason: z.string().optional()
+})
+
+type OverrideFormData = z.infer<typeof overrideSchema>
 
 export default function PeriodGradesPage() {
   const params = useParams()
@@ -22,29 +34,42 @@ export default function PeriodGradesPage() {
 
   const [openOverride, setOpenOverride] = useState(false)
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null)
-  const [overrideScore, setOverrideScore] = useState('')
-  const [overrideReason, setOverrideReason] = useState('')
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue
+  } = useForm<OverrideFormData>({
+    resolver: zodResolver(overrideSchema),
+    defaultValues: {
+      finalScore: 0,
+      overrideReason: ''
+    }
+  })
 
   const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
 
   const handleOpenOverride = (gradeId: string, currentScore: number) => {
     setSelectedGradeId(gradeId)
-    setOverrideScore(currentScore.toString())
-    setOverrideReason('')
+    setValue('finalScore', currentScore)
+    setValue('overrideReason', '')
     setOpenOverride(true)
   }
 
-  const handleOverride = () => {
-    if (!selectedGradeId || !overrideScore) return
+  const onSubmit = (data: OverrideFormData) => {
+    if (!selectedGradeId) return
 
     overrideGrade({
       finalGradeId: selectedGradeId,
-      finalScore: Number(overrideScore),
-      overrideReason: overrideReason || undefined
+      finalScore: data.finalScore,
+      overrideReason: data.overrideReason || undefined
     }, {
       onSuccess: () => {
         setOpenOverride(false)
         setSelectedGradeId(null)
+        reset()
       }
     })
   }
@@ -214,7 +239,14 @@ export default function PeriodGradesPage() {
       )}
 
       {/* Modal override */}
-      <Dialog open={openOverride} onOpenChange={setOpenOverride}>
+      <Dialog
+        open={openOverride}
+        onOpenChange={
+          (val) => {
+            setOpenOverride(val)
+            if (!val) reset()
+          }}
+      >
         <DialogContent
           style={{
             backgroundColor: 'var(--color-bg-elevated)',
@@ -233,33 +265,72 @@ export default function PeriodGradesPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 mt-2">
-            <AppInput
-              label="Calificación final"
-              value={overrideScore}
-              onChange={setOverrideScore}
-              type="number"
-              min={0}
-              max={10}
-            />
-            <AppInput
-              label="Motivo (opcional)"
-              value={overrideReason}
-              onChange={setOverrideReason}
-              placeholder="Ej. Trabajo extra, error de captura..."
-            />
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Calificación final
+              </label>
+              <input
+                {...register('finalScore', { valueAsNumber: true })}
+                type="number"
+                min={0}
+                max={10}
+                step={0.1}
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${errors.finalScore ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                  colorScheme: 'dark',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = errors.finalScore
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = errors.finalScore
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
+              />
+              {errors.finalScore && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {errors.finalScore.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Motivo (opcional)
+              </label>
+              <input
+                {...register('overrideReason')}
+                placeholder="Ej. Trabajo extra, error de captura..."
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)'
+                }}
+              />
+            </div>
 
             <AppButton
-              type="button"
-              onClick={handleOverride}
-              disabled={!overrideScore}
+              fullWidth
               isPending={isPending}
               pendingLabel="Guardando..."
-              fullWidth
             >
               Guardar calificación
             </AppButton>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </ProtectedPage>
