@@ -330,10 +330,10 @@ export default function GroupDetailPage() {
             {group?.studentGroupTerms.map(sgt => (
               <div
                 key={sgt.id}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                     style={{
