@@ -42,7 +42,7 @@ export default function GroupDetailPage() {
 
   const { mutate: assignSubject } = useAssignSubjectToGroup(groupId)
   const { mutate: createStudent, isPending: isCreatingStudent } = useCreateStudent(groupId, academicTermId)
-  const { mutate: assignStudent } = useAssignStudentToGroup()
+  const { mutate: assignStudent, isPending: isAddingStudent } = useAssignStudentToGroup()
 
   const [openNewStudent, setOpenNewStudent] = useState(false)
   const [openAssignStudent, setOpenAssignStudent] = useState(false)
@@ -295,8 +295,8 @@ export default function GroupDetailPage() {
       </div>
 
       {/* Modal nuevo alumno */}
-      <Dialog 
-        open={openNewStudent} 
+      <Dialog
+        open={openNewStudent}
         onOpenChange={(val) => {
           setOpenNewStudent(val)
           if (!val) reset()
@@ -324,7 +324,7 @@ export default function GroupDetailPage() {
               { field: 'name' as const, label: 'Nombre', placeholder: 'Ej. Juan' },
               { field: 'firstLastName' as const, label: 'Apellido Paterno', placeholder: 'Ej. Pérez' },
               { field: 'secondLastName' as const, label: 'Apellido Mater', placeholder: 'Ej. García (Opcional)' },
-            ].map(({field, label, placeholder}) => (
+            ].map(({ field, label, placeholder }) => (
               <div key={field} className="flex flex-col gap-2">
                 <label
                   className="text-sm font-medium"
@@ -402,6 +402,7 @@ export default function GroupDetailPage() {
               availableStudents.map(student => (
                 <button
                   key={student.id}
+                  disabled={isAddingStudent}
                   onClick={() => handleAssignStudent(student.id)}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-colors"
                   style={{

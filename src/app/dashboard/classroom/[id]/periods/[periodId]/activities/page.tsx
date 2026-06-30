@@ -1,25 +1,25 @@
 'use client'
 
 import AppButton from "@/components/AppButton"
-import AppInput from "@/components/AppInput"
 import BackButton from "@/components/BackButton"
 import ConfirmDialog from "@/components/ConfirmDialog"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { DialogContent, DialogHeader, Dialog, DialogTitle } from "@/components/ui/dialog"
 import { useActivities, useClassDetail, useCreateActivity, useDeleteActivity } from "@/hooks/useClassroom"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import z from "zod"
+import z, { ZodType } from "zod"
 
 const createActivitySchema = z.object({
   title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Selecciona una categoría'),
-  maxScore: z.coerce.number().min(1, 'El valor debe ser mayor a 0').default(10),
+  maxScore: z.number().min(1, 'El valor debe ser mayor a 0'),
   dueDate: z.string().optional(),
 })
 
@@ -37,14 +37,18 @@ export default function ActivitiesPage() {
 
   const [open, setOpen] = useState(false)
   const [confirmId, setConfirmId] = useState<string | null>(null)
-  
+
+  const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
+  const categories = cls?.subject.gradeCategories ?? []
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-    reset
+    reset,
   } = useForm<CreateActivityFormData>({
+    resolver: zodResolver(createActivitySchema),
     defaultValues: {
       title: '',
       description: '',
@@ -53,9 +57,6 @@ export default function ActivitiesPage() {
       dueDate: ''
     }
   })
-
-  const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
-  const categories = cls?.subject.gradeCategories ?? []
 
   const onSubmit = (data: CreateActivityFormData) => {
     createActivity(
@@ -338,7 +339,7 @@ export default function ActivitiesPage() {
                     {categories.map(cat => (
                       <button
                         key={cat.id}
-                        type="button" 
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           field.onChange(cat.id)
@@ -376,9 +377,11 @@ export default function ActivitiesPage() {
                   Valor máximo
                 </label>
                 <input
-                  {...register('maxScore')}
-                  type="number"
+                  {...register('maxScore', {
+                    valueAsNumber: true,
+                  })}
                   min={1}
+                  type="number"
                   className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
                   style={{
                     backgroundColor: 'var(--color-bg-tertiary)',
