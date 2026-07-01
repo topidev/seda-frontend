@@ -116,11 +116,16 @@ export default function StudentDetailPage() {
 
   // Obtiene todas las materias únicas del alumno a través de sus grupos
   const subjects = student?.groupTerms.flatMap(gt =>
-    gt.group.subjectTermGroups.map(stg => stg.subject)
+    gt.group.subjectTermGroups.map(stg => ({
+      subjectId: stg.subject.id,
+      subjectTermGroupId: stg.id,
+      name: stg.subject.name,
+      academicTermId: gt.academicTermId
+    }))
   ) ?? []
 
   const uniqueSubjects = subjects.filter(
-    (s, i, arr) => arr.findIndex(x => x.id === s.id) === i,
+    (s, i, arr) => arr.findIndex(x => x.subjectId === s.subjectId) === i,
   )
 
   if (isLoading) {
@@ -269,19 +274,33 @@ export default function StudentDetailPage() {
         ) : (
           <div className="flex flex-col gap-2">
             {uniqueSubjects.map(subject => (
-              <div
-                key={subject.id}
+              <Link
+                key={subject.subjectTermGroupId}
+                href={`/dashboard/students/${studentId}/subjects/${subject.subjectTermGroupId}?academicTermId=${subject.academicTermId}`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
-                <BookOpen
-                  size={16}
-                  style={{ color: 'var(--color-primary)' }}
-                />
-                <span style={{ color: 'var(--color-text-primary)' }}>
-                  {subject.name}
-                </span>
-              </div>
+                <div
+                  className="flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-colors"
+                  style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <BookOpen
+                      size={16}
+                      style={{ color: 'var(--color-primary)' }}
+                    />
+                    <span style={{ color: 'var(--color-text-primary)' }}>
+                      {subject.name}
+                    </span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         )}
