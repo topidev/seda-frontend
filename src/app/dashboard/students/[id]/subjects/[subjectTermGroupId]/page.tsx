@@ -1,3 +1,5 @@
+'use client'
+
 import BackButton from "@/components/BackButton"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
