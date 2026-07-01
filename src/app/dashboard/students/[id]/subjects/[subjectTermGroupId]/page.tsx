@@ -59,6 +59,15 @@ export default function StudenSubjectSummaryPage() {
     enabled: !!activePeriodId
   })
 
+  const { data: student } = useQuery({
+    queryKey: ['students', studentId],
+    queryFn: async () => {
+      const { data } = await api.get(`/students/${studentId}`)
+      return data
+    },
+    enabled: !!studentId
+  })
+
   const getScoreColor = (score: number) => {
     if (score >= 9) return 'var(--color-success)'
     if (score >= 7) return 'var(--color-info)'
@@ -87,6 +96,9 @@ export default function StudenSubjectSummaryPage() {
             {summary?.subjectName ?? cls?.subject.name ?? '...'}
           </h1>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            {student ?
+              `${student.name} ${student.firstLastName} ${student.secondLastName ?? ''} · `
+              : ''}
             {cls?.group.grade}°{cls?.group.letter} · {cls?.academicTerm.name}
           </p>
         </div>
