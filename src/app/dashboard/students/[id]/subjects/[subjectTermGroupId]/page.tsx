@@ -9,6 +9,11 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
+interface AttendanceEntry {
+  date: string
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
+}
+
 interface ActivitySummary {
   id: string
   title: string
@@ -21,17 +26,16 @@ interface ActivitySummary {
 
 interface SubjectSummary {
   subjectName: string
+  periodDates: {
+    startDate: string
+    endDate: string
+  }
   finalGrade: {
     calculatedScore: number
     finalScore: number | null
   } | null
   activities: ActivitySummary[]
-  attendance: {
-    present: number
-    absent: number
-    late: number
-    excused: number
-  }
+  attendance: AttendanceEntry[]
 }
 
 export default function StudenSubjectSummaryPage() {
@@ -76,9 +80,7 @@ export default function StudenSubjectSummaryPage() {
   }
 
   const finalScore = summary?.finalGrade?.finalScore ?? summary?.finalGrade?.calculatedScore
-  const totalAttendance = summary
-    ? summary.attendance.present + summary.attendance.absent + summary.attendance.late + summary.attendance.excused
-    : 0
+  const totalAttendance = summary?.attendance.length ?? 0
 
   return (
     <ProtectedPage>
@@ -100,6 +102,23 @@ export default function StudenSubjectSummaryPage() {
               `${student.name} ${student.firstLastName} ${student.secondLastName ?? ''} · `
               : ''}
             {cls?.group.grade}°{cls?.group.letter} · {cls?.academicTerm.name}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            {summary?.periodDates && (
+              <span style={{ color: 'var(--color-text-disabled)' }}>
+                {new Date(summary.periodDates.startDate).toLocaleDateString('es-MX', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+                {' → '}
+                {new Date(summary.periodDates.endDate).toLocaleDateString('es-MX', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              </span>
+            )} · {cls?.academicTerm.name}
           </p>
         </div>
       </div>
@@ -272,18 +291,18 @@ export default function StudenSubjectSummaryPage() {
                 className="text-base font-medium"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                Asistencias
+                Asistencias ({totalAttendance})
               </h2>
               {totalAttendance > 0 && (
                 <span
                   className="text-sm font-medium"
                   style={{
                     color: getScoreColor(
-                      (summary.attendance.present / totalAttendance) * 10
+                      (summary.attendance.filter(a => a.status === 'PRESENT').length / summary.attendance.length) * 10
                     ),
                   }}
                 >
-                  {Math.round((summary.attendance.present / totalAttendance) * 100)}% asistencia
+                  {Math.round((summary.attendance.filter(a => a.status === 'PRESENT').length / summary.attendance.length) * 100)}% asistencia
                 </span>
               )}
             </div>
@@ -293,35 +312,89 @@ export default function StudenSubjectSummaryPage() {
                 Sin registros de asistencia en este bimestre
               </p>
             ) : (
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { label: 'Presentes', value: summary.attendance.present, color: 'var(--color-success)', bg: 'rgba(16, 185, 129, 0.1)' },
-                  { label: 'Ausentes', value: summary.attendance.absent, color: 'var(--color-error)', bg: 'rgba(239, 68, 68, 0.1)' },
-                  { label: 'Tardanzas', value: summary.attendance.late, color: 'var(--color-warning)', bg: 'rgba(245, 158, 11, 0.1)' },
-                  { label: 'Justific.', value: summary.attendance.excused, color: 'var(--color-info)', bg: 'rgba(6, 182, 212, 0.1)' },
-                ].map(item => (
-                  <div
-                    key={item.label}
-                    className="rounded-xl p-3 flex flex-col items-center gap-1"
-                    style={{
-                      backgroundColor: item.bg,
-                      border: `1px solid ${item.color}20`,
-                    }}
-                  >
-                    <span
-                      className="text-xl font-semibold"
+              <div
+                className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid var(--color-border)' }}
+              >
+                {/* Header tabla */}
+                <div
+                  className="grid grid-cols-8 px-3 py-2 text-xs font-medium uppercase tracking-wider"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    color: 'var(--color-text-disabled)',
+                  }}
+                >
+                  <span className="col-span-4">Fecha</span>
+                  <span className="col-span-1 text-center">P</span>
+                  <span className="col-span-1 text-center">A</span>
+                  <span className="col-span-1 text-center">T</span>
+                  <span className="col-span-1 text-center">J</span>
+                </div>
+
+                {/* Filas */}
+                {summary.attendance.map((entry, index) => {
+                  const isLast = index === summary.attendance.length - 1
+                  const statusColors: Record<string, string> = {
+                    PRESENT: 'var(--color-success)',
+                    ABSENT: 'var(--color-error)',
+                    LATE: 'var(--color-warning)',
+                    EXCUSED: 'var(--color-info)',
+                  }
+
+                  return (
+                    <div
+                      key={entry.date}
+                      className="grid grid-cols-8 items-center px-3 py-2.5"
                       style={{
-                        color: item.color,
-                        fontFamily: 'var(--font-geist)',
+                        backgroundColor: index % 2 === 0
+                          ? 'var(--color-bg-elevated)'
+                          : 'var(--color-bg-secondary)',
+                        borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
                       }}
                     >
-                      {item.value}
-                    </span>
-                    <span className="text-xs text-center" style={{ color: item.color }}>
-                      {item.label}
-                    </span>
-                  </div>
-                ))}
+                      {/* Fecha */}
+                      <span
+                        className="col-span-4 text-sm"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {new Date(entry.date).toLocaleDateString('es-MX', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+
+                      {/* Columnas de estado */}
+                      {(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'] as const).map(status => (
+                        <div key={status} className="col-span-1 flex justify-center">
+                          {entry.status === status ? (
+                            <div
+                              className="w-5 h-5 rounded-full flex items-center justify-center"
+                              style={{ backgroundColor: statusColors[status] }}
+                            >
+                              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                <path
+                                  d="M1 4L3.5 6.5L9 1"
+                                  stroke="white"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                          ) : (
+                            <div
+                              className="w-5 h-5 rounded-full"
+                              style={{
+                                border: '1.5px solid var(--color-border)',
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
