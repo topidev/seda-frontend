@@ -101,7 +101,7 @@ export default function StudenSubjectSummaryPage() {
             {student ?
               `${student.name} ${student.firstLastName} ${student.secondLastName ?? ''} · `
               : ''}
-            {cls?.group.grade}°{cls?.group.letter} · {cls?.academicTerm.name}
+            {cls?.group.grade}°{cls?.group.letter}
           </p>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             {summary?.periodDates && (
@@ -117,8 +117,9 @@ export default function StudenSubjectSummaryPage() {
                   month: 'short',
                   year: 'numeric',
                 })}
+                · {cls?.academicTerm.name}
               </span>
-            )} · {cls?.academicTerm.name}
+            )}
           </p>
         </div>
       </div>
