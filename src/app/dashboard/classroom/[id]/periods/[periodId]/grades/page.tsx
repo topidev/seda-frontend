@@ -1,14 +1,14 @@
 'use client'
 
 import AppButton from "@/components/AppButton"
-import AppInput from "@/components/AppInput"
 import BackButton from "@/components/BackButton"
+import ConfirmDialog from "@/components/ConfirmDialog"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useClassDetail, useOverrideFinalGrade, usePeriodGrades } from "@/hooks/useClassroom"
+import { useClassDetail, useOverrideFinalGrade, usePeriodGrades, useTogglePeriodClose } from "@/hooks/useClassroom"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Pencil } from "lucide-react"
+import { LockOpen, Pencil, Lock } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -31,9 +31,11 @@ export default function PeriodGradesPage() {
   const { data: cls } = useClassDetail(subjectTermGroupId)
   const { data: grades, isLoading } = usePeriodGrades(subjectTermGroupId, periodId)
   const { mutate: overrideGrade, isPending } = useOverrideFinalGrade()
+  const { mutate: toggleClose, isPending: isToggling } = useTogglePeriodClose(subjectTermGroupId, periodId)
 
   const [openOverride, setOpenOverride] = useState(false)
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null)
+  const [confirmClose, setConfirmClose] = useState(false)
 
   const {
     register,
@@ -50,6 +52,8 @@ export default function PeriodGradesPage() {
   })
 
   const period = cls?.academicTerm.periods?.find(p => p.id === periodId)
+  const isClosed = grades && grades.length > 0 && grades.every(g => g.closed)
+  const hasGrades = grades && grades.length > 0
 
   const handleOpenOverride = (gradeId: string, currentScore: number) => {
     setSelectedGradeId(gradeId)
@@ -100,7 +104,48 @@ export default function PeriodGradesPage() {
             {cls?.subject.name} · {cls?.group.grade}°{cls?.group.letter} · Bimestre {period?.number}
           </p>
         </div>
+
+        {/* Botón cerrar/reabrir */}
+        {hasGrades && (
+          <button
+            onClick={() => setConfirmClose(true)}
+            disabled={isToggling}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+            style={{
+              backgroundColor: isClosed
+                ? 'rgba(16, 185, 129, 0.1)'
+                : 'rgba(239, 68, 68, 0.1)',
+              border: `1px solid ${isClosed
+                ? 'var(--color-success)'
+                : 'var(--color-error)'}`,
+              color: isClosed
+                ? 'var(--color-success)'
+                : 'var(--color-error)',
+            }}
+          >
+            {isClosed
+              ? <><LockOpen size={14} /> Reabrir</>
+              : <><Lock size={14} /> Cerrar</>
+            }
+          </button>
+        )}
       </div>
+
+      {/* Banner de bimestre cerrado */}
+      {isClosed && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6"
+          style={{
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid var(--color-success)',
+          }}
+        >
+          <Lock size={16} style={{ color: 'var(--color-success)' }} />
+          <p className="text-sm" style={{ color: 'var(--color-success)' }}>
+            Este bimestre está cerrado. Las calificaciones no se pueden modificar.
+          </p>
+        </div>
+      )}
 
       {isLoading && <Spinner />}
 
@@ -208,19 +253,24 @@ export default function PeriodGradesPage() {
 
                 {/* Editar */}
                 <div className="col-span-2 flex justify-center">
-                  <button
-                    onClick={() => handleOpenOverride(grade.id, finalScore)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                    style={{ color: 'var(--color-text-disabled)' }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.color = 'var(--color-primary)'
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.color = 'var(--color-text-disabled)'
-                    }}
-                  >
-                    <Pencil size={14} />
-                  </button>
+                  {isClosed ? (
+                    <Lock size={14} style={{ color: 'var(--color-text-disabled' }} />
+                  ) : (
+                    <button
+                      onClick={() => handleOpenOverride(grade.id, finalScore)}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                      style={{ color: 'var(--color-text-disabled)' }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = 'var(--color-primary)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = 'var(--color-text-disabled)'
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+
+                  )}
                 </div>
               </div>
             )
@@ -333,6 +383,24 @@ export default function PeriodGradesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm cerrar/reabrir */}
+      <ConfirmDialog
+        open={confirmClose}
+        onOpenChange={setConfirmClose}
+        title={isClosed ? 'Reabrir bimestre' : 'Cerrar bimestre'}
+        description={
+          isClosed
+            ? 'Al reabrir el bimestre podrás modificar las calificaciones nuevamente.'
+            : 'Al cerrar el bimestre las calificaciones quedarán bloqueadas. Podrás reabrirlo cuando necesites hacer cambios.'
+        }
+        confirmLabel={isClosed ? 'Reabrir' : 'Cerrar'}
+        onConfirm={() => {
+          toggleClose(!isClosed)
+          setConfirmClose(false)
+        }}
+      />
+
     </ProtectedPage>
   )
 }

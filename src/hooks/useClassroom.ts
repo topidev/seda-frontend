@@ -201,3 +201,26 @@ export function useAttendanceHistory(subjectTermGroupId: string) {
     enabled: !!subjectTermGroupId,
   })
 }
+
+export function useTogglePeriodClose(subjectTermGroupId: string, periodId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (closed: boolean) => {
+      const { data } = await api.patch(
+        `/classroom/${subjectTermGroupId}/periods/${periodId}/toggle-close`,
+        { closed }
+      )
+      return data
+    },
+    onSuccess: (_, closed) => {
+      queryClient.invalidateQueries({
+        queryKey: ['period-grades', subjectTermGroupId, periodId]
+      })
+      toast.success(closed ? 'Bimestre cerrado' : 'Bimestre reabierto')
+    },
+    onError: () => {
+      toast.error('Error al cambiar el estado del bimestre')
+    }
+  })
+}
