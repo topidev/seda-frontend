@@ -89,7 +89,7 @@ export default function PeriodGradesPage() {
     <ProtectedPage>
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-2">
-        <div className="flex items-center">
+        <div className="flex gap-2 items-center">
           <BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
           <div>
             <h1
@@ -236,7 +236,7 @@ export default function PeriodGradesPage() {
                 </div>
 
                 {/* Final */}
-                <div className="col-span-2 text-center">
+                <div className="col-span-2 text-center position relative">
                   <span
                     className="text-sm font-medium"
                     style={{ color: getScoreColor(finalScore) }}
@@ -244,12 +244,16 @@ export default function PeriodGradesPage() {
                     {finalScore}
                     {isOverridden && (
                       <span
-                        className="ml-1 text-xs relative group"
+                        className="ml-1 transition-all duration-300 text-xs relative group cursor-pointer"
                         style={{ color: 'var(--color-text-disabled)' }}
                       >
                         *
                         <span
-                          className="absolute bottom-0 right-0 -z-10 group-hover:opacity-95 group-hover:z-10 ring-green-800 rounded"
+                          className="
+                            absolute bottom-0 right-0 -z-10 
+                            group-hover:opacity-100 group-hover:z-10 
+                            bg-primary text-white p-4
+                            border-emerald-200 whitespace-pre rounded"
                         >
                           Calificación modificada por el maestro
                         </span>
