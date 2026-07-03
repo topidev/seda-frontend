@@ -242,10 +242,15 @@ export default function PeriodGradesPage() {
                     {finalScore}
                     {isOverridden && (
                       <span
-                        className="ml-1 text-xs"
+                        className="ml-1 text-xs relative group"
                         style={{ color: 'var(--color-text-disabled)' }}
                       >
                         *
+                        <span
+                          className="absolute bottom-0 right-0 -z-10 group-hover:opacity-95 group-hover:z-10 ring-green-800 rounded"
+                        >
+                          Calificación modificada por el maestro
+                        </span>
                       </span>
                     )}
                   </span>
