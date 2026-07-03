@@ -88,21 +88,23 @@ export default function PeriodGradesPage() {
   return (
     <ProtectedPage>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
-        <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-geist)',
-            }}
-          >
-            Calificaciones bimestrales
-          </h1>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            {cls?.subject.name} · {cls?.group.grade}°{cls?.group.letter} · Bimestre {period?.number}
-          </p>
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <div className="flex items-center">
+          <BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
+          <div>
+            <h1
+              className="text-2xl font-semibold"
+              style={{
+                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-geist)',
+              }}
+            >
+              Calificaciones bimestrales
+            </h1>
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              {cls?.subject.name} · {cls?.group.grade}°{cls?.group.letter} · Bimestre {period?.number}
+            </p>
+          </div>
         </div>
 
         {/* Botón cerrar/reabrir */}
