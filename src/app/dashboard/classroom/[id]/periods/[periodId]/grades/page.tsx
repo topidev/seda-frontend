@@ -205,7 +205,6 @@ export default function PeriodGradesPage() {
                     ? 'var(--color-bg-elevated)'
                     : 'var(--color-bg-secondary)',
                   borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
-                  bordertop
                 }}
               >
                 {/* Nombre */}
