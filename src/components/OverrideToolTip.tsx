@@ -69,11 +69,11 @@ export function OverrideToolTip({
 
       {open && (
         <div
-          className={`absolute shadow-2xs shadow-blue-950 z-50 rounded border-p-3 shadow-lx animate fade-in zoom-in-95 duration-200 ${positionClasses[position]}`}
+          className={`absolute shadow-[#f59e1c] z-50 rounded border-p-3 shadow-lx animate fade-in zoom-in-95 duration-200 ${positionClasses[position]}`}
           style={{
             width,
             backgroundColor: 'var(--color-surface-elevated, #1e293b)',
-            borderColor: 'var(--color-border-subtle, #334155)'
+            // borderColor: 'var(--color-border-subtle, #334155)'
           }}
         >
           {/* Flecha */}
