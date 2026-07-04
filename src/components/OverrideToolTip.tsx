@@ -69,7 +69,7 @@ export function OverrideToolTip({
 
       {open && (
         <div
-          className={`absolute shadow-2xl shadow-amber-200 overflow-visible z-50 rounded border-p-3 animate fade-in zoom-in-95 duration-200 ${positionClasses[position]}`}
+          className={`absolute shadow-xl shadow-amber-200 overflow-visible z-50 rounded border-p-3 animate fade-in zoom-in-95 duration-200 ${positionClasses[position]}`}
           style={{
             width,
             backgroundColor: 'var(--color-surface-elevated, #1e293b)',
