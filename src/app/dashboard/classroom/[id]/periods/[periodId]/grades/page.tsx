@@ -3,6 +3,7 @@
 import AppButton from "@/components/AppButton"
 import BackButton from "@/components/BackButton"
 import ConfirmDialog from "@/components/ConfirmDialog"
+import { OverrideToolTip } from "@/components/OverrideToolTip"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -236,28 +237,25 @@ export default function PeriodGradesPage() {
                 </div>
 
                 {/* Final */}
-                <div className="col-span-2 text-center position relative">
+                <div className="col-span-2 text-center position">
                   <span
                     className="text-sm font-medium"
                     style={{ color: getScoreColor(finalScore) }}
                   >
                     {finalScore}
                     {isOverridden && (
-                      <span
-                        className="ml-1 transition-all duration-300 text-xs relative group cursor-pointer"
-                        style={{ color: 'var(--color-text-disabled)' }}
+                      <OverrideToolTip
+                        overrideReason={grade.overrideReason}
+                        overridedAt={grade.overrideAt}
                       >
-                        *
+
                         <span
-                          className="
-                            absolute bottom-0 right-0 -z-10 
-                            group-hover:opacity-100 group-hover:z-10 
-                            bg-primary text-white p-4
-                            border-emerald-200 whitespace-pre rounded"
+                          className="ml-1  text-xs group cursor-pointer"
+                          style={{ color: 'var(--color-text-disabled)' }}
                         >
-                          Calificación modificada por el maestro
+                          *
                         </span>
-                      </span>
+                      </OverrideToolTip>
                     )}
                   </span>
                 </div>
