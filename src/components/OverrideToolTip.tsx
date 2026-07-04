@@ -28,9 +28,9 @@ export function OverrideToolTip({
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false)
       }
-      document.addEventListener('mousedown', handleClick)
-      return () => document.removeEventListener('mousedown', handleClick)
     }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
   const formattedDate = overridedAt ?
