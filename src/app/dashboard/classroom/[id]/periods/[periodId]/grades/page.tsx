@@ -173,12 +173,12 @@ export default function PeriodGradesPage() {
       {/* Tabla de calificaciones */}
       {!isLoading && grades && grades.length > 0 && (
         <div
-          className="rounded-2xl overflow-hidden mt-6"
+          className="rounded-2xl mt-6"
           style={{ border: '1px solid var(--color-border)' }}
         >
           {/* Header */}
           <div
-            className="grid grid-cols-12 px-4 py-3 text-xs font-medium uppercase tracking-wider"
+            className="rounded-t-2xl grid grid-cols-12 px-4 py-3 text-xs font-medium uppercase tracking-wider"
             style={{
               backgroundColor: 'var(--color-bg-tertiary)',
               color: 'var(--color-text-disabled)',
@@ -199,7 +199,7 @@ export default function PeriodGradesPage() {
             return (
               <div
                 key={grade.id}
-                className="grid grid-cols-12 items-center px-4 py-3"
+                className={`grid grid-cols-12 items-center px-4 py-3 ${isLast} ? rounded-b-2xl : ''`}
                 style={{
                   backgroundColor: index % 2 === 0
                     ? 'var(--color-bg-elevated)'
