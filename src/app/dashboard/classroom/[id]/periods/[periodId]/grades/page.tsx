@@ -199,7 +199,7 @@ export default function PeriodGradesPage() {
             return (
               <div
                 key={grade.id}
-                className={`grid grid-cols-12 items-center px-4 py-3 ${isLast} ? 'rounded-b-2xl' : ''`}
+                className={`grid grid-cols-12 items-center px-4 py-3 ${isLast} ? rounded-b-2xl : ''`}
                 style={{
                   backgroundColor: index % 2 === 0
                     ? 'var(--color-bg-elevated)'
