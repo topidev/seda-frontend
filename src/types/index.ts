@@ -218,3 +218,30 @@ export interface StudentGradeDto {
   score?: number
   didNotSubmit?: boolean
 }
+
+
+
+//// ------- Reportes
+
+export interface Report {
+  id: string
+  studentId: string
+  teacherId: string
+  subjectTermGroupId: string | null
+  reason: string
+  date: string
+  notifyTutor: boolean
+  createdAt: string
+  subjectTermGroup?: {
+    id: string
+    subject: { id: string; name: string }
+  } | null
+}
+
+export interface CreateReportDto {
+  studentId: string
+  reason: string
+  date: string
+  notifyTutor?: boolean
+  subjectTermGroupId?: string
+}
