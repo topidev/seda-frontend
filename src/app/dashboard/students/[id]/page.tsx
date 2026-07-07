@@ -241,7 +241,7 @@ export default function StudentDetailPage() {
         }}
       >
         <h2
-          className="text-base font-medium mb-4"
+          className="text-base font-medium mb-3"
           style={{ color: 'var(--color-text-primary)' }}
         >
           Información
@@ -283,9 +283,9 @@ export default function StudentDetailPage() {
           border: '1px solid var(--color-border)',
         }}
       >
-        <div className='flex justify-between gap-2 items-center'>
+        <div className='flex justify-between gap-2 items-center mb-3'>
           <h2
-            className="text-base font-medium mb-4"
+            className="text-base font-medium"
             style={{ color: 'var(--color-text-primary)' }}
           >
             Materias
@@ -309,10 +309,13 @@ export default function StudentDetailPage() {
                 key={subject.subjectTermGroupId}
                 href={`/dashboard/students/${studentId}/subjects/${subject.subjectTermGroupId}?academicTermId=${subject.academicTermId}`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                style={{ 
+                  backgroundColor: 'var(--color-bg-tertiary)' ,
+                  border: '1px solid var(--color-border)',
+                }}
               >
                 <div
-                  className="flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-colors"
+                  className="flex items-center justify-between rounded-xl cursor-pointer transition-colors"
                   style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                   onMouseEnter={e => {
                     e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)'
@@ -341,9 +344,9 @@ export default function StudentDetailPage() {
           border: '1px solid var(--color-border)',
         }}
       >
-        <div className='flex justify-between gap-2 items-center'>
+        <div className='flex justify-between gap-2 items-center mb-3'>
           <h2
-            className="text-base font-medium mb-4"
+            className="text-base font-medium"
             style={{ color: 'var(--color-text-primary)' }}
             >
             Reportes ({reports?.length ?? 0})
@@ -379,7 +382,7 @@ export default function StudentDetailPage() {
                       >
                         {report.reason}
                       </p>
-                      <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                         <span
                           className="text-xs"
                           style={{ color: 'var(--color-text-disabled)' }}
@@ -392,7 +395,7 @@ export default function StudentDetailPage() {
                         </span>
                         {report.subjectTermGroup && (
                           <>
-                            <span style={{ color: 'var(--color-text-disabled)' }}>·</span>
+                            <span className='hidden md:visible' style={{ color: 'var(--color-text-disabled)' }}>·</span>
                             <span
                               className="text-xs"
                               style={{ color: 'var(--color-text-disabled)' }}
@@ -403,7 +406,7 @@ export default function StudentDetailPage() {
                         )}
                         {report.notifyTutor && (
                           <>
-                            <span style={{ color: 'var(--color-text-disabled)' }}>·</span>
+                            <span className='hidden md:visible' style={{ color: 'var(--color-text-disabled)' }}>·</span>
                             <span
                               className="text-xs"
                               style={{ color: 'var(--color-info)' }}
