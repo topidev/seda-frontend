@@ -277,7 +277,7 @@ export default function StudentDetailPage() {
 
       {/* Materias */}
       <div
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-6 mb-4"
         style={{
           backgroundColor: 'var(--color-bg-elevated)',
           border: '1px solid var(--color-border)',
@@ -334,7 +334,7 @@ export default function StudentDetailPage() {
 
       {/* Reportes */}
       <div
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-6 mb-4"
         style={{
           backgroundColor: 'var(--color-bg-elevated)',
           border: '1px solid var(--color-border)',
