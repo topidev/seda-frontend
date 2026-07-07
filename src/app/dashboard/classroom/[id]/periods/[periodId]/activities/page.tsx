@@ -89,7 +89,7 @@ export default function ActivitiesPage() {
         <BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
         <div className="flex-1">
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',

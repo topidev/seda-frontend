@@ -155,7 +155,7 @@ export default function StudentDetailPage() {
         <BackButton href='/dashboard/students' />
         <div className="flex-1">
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',
@@ -283,13 +283,18 @@ export default function StudentDetailPage() {
           border: '1px solid var(--color-border)',
         }}
       >
-        <h2
-          className="text-base font-medium mb-4"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Materias
-        </h2>
-
+        <div className='flex justify-between gap-2 items-center'>
+          <h2
+            className="text-base font-medium mb-4"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Materias
+          </h2>
+          <BookOpen
+            size={16}
+            style={{ color: 'var(--color-primary)' }}
+          />
+        </div>
         {uniqueSubjects.length === 0 ? (
           <p
             className="text-sm text-center py-4"
@@ -316,11 +321,7 @@ export default function StudentDetailPage() {
                     e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
                   }}
                 >
-                  <div className="flex items-center gap-3">
-                    <BookOpen
-                      size={16}
-                      style={{ color: 'var(--color-primary)' }}
-                    />
+                  <div className="flex items-center gap-3">                    
                     <span style={{ color: 'var(--color-text-primary)' }}>
                       {subject.name}
                     </span>
@@ -340,12 +341,19 @@ export default function StudentDetailPage() {
           border: '1px solid var(--color-border)',
         }}
       >
-        <h2
-          className="text-base font-medium mb-4"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Reportes ({reports?.length ?? 0})
-        </h2>
+        <div className='flex justify-between gap-2 items-center'>
+          <h2
+            className="text-base font-medium mb-4"
+            style={{ color: 'var(--color-text-primary)' }}
+            >
+            Reportes ({reports?.length ?? 0})
+          </h2>
+         <FileWarning
+            size={16}
+            className="shrink-0 mt-0.5"
+            style={{ color: 'var(--color-warning)' }}
+          />
+        </div>
 
         {!reports || reports.length === 0 ? (
           <p className="text-sm" style={{ color: 'var(--color-text-disabled)' }}>
@@ -363,12 +371,7 @@ export default function StudentDetailPage() {
                 }}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 flex-1">
-                    <FileWarning
-                      size={16}
-                      className="shrink-0 mt-0.5"
-                      style={{ color: 'var(--color-warning)' }}
-                    />
+                  <div className="flex items-start gap-3 flex-1">                    
                     <div className="flex flex-col gap-1">
                       <p
                         className="text-sm"
@@ -376,7 +379,7 @@ export default function StudentDetailPage() {
                       >
                         {report.reason}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col md:flex-row justify-between items-center gap-2">
                         <span
                           className="text-xs"
                           style={{ color: 'var(--color-text-disabled)' }}

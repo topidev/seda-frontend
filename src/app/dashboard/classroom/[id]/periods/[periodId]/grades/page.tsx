@@ -94,7 +94,7 @@ export default function PeriodGradesPage() {
           <BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
           <div>
             <h1
-              className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
               style={{
                 color: 'var(--color-text-primary)',
                 fontFamily: 'var(--font-geist)',

@@ -100,7 +100,7 @@ export default function GroupsPage() {
       <div className="flex flex-col md:flex-row items-center justify-between mb-8">
         <div className='text-center md:text-left'>
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',

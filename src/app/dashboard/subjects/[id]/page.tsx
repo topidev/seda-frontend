@@ -108,7 +108,7 @@ export default function SubjectDetailPage() {
           <div className='flex items-center justify-between w-full'>
             <div>
               <h1
-                className="text-2xl font-semibold"
+                className="text-xl md:text-2xl font-semibold"
                 style={{
                   color: 'var(--color-text-primary)',
                   fontFamily: 'var(--font-geist)',
