@@ -308,21 +308,21 @@ export default function StudentDetailPage() {
               <Link
                 key={subject.subjectTermGroupId}
                 href={`/dashboard/students/${studentId}/subjects/${subject.subjectTermGroupId}?academicTermId=${subject.academicTermId}`}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer"
                 style={{ 
                   backgroundColor: 'var(--color-bg-tertiary)' ,
                   border: '1px solid var(--color-border)',
                 }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-bg-primary)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-bg-tertiary)'
+                }}
               >
                 <div
-                  className="flex items-center justify-between rounded-xl cursor-pointer transition-colors"
+                  className="w-full flex items-center justify-between rounded-xl cursor-pointer"
                   style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
-                  }}
                 >
                   <div className="flex items-center gap-3">                    
                     <span style={{ color: 'var(--color-text-primary)' }}>
