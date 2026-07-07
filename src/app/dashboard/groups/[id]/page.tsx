@@ -234,20 +234,22 @@ export default function GroupDetailPage() {
               <div
                 key={stg.id}
                 className="flex items-center gap-3 justify-between px-4 py-3 rounded-xl"
-                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                style={{ 
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  borderColor: 'var(--border)'
+                }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
-                {/* <Link 
+                <Link 
                   href={`/dashboard/subjects/${stg.subjectId}`}
-                > */}
-                  <div className="flex items-center gap-3" onClick={() => (
-                    console.log("stg.id: " + stg.id + " | stg.subject.id: " + stg.subject.id + " | stg.subjectid: " + stg.subjectId)                    
-                  )}>
+                  className='w-full'
+                >
+                  <div className="w-full flex items-center gap-3" >
                     <span style={{ color: 'var(--color-text-primary)' }}>
                       {stg.subject.name}
                     </span>
                   </div>
-                {/* </Link> */}
+                </Link>
                 <button
                   onClick={() => setConfirmRemoveSubjectId(stg.id)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
