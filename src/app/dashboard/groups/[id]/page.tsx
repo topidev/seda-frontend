@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import BackButton from '@/components/BackButton'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { Trash2 } from 'lucide-react'
+import Link from 'next/link'
 
 const newStudentSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -236,11 +237,17 @@ export default function GroupDetailPage() {
                 style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
-                <div className="flex items-center gap-3">
-                  <span style={{ color: 'var(--color-text-primary)' }}>
-                    {stg.subject.name}
-                  </span>
-                </div>
+                {/* <Link 
+                  href={`/dashboard/subjects/${stg.subjectId}`}
+                > */}
+                  <div className="flex items-center gap-3" onClick={() => (
+                    console.log("stg.id: " + stg.id + " | stg.subject.id: " + stg.subject.id + " | stg.subjectid: " + stg.subjectId)                    
+                  )}>
+                    <span style={{ color: 'var(--color-text-primary)' }}>
+                      {stg.subject.name}
+                    </span>
+                  </div>
+                {/* </Link> */}
                 <button
                   onClick={() => setConfirmRemoveSubjectId(stg.id)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
