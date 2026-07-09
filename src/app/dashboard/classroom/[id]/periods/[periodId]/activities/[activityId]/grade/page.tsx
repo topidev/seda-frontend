@@ -15,8 +15,8 @@ export default function GradeActivityPage() {
   const activityId = params.activityId as string
 
   const { data: cls } = useClassDetail(subjectTermGroupId)
-  const { data: activities } = useActivities(subjectTermGroupId, periodId)
-  const { mutate: gradeActivity, isPending } = useGradeActivity(activityId)
+  const { data: activities } = useActivities(cls?.subject.id ?? '', periodId, subjectTermGroupId)
+  const { mutate: gradeActivity, isPending } = useGradeActivity(activityId, subjectTermGroupId)
 
   const activity = activities?.find(a => a.id === activityId)
   const students = cls?.group.studentGroupTerms ?? []
