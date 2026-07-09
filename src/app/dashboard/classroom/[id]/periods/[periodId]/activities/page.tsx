@@ -13,7 +13,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import z, { ZodType } from "zod"
+import z from "zod"
 
 const createActivitySchema = z.object({
   title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
@@ -31,7 +31,7 @@ export default function ActivitiesPage() {
   const periodId = params.periodId as string
 
   const { data: cls } = useClassDetail(subjectTermGroupId)
-  const { data: activities, isLoading } = useActivities(subjectTermGroupId, periodId)
+  const { data: activities, isLoading } = useActivities(cls?.subject.id ?? '', periodId, subjectTermGroupId)
   const { mutate: createActivity, isPending } = useCreateActivity(subjectTermGroupId, periodId)
   const { mutate: deleteActivity } = useDeleteActivity(subjectTermGroupId, periodId)
 
@@ -101,22 +101,6 @@ export default function ActivitiesPage() {
             {cls?.subject.name} · {cls?.group.grade}°{cls?.group.letter} · Bimestre {period?.number}
           </p>
         </div>
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 p-3 md:px-4 md:py-2 rounded-xl transition-colors cursor-pointer"
-          style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
-          onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'var(--color-primary)'
-          }}
-        >
-          <Plus size={16} />
-          <span className="hidden md:block">
-            Nueva
-          </span>
-        </button>
       </div>
 
       {/* Loading */}

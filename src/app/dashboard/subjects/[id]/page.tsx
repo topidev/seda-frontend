@@ -24,8 +24,10 @@ import { toast } from 'sonner'
 // import { queryClient } from '@/lib/query-client'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import z from 'zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useActivities, useCreateActivity, useDeleteActivity, useMyClasses } from '@/hooks/useClassroom'
+import Spinner from '@/components/Spinner'
 
 export default function SubjectDetailPage() {
   const params = useParams()
@@ -34,15 +36,26 @@ export default function SubjectDetailPage() {
   const queryClient = useQueryClient()
 
   const { data: subject, isLoading } = useSubject(subjectId)
+  const { data: classes } = useMyClasses()
   const { mutate: createCategory, isPending, isError } = useCreateGradeCategory(subjectId)
   const { mutate: deleteCategory } = useDeleteGradeCategory(subjectId)
 
   const [open, setOpen] = useState(false)
-  // const [categoryName, setCategoryName] = useState('')
-  // const [percentage, setPercentage] = useState('')
-
   const [openConfirm, setOpenConfirm] = useState(false)
-  
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
+  const [openActivity, setOpenActivity] = useState(false)
+  const [confirmActivityId, setConfirmActivityId] = useState<string | null>(null)
+
+  const subjectClass = classes?.find(c => c.subject.id === subjectId)
+  const periods = subjectClass?.academicTerm.periods ?? []
+  const activePeriodId = selectedPeriodId || periods[0]?.id
+  const activeStgId = subjectClass?.id ?? ''
+
+  const { data: activities, isLoading: isLoadingActivities } = useActivities(subjectId, activePeriodId, activeStgId)
+  const { mutate: createActivity, isPending: isCreatingActivity } = useCreateActivity(activeStgId, activePeriodId)
+  const { mutate: deleteActivity } = useDeleteActivity(activeStgId, activePeriodId)
+
+
   const totalPercentage = subject?.gradeCategories.reduce(
     (sum, c) => sum + c.percentage, 0,
   ) ?? 0
@@ -55,9 +68,17 @@ export default function SubjectDetailPage() {
       .min(5, 'Mínimo 5%')
       .max(availablePercentage, `Máximo ${availablePercentage}% disponible`)
   })
-
   type CreateCategoryFormData = z.infer<typeof createCategorySchema>
-  
+
+  const createActivitySchema = z.object({
+    title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
+    description: z.string().optional(),
+    categoryId: z.string().min(1, 'Selecciona una categoría'),
+    maxScore: z.number().min(1, 'El valor debe ser mayor a 0').default(10).optional(),
+    dueDate: z.string().optional(),
+  })
+  type CreateActivityFormData = z.infer<typeof createActivitySchema>
+
   const {
     register,
     handleSubmit,
@@ -71,6 +92,38 @@ export default function SubjectDetailPage() {
     },
     mode: 'onChange'
   })
+
+  const {
+    register: registerActivity,
+    handleSubmit: handleSubmitActivity,
+    control: controlActivity,
+    formState: { errors: activityErrors },
+    reset: resetActivity
+  } = useForm<CreateActivityFormData>({
+    resolver: zodResolver(createActivitySchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      categoryId: '',
+      maxScore: 10,
+      dueDate: '',
+    }
+  })
+
+  const onSubmitActivity = (data: CreateActivityFormData) => {
+    createActivity({
+      title: data.title,
+      description: data.description || undefined,
+      categoryId: data.categoryId,
+      maxScore: data.maxScore,
+      dueDate: data.dueDate || undefined,
+    }, {
+      onSuccess: () => {
+        setOpenActivity(false)
+        resetActivity()
+      }
+    })
+  }
 
 
   const { mutate: removeSubject } = useMutation({
@@ -271,6 +324,125 @@ export default function SubjectDetailPage() {
         )}
       </div>
 
+      {/* Sección actividades */}
+      {subjectClass && (
+        <div
+          className="rounded-2xl p-6 mt-4"
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2
+              className="text-lg font-medium"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Actividades
+            </h2>
+            <button
+              onClick={() => setOpenActivity(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+              style={{
+                backgroundColor: 'var(--color-bg-tertiary)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-secondary)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--color-primary)'
+                e.currentTarget.style.color = 'var(--color-primary)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--color-border)'
+                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              }}
+            >
+              <Plus size={14} />
+              Nueva actividad
+            </button>
+          </div>
+
+          {/* Selector de bimestres */}
+          {periods.length > 0 && (
+            <div className="flex gap-2 mb-4">
+              {periods.map(period => (
+                <button
+                  key={period.id}
+                  onClick={() => setSelectedPeriodId(period.id)}
+                  className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: activePeriodId === period.id
+                      ? 'var(--color-primary)'
+                      : 'var(--color-bg-tertiary)',
+                    border: `1px solid ${activePeriodId === period.id
+                      ? 'var(--color-primary)'
+                      : 'var(--color-border)'}`,
+                    color: activePeriodId === period.id
+                      ? 'white'
+                      : 'var(--color-text-secondary)',
+                  }}
+                >
+                  B{period.number}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Lista de actividades */}
+          {isLoadingActivities && <Spinner />}
+
+          {!isLoadingActivities && activities?.length === 0 && (
+            <p
+              className="text-sm py-4 text-center"
+              style={{ color: 'var(--color-text-disabled)' }}
+            >
+              No hay actividades en este bimestre
+            </p>
+          )}
+
+          {!isLoadingActivities && activities && activities.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {activities.map(activity => (
+                <div
+                  key={activity.id}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl"
+                  style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                >
+                  <div>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {activity.title}
+                    </p>
+                    <p
+                      className="text-xs"
+                      style={{ color: 'var(--color-text-disabled)' }}
+                    >
+                      {activity.category.name} · {activity.maxScore} pts
+                      {activity.dueDate && ` · ${new Date(activity.dueDate).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setConfirmActivityId(activity.id)}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                    style={{ color: 'var(--color-text-disabled)' }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = 'var(--color-error)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = 'var(--color-text-disabled)'
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Modal nueva categoría */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
@@ -394,6 +566,165 @@ export default function SubjectDetailPage() {
         onConfirm={() => {
           removeSubject()
           setOpenConfirm(false)
+        }}
+      />
+
+
+      {/* Modal nueva actividad */}
+      <Dialog open={openActivity} onOpenChange={(val) => { setOpenActivity(val); if (!val) resetActivity() }}>
+        <DialogContent
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle
+              style={{
+                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-geist)',
+                textTransform: 'none',
+              }}
+            >
+              Nueva actividad
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmitActivity(onSubmitActivity)} className="flex flex-col gap-4 mt-2">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Título
+              </label>
+              <input
+                {...registerActivity('title')}
+                placeholder="Ej. Tarea 1, Examen parcial"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: `1px solid ${activityErrors.title ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.borderColor = activityErrors.title
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)'
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.borderColor = activityErrors.title
+                    ? 'var(--color-error)'
+                    : 'var(--color-border)'
+                }}
+              />
+              {activityErrors.title && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {activityErrors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                Categoría
+              </label>
+              <Controller
+                name="categoryId"
+                control={controlActivity}
+                render={({ field }) => (
+                  <div className="flex flex-wrap gap-2">
+                    {subject?.gradeCategories.map(cat => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => field.onChange(cat.id)}
+                        className="px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+                        style={{
+                          backgroundColor: field.value === cat.id
+                            ? 'var(--color-primary)'
+                            : 'var(--color-bg-tertiary)',
+                          border: `1px solid ${field.value === cat.id
+                            ? 'var(--color-primary)'
+                            : 'var(--color-border)'}`,
+                          color: field.value === cat.id ? 'white' : 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {cat.name} ({cat.percentage}%)
+                      </button>
+                    ))}
+                  </div>
+                )}
+              />
+              {activityErrors.categoryId && (
+                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                  {activityErrors.categoryId.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <div className="flex flex-col gap-2 flex-1">
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  Valor máximo
+                </label>
+                <input
+                  {...registerActivity('maxScore', { valueAsNumber: true })}
+                  type="number"
+                  min={1}
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                    colorScheme: 'dark',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-border)'
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-2 flex-1">
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  Fecha de entrega
+                </label>
+                <input
+                  {...registerActivity('dueDate')}
+                  type="date"
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
+                    colorScheme: 'dark',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-primary)'
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-border)'
+                  }}
+                />
+              </div>
+            </div>
+
+            <AppButton isPending={isCreatingActivity} pendingLabel="Creando..." fullWidth>
+              Crear actividad
+            </AppButton>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <ConfirmDialog
+        open={!!confirmActivityId}
+        onOpenChange={open => { if (!open) setConfirmActivityId(null) }}
+        title="Eliminar actividad"
+        description="¿Seguro que deseas eliminar esta actividad? Se perderán todas las calificaciones asociadas en todos los grupos."
+        confirmLabel="Eliminar"
+        onConfirm={() => {
+          if (confirmActivityId) {
+            deleteActivity(confirmActivityId)
+            setConfirmActivityId(null)
+          }
         }}
       />
     </ProtectedPage>

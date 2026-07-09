@@ -25,14 +25,14 @@ export function useClassDetail(subjectTermGroupId: string) {
   })
 }
 
-export function useActivities(subjectTermGroupId: string, periodId: string) {
+export function useActivities(subjectId: string, periodId: string, subjectTermGroupId: string) {
   return useQuery({
-    queryKey: ['activities', subjectTermGroupId, periodId],
+    queryKey: ['activities', subjectId, periodId],
     queryFn: async () => {
       const { data } = await api.get<Activity[]>(`/classroom/${subjectTermGroupId}/periods/${periodId}/activities`)
       return data
     },
-    enabled: !!subjectTermGroupId && !!periodId
+    enabled: !!subjectId && !!periodId && !!subjectTermGroupId
   })
 }
 
@@ -44,11 +44,11 @@ export function useCreateActivity(subjectTermGroupId: string, periodId: string) 
       const { data } = await api.post<Activity>(`/classroom/${subjectTermGroupId}/periods/${periodId}/activities`, dto)
       return data
     },
-    onSuccess: () => {
-      toast.success('Actividad creada')
+    onSuccess: (_, __, context) => {
       queryClient.invalidateQueries({
-        queryKey: ['activities', subjectTermGroupId, periodId]
+        queryKey: ['activities']
       })
+      toast.success('Actividad creada')
     },
     onError: () => {
       toast.error('Error al crear la actividad')
@@ -78,14 +78,14 @@ export function useDeleteActivity(
   })
 }
 
-export function useGradeActivity(activityId: string) {
+export function useGradeActivity(activityId: string, subjectTermGroupId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (grades: StudentGradeDto[]) => {
       const { data } = await api.post(
         `/classroom/activities/${activityId}/grades`,
-        { grades },
+        { grades, subjectTermGroupId },
       )
       return data
     },
