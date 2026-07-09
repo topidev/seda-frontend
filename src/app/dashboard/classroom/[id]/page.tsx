@@ -2,12 +2,14 @@
 
 import BackButton from "@/components/BackButton";
 import ProtectedPage from "@/components/ProtectedPage";
+import ReportDialog from "@/components/ReportDialog";
 import Spinner from "@/components/Spinner";
 import { useClassDetail } from "@/hooks/useClassroom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, FileWarning } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { string } from "zod";
 
 export default function ClassDetailPage() {
   const params = useParams()
@@ -15,6 +17,12 @@ export default function ClassDetailPage() {
 
   const { data: cls, isLoading } = useClassDetail(subjectTermGroupId)
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
+
+  const [openReport, setOpenReport] = useState(false)
+  const [reportStudent, setReportStudent] = useState<{
+    id: string
+    name: string
+  } | null> (null)
 
   if (isLoading) {
     return (
@@ -33,7 +41,7 @@ export default function ClassDetailPage() {
         <BackButton href="/dashboard/classroom" />
         <div>
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',
@@ -182,29 +190,64 @@ export default function ClassDetailPage() {
               {cls.group.studentGroupTerms.map(sgt => (
                 <div
                   key={sgt.id}
-                  className="flex items-center gap-3"
+                  className="flex items-center justify-between gap-3"
                 >
-                  <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
-                    style={{
-                      backgroundColor: 'var(--color-bg-tertiary)',
-                      color: 'var(--color-primary)',
-                    }}
-                  >
-                    {sgt.student.name[0]}{sgt.student.firstLastName[0]}
-                  </div>
-                  <span
-                    className="text-sm"
-                    style={{ color: 'var(--color-text-secondary)' }}
-                  >
-                    {sgt.student.name} {sgt.student.firstLastName} {sgt.student.secondLastName}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+                      style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        color: 'var(--color-primary)',
+                      }}
+                    >
+                      {sgt.student.name[0]}{sgt.student.firstLastName[0]}
+                    </div>
+                    <span
+                      className="text-sm"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                      {sgt.student.name} {sgt.student.firstLastName} {sgt.student.secondLastName}
+                    </span>
                 </div>
+                <button
+                  onClick={() => {
+                    setReportStudent({
+                      id: sgt.student.id,
+                      name: `${sgt.student.name} ${sgt.student.firstLastName}`,
+                    })
+                    setOpenReport(true)
+                  }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+                  style={{ color: 'var(--color-text-disabled)' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--color-warning)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'var(--color-text-disabled)'
+                  }}
+                >
+                  <FileWarning size={14} />
+                </button>
+              </div>
               ))}
             </div>
           </div>
         </div>
       )}
+
+      {reportStudent && (
+        <ReportDialog
+          open={openReport}
+          onOpenChange={(val) => {
+            setOpenReport(val)
+            if (!val) setReportStudent(null)
+          }}
+          studentId={reportStudent.id}
+          studentName={reportStudent.name}
+          subjectTermGroupId={subjectTermGroupId}
+        />
+      )}
     </ProtectedPage>
+    
   )
 }

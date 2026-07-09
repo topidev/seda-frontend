@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import ProtectedPage from '@/components/ProtectedPage'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
-import { ArrowLeft, BookOpen, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, BookOpen, FileWarning, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import {
   Dialog,
@@ -16,6 +16,8 @@ import {
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { toast } from 'sonner'
 import BackButton from '@/components/BackButton'
+import ReportDialog from '@/components/ReportDialog'
+import { useDeleteReport, useStudentReports } from '@/hooks/useReports'
 
 interface StudentDetail {
   id: string
@@ -57,6 +59,8 @@ export default function StudentDetailPage() {
 
   // abrir el modal de confirmación
   const [openConfirm, setOpenConfirm] = useState(false)
+  const [openReport, setOpenReport] = useState(false)
+  const [confirmDeleteReportId, setConfirmDeleteReportId] = useState<string | null>(null)
 
   const { data: student, isLoading } = useQuery({
     queryKey: ['students', studentId],
@@ -66,6 +70,7 @@ export default function StudentDetailPage() {
     },
     enabled: !!studentId,
   })
+  const { data: reports } = useStudentReports(studentId)
 
   const { mutate: updateStudent, isPending: isUpdating } = useMutation({
     mutationFn: async (dto: Partial<StudentDetail>) => {
@@ -92,6 +97,8 @@ export default function StudentDetailPage() {
       toast.error('Error al inactivar el alumno')
     }
   })
+
+  const { mutate: deleteReport } = useDeleteReport(studentId)
 
   const handleOpenEdit = () => {
     if (!student) return
@@ -148,7 +155,7 @@ export default function StudentDetailPage() {
         <BackButton href='/dashboard/students' />
         <div className="flex-1">
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',
@@ -185,6 +192,25 @@ export default function StudentDetailPage() {
             <Pencil size={15} />
           </button>
           <button
+            onClick={() => setOpenReport(true)}
+            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
+            style={{
+              backgroundColor: 'var(--color-bg-elevated)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-secondary)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'var(--color-warning)'
+              e.currentTarget.style.color = 'var(--color-warning)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'var(--color-border)'
+              e.currentTarget.style.color = 'var(--color-text-secondary)'
+            }}
+          >
+            <FileWarning size={15} />
+          </button>
+          <button
             onClick={() => setOpenConfirm(true)}
             className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors"
             style={{
@@ -215,7 +241,7 @@ export default function StudentDetailPage() {
         }}
       >
         <h2
-          className="text-base font-medium mb-4"
+          className="text-base font-medium mb-3"
           style={{ color: 'var(--color-text-primary)' }}
         >
           Información
@@ -251,19 +277,24 @@ export default function StudentDetailPage() {
 
       {/* Materias */}
       <div
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-6 mb-4"
         style={{
           backgroundColor: 'var(--color-bg-elevated)',
           border: '1px solid var(--color-border)',
         }}
       >
-        <h2
-          className="text-base font-medium mb-4"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Materias
-        </h2>
-
+        <div className='flex justify-between gap-2 items-center mb-3'>
+          <h2
+            className="text-base font-medium"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Materias
+          </h2>
+          <BookOpen
+            size={16}
+            style={{ color: 'var(--color-primary)' }}
+          />
+        </div>
         {uniqueSubjects.length === 0 ? (
           <p
             className="text-sm text-center py-4"
@@ -277,30 +308,131 @@ export default function StudentDetailPage() {
               <Link
                 key={subject.subjectTermGroupId}
                 href={`/dashboard/students/${studentId}/subjects/${subject.subjectTermGroupId}?academicTermId=${subject.academicTermId}`}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer"
+                style={{ 
+                  backgroundColor: 'var(--color-bg-tertiary)' ,
+                  border: '1px solid var(--color-border)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-bg-primary)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-bg-tertiary)'
+                }}
               >
                 <div
-                  className="flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-colors"
+                  className="w-full flex items-center justify-between rounded-xl cursor-pointer"
                   style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
-                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <BookOpen
-                      size={16}
-                      style={{ color: 'var(--color-primary)' }}
-                    />
+                  <div className="flex items-center gap-3">                    
                     <span style={{ color: 'var(--color-text-primary)' }}>
                       {subject.name}
                     </span>
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Reportes */}
+      <div
+        className="rounded-2xl p-6 mb-4"
+        style={{
+          backgroundColor: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
+        <div className='flex justify-between gap-2 items-center mb-3'>
+          <h2
+            className="text-base font-medium"
+            style={{ color: 'var(--color-text-primary)' }}
+            >
+            Reportes ({reports?.length ?? 0})
+          </h2>
+         <FileWarning
+            size={16}
+            className="shrink-0 mt-0.5"
+            style={{ color: 'var(--color-warning)' }}
+          />
+        </div>
+
+        {!reports || reports.length === 0 ? (
+          <p className="text-sm" style={{ color: 'var(--color-text-disabled)' }}>
+            Sin reportes registrados
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {reports.map(report => (
+              <div
+                key={report.id}
+                className="rounded-xl p-4"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 flex-1">                    
+                    <div className="flex flex-col gap-1">
+                      <p
+                        className="text-sm"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {report.reason}
+                      </p>
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                        <span
+                          className="text-xs"
+                          style={{ color: 'var(--color-text-disabled)' }}
+                        >
+                          {new Date(report.date).toLocaleDateString('es-MX', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })}
+                        </span>
+                        {report.subjectTermGroup && (
+                          <>
+                            <span className='hidden md:visible' style={{ color: 'var(--color-text-disabled)' }}>·</span>
+                            <span
+                              className="text-xs"
+                              style={{ color: 'var(--color-text-disabled)' }}
+                            >
+                              {report.subjectTermGroup.subject.name}
+                            </span>
+                          </>
+                        )}
+                        {report.notifyTutor && (
+                          <>
+                            <span className='hidden md:visible' style={{ color: 'var(--color-text-disabled)' }}>·</span>
+                            <span
+                              className="text-xs"
+                              style={{ color: 'var(--color-info)' }}
+                            >
+                              Tutor notificado
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setConfirmDeleteReportId(report.id)}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                    style={{ color: 'var(--color-text-disabled)' }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = 'var(--color-error)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = 'var(--color-text-disabled)'
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -388,6 +520,27 @@ export default function StudentDetailPage() {
           removeStudent()
           setOpenConfirm(false)
         }}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDeleteReportId}
+        onOpenChange={open => { if (!open) setConfirmDeleteReportId(null) }}
+        title="Eliminar reporte"
+        description="¿Seguro que deseas eliminar este reporte? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        onConfirm={() => {
+          if (confirmDeleteReportId) {
+            deleteReport(confirmDeleteReportId)
+            setConfirmDeleteReportId(null)
+          }
+        }}
+      />
+
+      <ReportDialog
+        open={openReport}
+        onOpenChange={setOpenReport}
+        studentId={studentId}
+        studentName={`${student?.name} ${student?.firstLastName}`}
       />
     </ProtectedPage>
   )

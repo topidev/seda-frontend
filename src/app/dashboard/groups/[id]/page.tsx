@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import BackButton from '@/components/BackButton'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { Trash2 } from 'lucide-react'
+import Link from 'next/link'
 
 const newStudentSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -147,7 +148,7 @@ export default function GroupDetailPage() {
         <BackButton href='/dashboard/groups' />
         <div className="flex-1">
           <h1
-            className="text-2xl font-semibold"
+            className="text-xl md:text-2xl font-semibold"
             style={{
               color: 'var(--color-text-primary)',
               fontFamily: 'var(--font-geist)',
@@ -233,14 +234,22 @@ export default function GroupDetailPage() {
               <div
                 key={stg.id}
                 className="flex items-center gap-3 justify-between px-4 py-3 rounded-xl"
-                style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                style={{ 
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  borderColor: 'var(--border)'
+                }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
-                <div className="flex items-center gap-3">
-                  <span style={{ color: 'var(--color-text-primary)' }}>
-                    {stg.subject.name}
-                  </span>
-                </div>
+                <Link 
+                  href={`/dashboard/subjects/${stg.subjectId}`}
+                  className='w-full'
+                >
+                  <div className="w-full flex items-center gap-3" >
+                    <span style={{ color: 'var(--color-text-primary)' }}>
+                      {stg.subject.name}
+                    </span>
+                  </div>
+                </Link>
                 <button
                   onClick={() => setConfirmRemoveSubjectId(stg.id)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors"

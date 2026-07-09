@@ -2,6 +2,7 @@ import api from "@/lib/api/axios";
 import { CreateReportDto } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { Report } from "@/types";
 
 export function useStudentReports(studentId: string) {
   return useQuery({
