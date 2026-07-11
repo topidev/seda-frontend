@@ -79,6 +79,22 @@ export default function ClassDetailPage() {
         ))}
       </div>
 
+      {/* Fechas del bimestre activo */}
+      {cls?.academicTerm.periods?.find(p => p.id === activePeriod) && (
+        <p
+          className="text-xs mb-6 text-center"
+          style={{ color: 'var(--color-text-disabled)' }}
+        >
+          {new Date(
+            cls.academicTerm.periods.find(p => p.id === activePeriod)!.startDate
+          ).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {' → '}
+          {new Date(
+            cls.academicTerm.periods.find(p => p.id === activePeriod)!.endDate
+          ).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </p>
+      )}
+
       {/* Info del bimestre seleccionado */}
       {cls && activePeriod && (
         <div className="flex flex-col gap-3">
