@@ -4,7 +4,7 @@ import BackButton from "@/components/BackButton";
 import ProtectedPage from "@/components/ProtectedPage";
 import ReportDialog from "@/components/ReportDialog";
 import Spinner from "@/components/Spinner";
-import { useClassDetail } from "@/hooks/useClassroom";
+import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom";
 import { ChevronRight, FileWarning } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -16,6 +16,7 @@ export default function ClassDetailPage() {
   const subjectTermGroupId = params.id as string
 
   const { data: cls, isLoading } = useClassDetail(subjectTermGroupId)
+  const { data: finalGradesData } = useFinalGrades(subjectTermGroupId)
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
 
   const [openReport, setOpenReport] = useState(false)
@@ -82,7 +83,7 @@ export default function ClassDetailPage() {
       {/* Fechas del bimestre activo */}
       {cls?.academicTerm.periods?.find(p => p.id === activePeriod) && (
         <p
-          className="text-xs mb-6 text-center"
+          className="text-xs mb-6 text-left"
           style={{ color: 'var(--color-text-disabled)' }}
         >
           {new Date(
@@ -262,6 +263,38 @@ export default function ClassDetailPage() {
           studentName={reportStudent.name}
           subjectTermGroupId={subjectTermGroupId}
         />
+      )}
+
+      {/* Card de calificaciones finales - solo cuando todos los bimestres están cerrados */}
+      {finalGradesData?.allClosed && (
+        <Link href={`/dashboard/classroom/${subjectTermGroupId}/final`}>
+          <div
+            className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors"
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid var(--color-success)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
+            }}
+          >
+            <div>
+              <p
+                className="font-medium"
+                style={{ color: 'var(--color-success)' }}
+              >
+                Calificaciones finales
+              </p>
+              <p className="text-sm" style={{ color: 'var(--color-success)', opacity: 0.8 }}>
+                Todos los bimestres cerrados · Ver resumen anual
+              </p>
+            </div>
+            <ChevronRight size={18} style={{ color: 'var(--color-success)' }} />
+          </div>
+        </Link>
       )}
     </ProtectedPage>
     

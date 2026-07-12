@@ -1,7 +1,7 @@
 import api from "@/lib/api/axios"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { SubjectTermGroup, Activity, FinalGrade, AttendanceRecord, CreateActivityDto, StudentGradeDto } from '@/types'
+import { type SubjectTermGroup, type Activity, type FinalGrade, type AttendanceRecord, type CreateActivityDto, type StudentGradeDto, FinalGradesResponse } from '@/types'
 
 
 export function useMyClasses() {
@@ -222,5 +222,18 @@ export function useTogglePeriodClose(subjectTermGroupId: string, periodId: strin
     onError: () => {
       toast.error('Error al cambiar el estado del bimestre')
     }
+  })
+}
+
+export function useFinalGrades(subjectTermGroupId: string) {
+  return useQuery({
+    queryKey: ['final-grades', subjectTermGroupId],
+    queryFn: async () => {
+      const { data } = await api.get<FinalGradesResponse>(
+        `/classroom/${subjectTermGroupId}/final-grades`,
+      )
+      return data
+    },
+    enabled: !!subjectTermGroupId
   })
 }

@@ -161,6 +161,31 @@ export interface AttendanceRecord {
   status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
 }
 
+export interface PeriodGradeSummary {
+  periodId: string
+  periodNumber: number
+  calculatedScore: number | null
+  finalScore: number | null
+  closed: boolean
+}
+
+export interface StudentFinalGrade {
+  student: {
+    id: string
+    name: string
+    firstLastName: string
+    secondLastName: string | null
+  }
+  grades: PeriodGradeSummary[]
+  average: number | null
+}
+
+export interface FinalGradesResponse {
+  periods: Period[]
+  students: StudentFinalGrade[]
+  allClosed: boolean
+}
+
 // ─────────────────────────────────────────
 // DTOs (lo que se manda al backend)
 // ─────────────────────────────────────────

@@ -1,0 +1,163 @@
+'use client'
+
+import BackButton from "@/components/BackButton"
+import ProtectedPage from "@/components/ProtectedPage"
+import Spinner from "@/components/Spinner"
+import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom"
+import { useParams } from "next/navigation"
+
+export default function FinalGradesPage() {
+    const params = useParams()
+    const subjectTermGroupId = params.id as string
+
+    const { data: cls } = useClassDetail(subjectTermGroupId)
+    const { data: finalGrades, isLoading } = useFinalGrades(subjectTermGroupId)
+
+    const getScoreColor = (score: number | null) => {
+        if (score == null) return ('var(--color-next-disabled')
+        if (score >= 9) return 'var(--color-success)'
+        if (score >= 7) return 'var(--color-info)'
+        if (score >= 6) return 'var(--color-warning)'
+        return 'var(--color-error)'
+    }
+
+    return (
+			<ProtectedPage>
+				<div className="flex items-center gap-3 mb-6">
+					<BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
+					<div>
+						<h1
+							className="text-xl md:text-2xl font-semibold"
+							style={{
+							color: 'var(--color-text-primary)',
+							fontFamily: 'var(--font-geist)',
+							}}
+						>
+							Calificaciones finales
+						</h1>
+						<p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+							{cls?.subject.name} · {cls?.group.grade}°{cls?.group.letter} · {cls?.academicTerm.name}
+						</p>
+					</div>
+				</div>
+
+				{isLoading && <Spinner />}
+
+				{!isLoading && finalGrades && (
+					<div
+						className="rounded-2xl overflow-hidden"
+						style={{ border: '1px solid var(--color-border)' }}
+					>
+						{/* Header tabla */}
+						<div
+							className="grid px-4 py-3 text-xs font-medium uppercase tracking-wider gap-2"
+							style={{
+								backgroundColor: 'var(--color-bg-tertiary)',
+								color: 'var(--color-text-disabled)',
+								gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
+							}}
+						>
+							<span>Alumno</span>
+							{finalGrades.periods.map(period => (
+								<span key={period.id} className="text-center">
+									B{period.number}
+								</span>
+							))}
+							<span className="text-center">Final</span>
+						</div>
+
+						{/* Filas de alumnos */}
+						{finalGrades.students.map((student, index) => {
+							const isLast = index === finalGrades.students.length - 1
+
+							return (
+								<div
+									key={student.student.id}
+									className="grid items-center px-4 py-3 gap-2"
+									style={{
+										backgroundColor: index % 2 === 0
+											? 'var(--color-bg-elevated)'
+											: 'var(--color-bg-secondary)',
+										borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
+										gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
+									}}
+								>
+									{/* Nombre */}
+									<div className="flex items-center gap-2">
+										<div
+											className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+											style={{
+												backgroundColor: 'var(--color-bg-tertiary)',
+												color: 'var(--color-primary)',
+											}}
+										>
+											{student.student.name[0]}{student.student.firstLastName[0]}
+										</div>
+										<span
+											className="text-sm truncate"
+											style={{ color: 'var(--color-text-primary)' }}
+										>
+											{student.student.name} {student.student.firstLastName}
+										</span>
+									</div>
+
+									{/* Calificaciones por bimestre */}
+									{student.grades.map(grade => {
+										const score = grade.finalScore ?? grade.calculatedScore
+										return (
+											<div key={grade.periodId} className="text-center">
+												<span
+													className="text-sm font-medium"
+													style={{ color: getScoreColor(score) }}
+												>
+													{score ?? '-'}
+												</span>
+											</div>
+										)
+									})}
+
+									{/* Promedio final */}
+									<div className="text-center">
+										<span
+											className="text-sm font-semibold"
+											style={{
+												color: getScoreColor(student.average),
+												fontFamily: 'var(--font-geist)',
+											}}
+										>
+											{student.average ?? '-'}
+										</span>
+									</div>
+								</div>
+							)
+						})}
+					</div>
+				)}
+
+				{/* Leyenda */}
+				{finalGrades && (
+					<div className="flex gap-4 mt-4 flex-wrap">
+						{[
+							{ label: '9-10', color: 'var(--color-success)' },
+							{ label: '7-8.9', color: 'var(--color-info)' },
+							{ label: '6-6.9', color: 'var(--color-warning)' },
+							{ label: '< 6', color: 'var(--color-error)' },
+						].map(item => (
+							<div key={item.label} className="flex items-center gap-1.5">
+								<div
+									className="w-3 h-3 rounded-full"
+									style={{ backgroundColor: item.color }}
+								/>
+								<span
+									className="text-xs"
+									style={{ color: 'var(--color-text-disabled)' }}
+								>
+									{item.label}
+								</span>
+							</div>
+						))}
+					</div>
+				)}
+			</ProtectedPage>
+    )
+}
