@@ -249,6 +249,38 @@ export default function ClassDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* Card de calificaciones finales - solo cuando todos los bimestres están cerrados */}
+          {finalGradesData?.allClosed && (
+            <Link href={`/dashboard/classroom/${subjectTermGroupId}/final`}>
+              <div
+                className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors"
+                style={{
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid var(--color-success)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
+                }}
+              >
+                <div>
+                  <p
+                    className="font-medium"
+                    style={{ color: 'var(--color-success)' }}
+                  >
+                    Calificaciones finales
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--color-success)', opacity: 0.8 }}>
+                    Todos los bimestres cerrados · Ver resumen anual
+                  </p>
+                </div>
+                <ChevronRight size={18} style={{ color: 'var(--color-success)' }} />
+              </div>
+            </Link>
+          )}
         </div>
       )}
 
@@ -263,39 +295,7 @@ export default function ClassDetailPage() {
           studentName={reportStudent.name}
           subjectTermGroupId={subjectTermGroupId}
         />
-      )}
-
-      {/* Card de calificaciones finales - solo cuando todos los bimestres están cerrados */}
-      {finalGradesData?.allClosed && (
-        <Link href={`/dashboard/classroom/${subjectTermGroupId}/final`}>
-          <div
-            className="rounded-2xl p-5 flex items-center justify-between cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid var(--color-success)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
-            }}
-          >
-            <div>
-              <p
-                className="font-medium"
-                style={{ color: 'var(--color-success)' }}
-              >
-                Calificaciones finales
-              </p>
-              <p className="text-sm" style={{ color: 'var(--color-success)', opacity: 0.8 }}>
-                Todos los bimestres cerrados · Ver resumen anual
-              </p>
-            </div>
-            <ChevronRight size={18} style={{ color: 'var(--color-success)' }} />
-          </div>
-        </Link>
-      )}
+      )}      
     </ProtectedPage>
     
   )
