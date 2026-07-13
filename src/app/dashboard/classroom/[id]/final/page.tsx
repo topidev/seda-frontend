@@ -259,7 +259,7 @@ export default function FinalGradesPage() {
 				)}
 
 				{/* Leyenda */}
-				{finalGrades && (
+				{/* {finalGrades && (
 					<div className="flex gap-4 mt-4 flex-wrap">
 						{[
 							{ label: '9-10', color: 'var(--color-success)' },
@@ -281,7 +281,7 @@ export default function FinalGradesPage() {
 							</div>
 						))}
 					</div>
-				)}
+				)} */}
 			</ProtectedPage>
     )
 }
