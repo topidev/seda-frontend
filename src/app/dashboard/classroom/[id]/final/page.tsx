@@ -44,93 +44,226 @@ export default function FinalGradesPage() {
 				{isLoading && <Spinner />}
 
 				{!isLoading && finalGrades && (
+					// <div
+					// 	className="rounded-2xl overflow-hidden"
+					// 	style={{ border: '1px solid var(--color-border)' }}
+					// >
+					// 	{/* Header tabla */}
+					// 	<div
+					// 		className="grid px-4 py-3 text-xs font-medium uppercase tracking-wider gap-2"
+					// 		style={{
+					// 			backgroundColor: 'var(--color-bg-tertiary)',
+					// 			color: 'var(--color-text-disabled)',
+					// 			gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
+					// 		}}
+					// 	>
+					// 		<span>Alumno</span>
+					// 		{finalGrades.periods.map(period => (
+					// 			<span key={period.id} className="text-center">
+					// 				B{period.number}
+					// 			</span>
+					// 		))}
+					// 		<span className="text-center">Final</span>
+					// 	</div>
+
+					// 	{/* Filas de alumnos */}
+					// 	{finalGrades.students.map((student, index) => {
+					// 		const isLast = index === finalGrades.students.length - 1
+
+					// 		return (
+					// 			<div
+					// 				key={student.student.id}
+					// 				className="grid items-center px-4 py-3 gap-2"
+					// 				style={{
+					// 					backgroundColor: index % 2 === 0
+					// 						? 'var(--color-bg-elevated)'
+					// 						: 'var(--color-bg-secondary)',
+					// 					borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
+					// 					gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
+					// 				}}
+					// 			>
+					// 				{/* Nombre */}
+					// 				<div className="flex items-center gap-2">
+					// 					<div
+					// 						className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+					// 						style={{
+					// 							backgroundColor: 'var(--color-bg-tertiary)',
+					// 							color: 'var(--color-primary)',
+					// 						}}
+					// 					>
+					// 						{student.student.name[0]}{student.student.firstLastName[0]}
+					// 					</div>
+					// 					<span
+					// 						className="text-sm truncate"
+					// 						style={{ color: 'var(--color-text-primary)' }}
+					// 					>
+					// 						{student.student.name} {student.student.firstLastName}
+					// 					</span>
+					// 				</div>
+
+					// 				{/* Calificaciones por bimestre */}
+					// 				{student.grades.map(grade => {
+					// 					const score = grade.finalScore ?? grade.calculatedScore
+					// 					return (
+					// 						<div key={grade.periodId} className="text-center">
+					// 							<span
+					// 								className="text-sm font-medium"
+					// 								style={{ color: getScoreColor(score) }}
+					// 							>
+					// 								{score ?? '-'}
+					// 							</span>
+					// 						</div>
+					// 					)
+					// 				})}
+
+					// 				{/* Promedio final */}
+					// 				<div className="text-center">
+					// 					<span
+					// 						className="text-sm font-semibold"
+					// 						style={{
+					// 							color: getScoreColor(student.average),
+					// 							fontFamily: 'var(--font-geist)',
+					// 						}}
+					// 					>
+					// 						{student.average ?? '-'}
+					// 					</span>
+					// 				</div>
+					// 			</div>
+					// 		)
+					// 	})}
+					// </div>
 					<div
 						className="rounded-2xl overflow-hidden"
 						style={{ border: '1px solid var(--color-border)' }}
 					>
-						{/* Header tabla */}
-						<div
-							className="grid px-4 py-3 text-xs font-medium uppercase tracking-wider gap-2"
-							style={{
-								backgroundColor: 'var(--color-bg-tertiary)',
-								color: 'var(--color-text-disabled)',
-								gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
-							}}
-						>
-							<span>Alumno</span>
-							{finalGrades.periods.map(period => (
-								<span key={period.id} className="text-center">
-									B{period.number}
-								</span>
-							))}
-							<span className="text-center">Final</span>
-						</div>
-
-						{/* Filas de alumnos */}
-						{finalGrades.students.map((student, index) => {
-							const isLast = index === finalGrades.students.length - 1
-
-							return (
-								<div
-									key={student.student.id}
-									className="grid items-center px-4 py-3 gap-2"
-									style={{
-										backgroundColor: index % 2 === 0
-											? 'var(--color-bg-elevated)'
-											: 'var(--color-bg-secondary)',
-										borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
-										gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
-									}}
-								>
-									{/* Nombre */}
-									<div className="flex items-center gap-2">
-										<div
-											className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+						<div className="overflow-x-auto">
+							<table className="w-full" style={{ minWidth: '500px' }}>
+								{/* Header */}
+								<thead>
+									<tr
+										style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+									>
+										<th
+											className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider"
 											style={{
+												color: 'var(--color-text-disabled)',
+												position: 'sticky',
+												left: 0,
 												backgroundColor: 'var(--color-bg-tertiary)',
-												color: 'var(--color-primary)',
+												minWidth: '140px',
+												zIndex: 1,
 											}}
 										>
-											{student.student.name[0]}{student.student.firstLastName[0]}
-										</div>
-										<span
-											className="text-sm truncate"
-											style={{ color: 'var(--color-text-primary)' }}
+											Alumno
+										</th>
+										{finalGrades.periods.map(period => (
+											<th
+												key={period.id}
+												className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider"
+												style={{
+													color: 'var(--color-text-disabled)',
+													minWidth: '60px',
+												}}
+											>
+												B{period.number}
+											</th>
+										))}
+										<th
+											className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider"
+											style={{
+												color: 'var(--color-text-disabled)',
+												minWidth: '70px',
+											}}
 										>
-											{student.student.name} {student.student.firstLastName}
-										</span>
-									</div>
+											Final
+										</th>
+									</tr>
+								</thead>
 
-									{/* Calificaciones por bimestre */}
-									{student.grades.map(grade => {
-										const score = grade.finalScore ?? grade.calculatedScore
+								{/* Body */}
+								<tbody>
+									{finalGrades.students.map((student, index) => {
+										const isLast = index === finalGrades.students.length - 1
+										const rowBg = index % 2 === 0
+											? 'var(--color-bg-elevated)'
+											: 'var(--color-bg-secondary)'
+
 										return (
-											<div key={grade.periodId} className="text-center">
-												<span
-													className="text-sm font-medium"
-													style={{ color: getScoreColor(score) }}
+											<tr
+												key={student.student.id}
+												style={{
+													borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
+												}}
+											>
+												{/* Nombre - sticky */}
+												<td
+													className="px-4 py-3"
+													style={{
+														position: 'sticky',
+														left: 0,
+														backgroundColor: rowBg,
+														zIndex: 1,
+													}}
 												>
-													{score ?? '-'}
-												</span>
-											</div>
+													<div className="flex items-center gap-2">
+														<div
+															className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+															style={{
+																backgroundColor: 'var(--color-bg-tertiary)',
+																color: 'var(--color-primary)',
+															}}
+														>
+															{student.student.name[0]}{student.student.firstLastName[0]}
+														</div>
+														<span
+															className="text-sm"
+															style={{ color: 'var(--color-text-primary)' }}
+														>
+															{student.student.name} {student.student.firstLastName}
+														</span>
+													</div>
+												</td>
+
+												{/* Calificaciones por bimestre */}
+												{student.grades.map(grade => {
+													const score = grade.finalScore ?? grade.calculatedScore
+													return (
+														<td
+															key={grade.periodId}
+															className="text-center px-4 py-3"
+															style={{ backgroundColor: rowBg }}
+														>
+															<span
+																className="text-sm font-medium"
+																style={{ color: getScoreColor(score) }}
+															>
+																{score ?? '-'}
+															</span>
+														</td>
+													)
+												})}
+
+												{/* Promedio final */}
+												<td
+													className="text-center px-4 py-3"
+													style={{ backgroundColor: rowBg }}
+												>
+													<span
+														className="text-sm font-semibold"
+														style={{
+															color: getScoreColor(student.average),
+															fontFamily: 'var(--font-geist)',
+														}}
+													>
+														{student.average ?? '-'}
+													</span>
+												</td>
+											</tr>
 										)
 									})}
-
-									{/* Promedio final */}
-									<div className="text-center">
-										<span
-											className="text-sm font-semibold"
-											style={{
-												color: getScoreColor(student.average),
-												fontFamily: 'var(--font-geist)',
-											}}
-										>
-											{student.average ?? '-'}
-										</span>
-									</div>
-								</div>
-							)
-						})}
+								</tbody>
+							</table>
+						</div>
 					</div>
 				)}
 
