@@ -144,7 +144,7 @@ export default function FinalGradesPage() {
 										style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
 									>
 										<th
-											className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider"
+											className="text-left p-2 md:px-4 md:py-3 text-xs font-medium uppercase tracking-wider"
 											style={{
 												color: 'var(--color-text-disabled)',
 												position: 'sticky',
@@ -159,7 +159,7 @@ export default function FinalGradesPage() {
 										{finalGrades.periods.map(period => (
 											<th
 												key={period.id}
-												className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider"
+												className="text-center p-2 md:px-4 md:py-3 text-xs font-medium uppercase tracking-wider"
 												style={{
 													color: 'var(--color-text-disabled)',
 													minWidth: '60px',
@@ -169,7 +169,7 @@ export default function FinalGradesPage() {
 											</th>
 										))}
 										<th
-											className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider"
+											className="text-center p-2 md:px-4 md:py-3 text-xs font-medium uppercase tracking-wider"
 											style={{
 												color: 'var(--color-text-disabled)',
 												minWidth: '70px',
@@ -197,7 +197,7 @@ export default function FinalGradesPage() {
 											>
 												{/* Nombre - sticky */}
 												<td
-													className="px-4 py-3"
+													className="p-2 md:px-4 md:py-3"
 													style={{
 														position: 'sticky',
 														left: 0,
@@ -206,20 +206,11 @@ export default function FinalGradesPage() {
 													}}
 												>
 													<div className="flex items-center gap-2">
-														<div
-															className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
-															style={{
-																backgroundColor: 'var(--color-bg-tertiary)',
-																color: 'var(--color-primary)',
-															}}
-														>
-															{student.student.name[0]}{student.student.firstLastName[0]}
-														</div>
 														<span
 															className="text-sm"
 															style={{ color: 'var(--color-text-primary)' }}
 														>
-															{student.student.name} {student.student.firstLastName}
+															{student.student.firstLastName} {student.student.name}
 														</span>
 													</div>
 												</td>
@@ -230,7 +221,7 @@ export default function FinalGradesPage() {
 													return (
 														<td
 															key={grade.periodId}
-															className="text-center px-4 py-3"
+															className="text-center p-2 md:px-4 md:py-3"
 															style={{ backgroundColor: rowBg }}
 														>
 															<span
@@ -245,7 +236,7 @@ export default function FinalGradesPage() {
 
 												{/* Promedio final */}
 												<td
-													className="text-center px-4 py-3"
+													className="text-center p-2 md:px-4 md:py-3"
 													style={{ backgroundColor: rowBg }}
 												>
 													<span
