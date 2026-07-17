@@ -114,7 +114,7 @@ export default function StudenSubjectSummaryPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <BackButton href={`/dashboard/students/${studentId}`} />
-        <div>
+        <div className="flex-1">
           <h1
             className="text-xl md:text-2xl font-semibold"
             style={{
