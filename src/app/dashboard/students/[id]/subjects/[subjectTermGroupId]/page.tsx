@@ -5,9 +5,12 @@ import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { useClassDetail } from "@/hooks/useClassroom"
 import api from "@/lib/api/axios"
+import { exportStudentSummary } from "@/lib/excel/exportStudentSummary"
 import { useQuery } from "@tanstack/react-query"
+import { Download } from "lucide-react"
 import { useParams, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface AttendanceEntry {
   date: string
@@ -49,6 +52,7 @@ export default function StudenSubjectSummaryPage() {
   const periods = cls?.academicTerm.periods ?? []
 
   const [selectedPeriodId, setSelectedPeriodId] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
   const activePeriodId = selectedPeriodId || periods[0]?.id
 
   const { data: summary, isLoading } = useQuery({
@@ -71,6 +75,29 @@ export default function StudenSubjectSummaryPage() {
     },
     enabled: !!studentId
   })
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const { data } = await api.get(
+        `/students/${studentId}/subjects/${subjectTermGroupId}/full-summary`
+      )
+
+      exportStudentSummary({
+        studentName: data.studentName,
+        subjectName: data.subjectName,
+        groupName: `${cls?.group.grade}°${cls?.group.letter}`,
+        academicTermName: data.academicTermName,
+        periods: data.periods
+      })
+    }
+    catch {
+      toast.error('Error al generar el archivo')
+    }
+    finally {
+      setIsExporting(false)
+    }
+  }
 
   const getScoreColor = (score: number) => {
     if (score >= 9) return 'var(--color-success)'
@@ -121,6 +148,34 @@ export default function StudenSubjectSummaryPage() {
               </span>
             )}
           </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors cursor-pointer"
+            style={{
+              backgroundColor: 'var(--color-bg-elevated)',
+              border: '1px solid var(--color-border)',
+              color: isExporting ? 'var(--color-text-disabled)' : 'var(--color-text-secondary)',
+              cursor: isExporting ? 'not-allowed' : 'pointer',
+            }}
+            onMouseEnter={e => {
+              if (!isExporting) {
+                e.currentTarget.style.borderColor = 'var(--color-primary)'
+                e.currentTarget.style.color = 'var(--color-primary)'
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isExporting) {
+                e.currentTarget.style.borderColor = 'var(--color-border)'
+                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              }
+            }}
+          >
+            <Download size={14} />
+            {isExporting ? 'Generando...' : 'Exportar'}
+          </button>
         </div>
       </div>
 
