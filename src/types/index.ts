@@ -270,3 +270,64 @@ export interface CreateReportDto {
   notifyTutor?: boolean
   subjectTermGroupId?: string
 }
+
+
+
+// ----------------- Excel Individual Student ----------------
+
+interface ActivityRow {
+  title: string
+  categoryName: string
+  maxScore: number
+  score: number | null
+  didNotSubmit: boolean
+}
+
+interface AttendanceEntry {
+  date: string
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
+}
+
+interface PeriodData {
+  number: number
+  finalGrade: {
+    calculatedScore: number
+    finalScore: number | null
+  } | null
+  activities: ActivityRow[]
+  attendance: AttendanceEntry[]
+}
+
+export interface ExportStudentSummaryParams {
+  studentName: string
+  subjectName: string
+  groupName: string
+  academicTermName: string
+  periods: PeriodData[]
+}
+
+
+// ------------------ Excel Final Grades -------------------
+
+
+interface StudentFinalGradeExcel {
+  student: {
+    name: string
+    firstLastName: string
+    secondLastName: string | null
+  }
+  grades: {
+    periodNumber: number
+    calculatedScore: number | null
+    finalScore: number | null
+  }[]
+  average: number | null
+}
+
+export interface ExportFinalGradesParams {
+  subjectName: string
+  groupName: string
+  academicTermName: string
+  students: StudentFinalGradeExcel[]
+  periodsCount: number
+}
