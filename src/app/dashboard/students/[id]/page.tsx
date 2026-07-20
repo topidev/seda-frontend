@@ -18,15 +18,21 @@ import { toast } from 'sonner'
 import BackButton from '@/components/BackButton'
 import ReportDialog from '@/components/ReportDialog'
 import { useDeleteReport, useStudentReports } from '@/hooks/useReports'
+import z from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import AppButton from '@/components/AppButton'
 
 interface StudentDetail {
   id: string
   name: string
   firstLastName: string
   secondLastName: string | null
+  curp: string | null
   birthDate: string | null
   tutorName: string | null
   tutorPhone: string | null
+  tutorEmail: string | null
   deletedAt: string | null
   groupTerms: {
     id: string
@@ -43,6 +49,22 @@ interface StudentDetail {
     }
   }[]
 }
+
+const editSchema = z.object({
+  name: z.string().min(2, 'Mínimo 2 caracteres'),
+  firstLastName: z.string().min(2, 'Mínimo 2 caracteres'),
+  secondLastName: z.string().optional(),
+  curp: z.string()
+    .regex(/^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/, 'CURP inválida')
+    .optional()
+    .or(z.literal('')),
+  birthDate: z.string().optional(),
+  tutorName: z.string().optional(),
+  tutorPhone: z.string().optional(),
+  tutorEmail: z.string().email('Email inválido').optional().or(z.literal('')),
+})
+
+type UpdateStudentFormData = z.infer<typeof editSchema>
 
 export default function StudentDetailPage() {
   const params = useParams()
@@ -100,18 +122,60 @@ export default function StudentDetailPage() {
 
   const { mutate: deleteReport } = useDeleteReport(studentId)
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<UpdateStudentFormData>({
+    resolver: zodResolver(editSchema),
+    defaultValues: {
+      name: '',
+      firstLastName: '',
+      secondLastName: '',
+      curp: '',
+      birthDate: '',
+      tutorName: '',
+      tutorPhone: '',
+      tutorEmail: '',
+    }
+  })
+
   const handleOpenEdit = () => {
-    if (!student) return
-    setName(student.name)
-    setFirstLastName(student.firstLastName)
-    setSecondLastName(student.secondLastName ?? '')
-    setTutorName(student.tutorName ?? '')
-    setTutorPhone(student.tutorPhone ?? '')
+    reset({
+      name: student?.name ?? '',
+      firstLastName: student?.firstLastName ?? '',
+      secondLastName: student?.secondLastName ?? '',
+      curp: student?.curp ?? '',
+      birthDate: student?.birthDate
+        ? new Date(student.birthDate).toISOString().split('T')[0]
+        : '',
+      tutorName: student?.tutorName ?? '',
+      tutorPhone: student?.tutorPhone ?? '',
+      tutorEmail: student?.tutorEmail ?? '',
+    })
     setOpenEdit(true)
   }
 
-  const handleUpdate = () => {
-    updateStudent({ name, firstLastName, secondLastName, tutorName, tutorPhone })
+  const handleUpdate = (data: UpdateStudentFormData) => {
+    updateStudent(
+      {
+        name: data.name,
+        firstLastName: data.firstLastName,
+        secondLastName: data.secondLastName || undefined,
+        curp: data.curp || undefined,
+        birthDate: data.birthDate || undefined,
+        tutorName: data.tutorName || undefined,
+        tutorPhone: data.tutorPhone || undefined,
+        tutorEmail: data.tutorEmail || undefined,
+      },
+      {
+        onSuccess: () => {
+          setOpenEdit(false)
+          reset()
+        }
+      }
+    )
   }
 
   const formatDate = (dateStr: string) =>
@@ -309,8 +373,8 @@ export default function StudentDetailPage() {
                 key={subject.subjectTermGroupId}
                 href={`/dashboard/students/${studentId}/subjects/${subject.subjectTermGroupId}?academicTermId=${subject.academicTermId}`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer"
-                style={{ 
-                  backgroundColor: 'var(--color-bg-tertiary)' ,
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
                   border: '1px solid var(--color-border)',
                 }}
                 onMouseEnter={e => {
@@ -324,7 +388,7 @@ export default function StudentDetailPage() {
                   className="w-full flex items-center justify-between rounded-xl cursor-pointer"
                   style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
                 >
-                  <div className="flex items-center gap-3">                    
+                  <div className="flex items-center gap-3">
                     <span style={{ color: 'var(--color-text-primary)' }}>
                       {subject.name}
                     </span>
@@ -348,10 +412,10 @@ export default function StudentDetailPage() {
           <h2
             className="text-base font-medium"
             style={{ color: 'var(--color-text-primary)' }}
-            >
+          >
             Reportes ({reports?.length ?? 0})
           </h2>
-         <FileWarning
+          <FileWarning
             size={16}
             className="shrink-0 mt-0.5"
             style={{ color: 'var(--color-warning)' }}
@@ -374,7 +438,7 @@ export default function StudentDetailPage() {
                 }}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 flex-1">                    
+                  <div className="flex items-start gap-3 flex-1">
                     <div className="flex flex-col gap-1">
                       <p
                         className="text-sm"
@@ -457,56 +521,177 @@ export default function StudentDetailPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 mt-2">
+          <form onSubmit={handleSubmit(handleUpdate)} className="flex flex-col gap-4 mt-2">
+            {/* Nombre y apellidos */}
             {[
-              { label: 'Nombre', value: name, setter: setName },
-              { label: 'Apellido paterno', value: firstLastName, setter: setFirstLastName },
-              { label: 'Apellido materno', value: secondLastName, setter: setSecondLastName },
-              { label: 'Nombre del tutor', value: tutorName, setter: setTutorName },
-              { label: 'Teléfono del tutor', value: tutorPhone, setter: setTutorPhone },
-            ].map(field => (
-              <div key={field.label} className="flex flex-col gap-2">
-                <label
-                  className="text-sm font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  {field.label}
+              { field: 'name' as const, label: 'Nombre', placeholder: 'Ej. Juan' },
+              { field: 'firstLastName' as const, label: 'Apellido paterno', placeholder: 'Ej. Pérez' },
+              { field: 'secondLastName' as const, label: 'Apellido materno', placeholder: 'Ej. García (opcional)' },
+            ].map(({ field, label, placeholder }) => (
+              <div key={field} className="flex flex-col gap-2">
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                  {label}
                 </label>
                 <input
-                  type="text"
-                  value={field.value}
-                  onChange={e => field.setter(e.target.value)}
+                  {...register(field)}
+                  placeholder={placeholder}
                   className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
                   style={{
                     backgroundColor: 'var(--color-bg-tertiary)',
-                    border: '1px solid var(--color-border)',
+                    border: `1px solid ${errors[field] ? 'var(--color-error)' : 'var(--color-border)'}`,
                     color: 'var(--color-text-primary)',
                   }}
                   onFocus={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-primary)'
+                    e.currentTarget.style.borderColor = errors[field] ? 'var(--color-error)' : 'var(--color-primary)'
                   }}
                   onBlur={e => {
-                    e.currentTarget.style.borderColor = 'var(--color-border)'
+                    e.currentTarget.style.borderColor = errors[field] ? 'var(--color-error)' : 'var(--color-border)'
                   }}
                 />
+                {errors[field] && (
+                  <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                    {errors[field]?.message}
+                  </p>
+                )}
               </div>
             ))}
 
-            <button
-              onClick={handleUpdate}
-              disabled={isUpdating}
-              className="w-full py-3 rounded-xl font-medium transition-colors mt-2"
-              style={{
-                backgroundColor: isUpdating
-                  ? 'var(--color-text-disabled)'
-                  : 'var(--color-primary)',
-                color: 'white',
-                cursor: isUpdating ? 'not-allowed' : 'pointer',
-              }}
+            {/* Separador */}
+            <div
+              className="pt-2 mt-1"
+              style={{ borderTop: '1px solid var(--color-divider)' }}
+            >
+              <p className="text-xs font-medium mb-3" style={{ color: 'var(--color-text-disabled)' }}>
+                Datos opcionales
+              </p>
+
+              <div className="flex flex-col gap-4">
+                {/* CURP */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    CURP
+                  </label>
+                  <input
+                    {...register('curp')}
+                    placeholder="Ej. PEGJ850101HDFRZN09"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors uppercase"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: `1px solid ${errors.curp ? 'var(--color-error)' : 'var(--color-border)'}`,
+                      color: 'var(--color-text-primary)',
+                    }}
+                    onFocus={e => {
+                      e.currentTarget.style.borderColor = errors.curp ? 'var(--color-error)' : 'var(--color-primary)'
+                    }}
+                    onBlur={e => {
+                      e.currentTarget.style.borderColor = errors.curp ? 'var(--color-error)' : 'var(--color-border)'
+                    }}
+                  />
+                  {errors.curp && (
+                    <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                      {errors.curp.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Fecha de nacimiento */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    Fecha de nacimiento
+                  </label>
+                  <input
+                    {...register('birthDate')}
+                    type="date"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                      colorScheme: 'dark',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                  />
+                </div>
+
+                {/* Nombre del tutor */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    Nombre del tutor
+                  </label>
+                  <input
+                    {...register('tutorName')}
+                    placeholder="Ej. María García López"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                  />
+                </div>
+
+                {/* Teléfono y email del tutor */}
+                <div className="flex gap-3">
+                  <div className="flex flex-col gap-2 flex-1">
+                    <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Teléfono tutor
+                    </label>
+                    <input
+                      {...register('tutorPhone')}
+                      placeholder="Ej. 6121234567"
+                      type="tel"
+                      className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text-primary)',
+                      }}
+                      onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1">
+                    <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Email tutor
+                    </label>
+                    <input
+                      {...register('tutorEmail')}
+                      placeholder="Ej. tutor@email.com"
+                      type="email"
+                      className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        border: `1px solid ${errors.tutorEmail ? 'var(--color-error)' : 'var(--color-border)'}`,
+                        color: 'var(--color-text-primary)',
+                      }}
+                      onFocus={e => {
+                        e.currentTarget.style.borderColor = errors.tutorEmail ? 'var(--color-error)' : 'var(--color-primary)'
+                      }}
+                      onBlur={e => {
+                        e.currentTarget.style.borderColor = errors.tutorEmail ? 'var(--color-error)' : 'var(--color-border)'
+                      }}
+                    />
+                    {errors.tutorEmail && (
+                      <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                        {errors.tutorEmail.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <AppButton
+              fullWidth
+              isPending={isUpdating}
+              pendingLabel='Guardando...'
             >
               {isUpdating ? 'Guardando...' : 'Guardar cambios'}
-            </button>
-          </div>
+            </AppButton>
+          </form>
         </DialogContent>
       </Dialog>
 

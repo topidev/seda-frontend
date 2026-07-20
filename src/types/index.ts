@@ -223,9 +223,11 @@ export interface CreateStudentDto {
   name: string
   firstLastName: string
   secondLastName?: string
+  curp?: string
   birthDate?: string
   tutorName?: string
   tutorPhone?: string
+  tutorEmail?: string
   groupId: string
   academicTermId: string
 }

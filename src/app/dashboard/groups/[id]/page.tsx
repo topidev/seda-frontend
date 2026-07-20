@@ -26,7 +26,15 @@ import Link from 'next/link'
 const newStudentSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
   firstLastName: z.string().min(2, 'Mínimo 2 caracteres'),
-  secondLastName: z.string().optional()
+  secondLastName: z.string().optional(),
+  curp: z.string()
+    .regex(/^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/, 'CURP inválida')
+    .optional()
+    .or(z.literal('')),
+  birthDate: z.string().optional(),
+  tutorName: z.string().optional(),
+  tutorPhone: z.string().optional(),
+  tutorEmail: z.string().email('Email Invalido').optional().or(z.literal('')),
 })
 
 type NewStudentFormData = z.infer<typeof newStudentSchema>
@@ -69,7 +77,12 @@ export default function GroupDetailPage() {
     defaultValues: {
       name: '',
       firstLastName: '',
-      secondLastName: ''
+      secondLastName: '',
+      curp: '',
+      birthDate: '',
+      tutorName: '',
+      tutorPhone: '',
+      tutorEmail: '',
     }
   })
 
@@ -91,7 +104,18 @@ export default function GroupDetailPage() {
 
   const onSubmitNewStudent = (data: NewStudentFormData) => {
     createStudent(
-      { ...data, groupId, academicTermId },
+      {
+        name: data.name,
+        firstLastName: data.firstLastName,
+        secondLastName: data.secondLastName || undefined,
+        curp: data.curp || undefined,
+        birthDate: data.birthDate || undefined,
+        tutorName: data.tutorName || undefined,
+        tutorPhone: data.tutorPhone || undefined,
+        tutorEmail: data.tutorEmail || undefined,
+        groupId,
+        academicTermId,
+      },
       {
         onSuccess: () => {
           setOpenNewStudent(false)
@@ -234,13 +258,13 @@ export default function GroupDetailPage() {
               <div
                 key={stg.id}
                 className="flex items-center gap-3 justify-between px-4 py-3 rounded-xl"
-                style={{ 
+                style={{
                   backgroundColor: 'var(--color-bg-tertiary)',
                   borderColor: 'var(--border)'
                 }}
               >
                 {/* <BookOpen size={16} style={{ color: 'var(--color-primary)' }} /> */}
-                <Link 
+                <Link
                   href={`/dashboard/subjects/${stg.subjectId}`}
                   className='w-full'
                 >
@@ -402,16 +426,14 @@ export default function GroupDetailPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmitNewStudent)} className="flex flex-col gap-4 mt-2">
+            {/* Nombre y apellidos */}
             {[
               { field: 'name' as const, label: 'Nombre', placeholder: 'Ej. Juan' },
-              { field: 'firstLastName' as const, label: 'Apellido Paterno', placeholder: 'Ej. Pérez' },
-              { field: 'secondLastName' as const, label: 'Apellido Mater', placeholder: 'Ej. García (Opcional)' },
+              { field: 'firstLastName' as const, label: 'Apellido paterno', placeholder: 'Ej. Pérez' },
+              { field: 'secondLastName' as const, label: 'Apellido materno', placeholder: 'Ej. García (opcional)' },
             ].map(({ field, label, placeholder }) => (
               <div key={field} className="flex flex-col gap-2">
-                <label
-                  className="text-sm font-medium"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
+                <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                   {label}
                 </label>
                 <input
@@ -424,14 +446,10 @@ export default function GroupDetailPage() {
                     color: 'var(--color-text-primary)',
                   }}
                   onFocus={e => {
-                    e.currentTarget.style.borderColor = errors[field]
-                      ? 'var(--color-error)'
-                      : 'var(--color-primary)'
+                    e.currentTarget.style.borderColor = errors[field] ? 'var(--color-error)' : 'var(--color-primary)'
                   }}
                   onBlur={e => {
-                    e.currentTarget.style.borderColor = errors[field]
-                      ? 'var(--color-error)'
-                      : 'var(--color-border)'
+                    e.currentTarget.style.borderColor = errors[field] ? 'var(--color-error)' : 'var(--color-border)'
                   }}
                 />
                 {errors[field] && (
@@ -441,6 +459,134 @@ export default function GroupDetailPage() {
                 )}
               </div>
             ))}
+
+            {/* Separador */}
+            <div
+              className="pt-2 mt-1"
+              style={{ borderTop: '1px solid var(--color-divider)' }}
+            >
+              <p className="text-xs font-medium mb-3" style={{ color: 'var(--color-text-disabled)' }}>
+                Datos opcionales
+              </p>
+
+              <div className="flex flex-col gap-4">
+                {/* CURP */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    CURP
+                  </label>
+                  <input
+                    {...register('curp')}
+                    placeholder="Ej. PEGJ850101HDFRZN09"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors uppercase"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: `1px solid ${errors.curp ? 'var(--color-error)' : 'var(--color-border)'}`,
+                      color: 'var(--color-text-primary)',
+                    }}
+                    onFocus={e => {
+                      e.currentTarget.style.borderColor = errors.curp ? 'var(--color-error)' : 'var(--color-primary)'
+                    }}
+                    onBlur={e => {
+                      e.currentTarget.style.borderColor = errors.curp ? 'var(--color-error)' : 'var(--color-border)'
+                    }}
+                  />
+                  {errors.curp && (
+                    <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                      {errors.curp.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Fecha de nacimiento */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    Fecha de nacimiento
+                  </label>
+                  <input
+                    {...register('birthDate')}
+                    type="date"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                      colorScheme: 'dark',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                  />
+                </div>
+
+                {/* Nombre del tutor */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                    Nombre del tutor
+                  </label>
+                  <input
+                    {...register('tutorName')}
+                    placeholder="Ej. María García López"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                    style={{
+                      backgroundColor: 'var(--color-bg-tertiary)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                  />
+                </div>
+
+                {/* Teléfono y email del tutor */}
+                <div className="flex gap-3">
+                  <div className="flex flex-col gap-2 flex-1">
+                    <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Teléfono tutor
+                    </label>
+                    <input
+                      {...register('tutorPhone')}
+                      placeholder="Ej. 6121234567"
+                      type="tel"
+                      className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text-primary)',
+                      }}
+                      onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1">
+                    <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+                      Email tutor
+                    </label>
+                    <input
+                      {...register('tutorEmail')}
+                      placeholder="Ej. tutor@email.com"
+                      type="email"
+                      className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-bg-tertiary)',
+                        border: `1px solid ${errors.tutorEmail ? 'var(--color-error)' : 'var(--color-border)'}`,
+                        color: 'var(--color-text-primary)',
+                      }}
+                      onFocus={e => {
+                        e.currentTarget.style.borderColor = errors.tutorEmail ? 'var(--color-error)' : 'var(--color-primary)'
+                      }}
+                      onBlur={e => {
+                        e.currentTarget.style.borderColor = errors.tutorEmail ? 'var(--color-error)' : 'var(--color-border)'
+                      }}
+                    />
+                    {errors.tutorEmail && (
+                      <p className="text-xs" style={{ color: 'var(--color-error)' }}>
+                        {errors.tutorEmail.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <AppButton
               fullWidth
