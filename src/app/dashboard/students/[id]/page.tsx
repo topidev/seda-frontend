@@ -299,21 +299,21 @@ export default function StudentDetailPage() {
         <div className="flex flex-col gap-3">
           {/* Siempre visible */}
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
               Tutor
             </span>
-            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               {student?.tutorName ?? 'No asiganado'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
               Teléfono
             </span>
             <a
               href={`tel:${student?.tutorPhone}`}
-              className={`text-sm ${!student?.tutorName ? 'cursor-none opacity-30' : 'cursor-pointer'}`}
-              style={{ color: 'var(--color-primary)' }}
+              className={`text-sm ${!student?.tutorName ? 'pointer-events-none opacity-30' : 'cursor-pointer'}`}
+              style={{ color: 'var(--color-secondary)' }}
             >
               {student?.tutorPhone ?? 'No asignado'}
             </a>
@@ -325,13 +325,13 @@ export default function StudentDetailPage() {
                 <>
                   {student?.tutorEmail && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         Email tutor
                       </span>
                       <a
                         href={`mailto:${student.tutorEmail}`}
                         className="text-sm"
-                        style={{ color: 'var(--color-primary)' }}
+                        style={{ color: 'var(--color-secondary)' }}
                       >
                         {student.tutorEmail}
                       </a>
@@ -339,10 +339,10 @@ export default function StudentDetailPage() {
                   )}
                   {student?.birthDate && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         Nacimiento
                       </span>
-                      <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         {new Date(student.birthDate).toLocaleDateString('es-MX', {
                           day: 'numeric',
                           month: 'long',
@@ -353,12 +353,12 @@ export default function StudentDetailPage() {
                   )}
                   {student?.curp && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                         CURP
                       </span>
                       <span
                         className="text-sm font-mono"
-                        style={{ color: 'var(--color-text-primary)', fontSize: '11px' }}
+                        style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}
                       >
                         {student.curp}
                       </span>
