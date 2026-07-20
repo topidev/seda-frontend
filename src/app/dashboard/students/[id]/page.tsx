@@ -291,6 +291,7 @@ export default function StudentDetailPage() {
             onClick={() => setExpandedInfo(!expandedInfo)}
             className="text-sm cursor-pointer transition-colors"
             style={{ color: 'var(--color-primary)' }}
+            hidden={seeMore ? true : false}
           >
             {expandedInfo ? 'Ver menos' : 'Ver más'}
           </button>
@@ -317,7 +318,7 @@ export default function StudentDetailPage() {
               {student?.tutorPhone ?? 'No asignado'}
             </a>
           </div>
-          {(student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail) && (
+          {seeMore && (
             <>
               {/* Expandible */}
               {expandedInfo && (
