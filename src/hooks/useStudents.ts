@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
-import type { Student, CreateStudentDto } from '@/types'
+import type { Student, CreateStudentDto, UpdateStudentDto } from '@/types'
+import { useRouter } from 'next/navigation'
 
 
 export function useStudents(filters?: {
@@ -63,5 +64,43 @@ export function useAssignStudentToGroup() {
     onError: () => {
       toast.error('Error al asignar alumno')
     }
+  })
+}
+
+export function useUpdateStudent(studentId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (dto: Partial<UpdateStudentDto>) => {
+      const { data } = await api.patch(`/students/${studentId}`, dto)
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students', studentId] }),
+        queryClient.invalidateQueries({ queryKey: ['students'] }),
+        toast.success('Alumno actualizado')
+    },
+    onError: () => {
+      toast.error('Error al actualizar alumno')
+    }
+  })
+}
+
+export function useRemoveStudent(studentId: string) {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`/students/${studentId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      toast.success('Alumno eliminado correctamente')
+      router.replace('/dashboard/students')
+    },
+    onError: () => {
+      toast.error('Error al eliminar el alumno')
+    },
   })
 }

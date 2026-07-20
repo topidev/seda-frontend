@@ -232,6 +232,17 @@ export interface CreateStudentDto {
   academicTermId: string
 }
 
+export interface UpdateStudentDto {
+  name: string
+  firstLastName: string
+  secondLastName?: string
+  curp?: string
+  birthDate?: string
+  tutorName?: string
+  tutorPhone?: string
+  tutorEmail?: string
+}
+
 export interface CreateActivityDto {
   title: string
   description?: string

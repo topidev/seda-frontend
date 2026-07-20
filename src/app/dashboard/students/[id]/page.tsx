@@ -22,6 +22,7 @@ import z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AppButton from '@/components/AppButton'
+import { useRemoveStudent, useUpdateStudent } from '@/hooks/useStudents'
 
 interface StudentDetail {
   id: string
@@ -68,16 +69,10 @@ type UpdateStudentFormData = z.infer<typeof editSchema>
 
 export default function StudentDetailPage() {
   const params = useParams()
-  const router = useRouter()
-  const queryClient = useQueryClient()
   const studentId = params.id as string
 
   const [openEdit, setOpenEdit] = useState(false)
-  const [name, setName] = useState('')
-  const [firstLastName, setFirstLastName] = useState('')
-  const [secondLastName, setSecondLastName] = useState('')
-  const [tutorName, setTutorName] = useState('')
-  const [tutorPhone, setTutorPhone] = useState('')
+  const [expandedInfo, setExpandedInfo] = useState(false)
 
   // abrir el modal de confirmación
   const [openConfirm, setOpenConfirm] = useState(false)
@@ -94,31 +89,9 @@ export default function StudentDetailPage() {
   })
   const { data: reports } = useStudentReports(studentId)
 
-  const { mutate: updateStudent, isPending: isUpdating } = useMutation({
-    mutationFn: async (dto: Partial<StudentDetail>) => {
-      const { data } = await api.patch(`/students/${studentId}`, dto)
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students', studentId] })
-      queryClient.invalidateQueries({ queryKey: ['students'] })
-      setOpenEdit(false)
-    },
-  })
+  const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent(studentId)
 
-  const { mutate: removeStudent } = useMutation({
-    mutationFn: async () => {
-      await api.delete(`/students/${studentId}`)
-    },
-    onSuccess: () => {
-      toast.success('Alumno Inactivado')
-      queryClient.invalidateQueries({ queryKey: ['students'] })
-      router.replace('/dashboard/students')
-    },
-    onError: () => {
-      toast.error('Error al inactivar el alumno')
-    }
-  })
+  const { mutate: removeStudent } = useRemoveStudent(studentId)
 
   const { mutate: deleteReport } = useDeleteReport(studentId)
 
@@ -297,47 +270,106 @@ export default function StudentDetailPage() {
       </div>
 
       {/* Info básica */}
-      <div
-        className="rounded-2xl p-6 mb-4"
-        style={{
-          backgroundColor: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border)',
-        }}
-      >
-        <h2
-          className="text-base font-medium mb-3"
-          style={{ color: 'var(--color-text-primary)' }}
+      {(student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail) && (
+        <div
+          className="rounded-2xl p-6 mb-4"
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)',
+          }}
         >
-          Información
-        </h2>
-        <div className="flex flex-col gap-3">
-          {[
-            {
-              label: 'Fecha de nacimiento',
-              value: student?.birthDate
-                ? formatDate(student.birthDate)
-                : 'No registrada',
-            },
-            {
-              label: 'Tutor',
-              value: student?.tutorName || 'No registrado',
-            },
-            {
-              label: 'Teléfono del tutor',
-              value: student?.tutorPhone || 'No registrado',
-            },
-          ].map(item => (
-            <div key={item.label} className="flex justify-between">
-              <span style={{ color: 'var(--color-text-secondary)' }}>
-                {item.label}
-              </span>
-              <span style={{ color: 'var(--color-text-primary)' }}>
-                {item.value}
-              </span>
-            </div>
-          ))}
+          <div className="flex items-center justify-between mb-4">
+            <h2
+              className="text-base font-medium"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Información
+            </h2>
+            <button
+              onClick={() => setExpandedInfo(!expandedInfo)}
+              className="text-sm cursor-pointer transition-colors"
+              style={{ color: 'var(--color-primary)' }}
+            >
+              {expandedInfo ? 'Ver menos' : 'Ver más'}
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {/* Siempre visible */}
+            {student?.tutorName && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  Tutor
+                </span>
+                <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                  {student.tutorName}
+                </span>
+              </div>
+            )}
+            {student?.tutorPhone && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  Teléfono
+                </span>
+                <a
+                  href={`tel:${student.tutorPhone}`}
+                  className="text-sm"
+                  style={{ color: 'var(--color-primary)' }}
+                >
+                  {student.tutorPhone}
+                </a>
+              </div>
+            )}
+
+            {/* Expandible */}
+            {expandedInfo && (
+              <>
+                {student?.tutorEmail && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      Email tutor
+                    </span>
+                    <a
+                      href={`mailto:${student.tutorEmail}`}
+                      className="text-sm"
+                      style={{ color: 'var(--color-primary)' }}
+                    >
+                      {student.tutorEmail}
+                    </a>
+                  </div>
+                )}
+                {student?.birthDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      Nacimiento
+                    </span>
+                    <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                      {new Date(student.birthDate).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                )}
+                {student?.curp && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                      CURP
+                    </span>
+                    <span
+                      className="text-sm font-mono"
+                      style={{ color: 'var(--color-text-primary)', fontSize: '11px' }}
+                    >
+                      {student.curp}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Materias */}
       <div
