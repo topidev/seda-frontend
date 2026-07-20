@@ -294,30 +294,26 @@ export default function StudentDetailPage() {
         </div>
         <div className="flex flex-col gap-3">
           {/* Siempre visible */}
-          {student?.tutorName && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Tutor
-              </span>
-              <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                {student.tutorName}
-              </span>
-            </div>
-          )}
-          {student?.tutorPhone && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Teléfono
-              </span>
-              <a
-                href={`tel:${student.tutorPhone}`}
-                className="text-sm"
-                style={{ color: 'var(--color-primary)' }}
-              >
-                {student.tutorPhone}
-              </a>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Tutor
+            </span>
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+              {student?.tutorName ?? 'No asiganado'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              Teléfono
+            </span>
+            <a
+              href={`tel:${student?.tutorPhone}`}
+              className="text-sm"
+              style={{ color: 'var(--color-primary)' }}
+            >
+              {student?.tutorPhone ?? 'No asignado'}
+            </a>
+          </div>
           {(student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail) && (
             <>
               {/* Expandible */}
