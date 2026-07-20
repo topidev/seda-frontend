@@ -303,7 +303,7 @@ export default function StudentDetailPage() {
               Tutor
             </span>
             <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              {student?.tutorName ?? 'No asiganado'}
+              {student?.tutorName ?? 'No asignado'}
             </span>
           </div>
           <div className="flex items-center justify-between">
