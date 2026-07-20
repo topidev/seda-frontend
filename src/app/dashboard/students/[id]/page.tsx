@@ -270,106 +270,106 @@ export default function StudentDetailPage() {
       </div>
 
       {/* Info básica */}
-      {(student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail) && (
-        <div
-          className="rounded-2xl p-6 mb-4"
-          style={{
-            backgroundColor: 'var(--color-bg-elevated)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2
-              className="text-base font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Información
-            </h2>
-            <button
-              onClick={() => setExpandedInfo(!expandedInfo)}
-              className="text-sm cursor-pointer transition-colors"
-              style={{ color: 'var(--color-primary)' }}
-            >
-              {expandedInfo ? 'Ver menos' : 'Ver más'}
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {/* Siempre visible */}
-            {student?.tutorName && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                  Tutor
-                </span>
-                <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                  {student.tutorName}
-                </span>
-              </div>
-            )}
-            {student?.tutorPhone && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                  Teléfono
-                </span>
-                <a
-                  href={`tel:${student.tutorPhone}`}
-                  className="text-sm"
-                  style={{ color: 'var(--color-primary)' }}
-                >
-                  {student.tutorPhone}
-                </a>
-              </div>
-            )}
-
-            {/* Expandible */}
-            {expandedInfo && (
-              <>
-                {student?.tutorEmail && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                      Email tutor
-                    </span>
-                    <a
-                      href={`mailto:${student.tutorEmail}`}
-                      className="text-sm"
-                      style={{ color: 'var(--color-primary)' }}
-                    >
-                      {student.tutorEmail}
-                    </a>
-                  </div>
-                )}
-                {student?.birthDate && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                      Nacimiento
-                    </span>
-                    <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                      {new Date(student.birthDate).toLocaleDateString('es-MX', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </span>
-                  </div>
-                )}
-                {student?.curp && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                      CURP
-                    </span>
-                    <span
-                      className="text-sm font-mono"
-                      style={{ color: 'var(--color-text-primary)', fontSize: '11px' }}
-                    >
-                      {student.curp}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+      <div
+        className="rounded-2xl p-6 mb-4"
+        style={{
+          backgroundColor: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2
+            className="text-base font-medium"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Información
+          </h2>
+          <button
+            onClick={() => setExpandedInfo(!expandedInfo)}
+            className="text-sm cursor-pointer transition-colors"
+            style={{ color: 'var(--color-primary)' }}
+          >
+            {expandedInfo ? 'Ver menos' : 'Ver más'}
+          </button>
         </div>
-      )}
+        <div className="flex flex-col gap-3">
+          {/* Siempre visible */}
+          {student?.tutorName && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                Tutor
+              </span>
+              <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                {student.tutorName}
+              </span>
+            </div>
+          )}
+          {student?.tutorPhone && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                Teléfono
+              </span>
+              <a
+                href={`tel:${student.tutorPhone}`}
+                className="text-sm"
+                style={{ color: 'var(--color-primary)' }}
+              >
+                {student.tutorPhone}
+              </a>
+            </div>
+          )}
+          {(student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail) && (
+            <>
+              {/* Expandible */}
+              {expandedInfo && (
+                <>
+                  {student?.tutorEmail && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                        Email tutor
+                      </span>
+                      <a
+                        href={`mailto:${student.tutorEmail}`}
+                        className="text-sm"
+                        style={{ color: 'var(--color-primary)' }}
+                      >
+                        {student.tutorEmail}
+                      </a>
+                    </div>
+                  )}
+                  {student?.birthDate && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                        Nacimiento
+                      </span>
+                      <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                        {new Date(student.birthDate).toLocaleDateString('es-MX', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {student?.curp && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                        CURP
+                      </span>
+                      <span
+                        className="text-sm font-mono"
+                        style={{ color: 'var(--color-text-primary)', fontSize: '11px' }}
+                      >
+                        {student.curp}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Materias */}
       <div
