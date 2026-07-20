@@ -410,9 +410,13 @@ export default function GroupDetailPage() {
       >
         <DialogContent
           style={{
+            maxHeight: '90vh',
             backgroundColor: 'var(--color-bg-elevated)',
             border: '1px solid var(--color-border)',
+            overflowY: 'scroll',
+            WebkitOverflowScrolling: 'touch',
           }}
+          className="sm:p-[22px] md:p-3 sm:max-w-[425px] md:max-w-[500px]"
         >
           <DialogHeader>
             <DialogTitle
