@@ -168,6 +168,9 @@ export default function StudentDetailPage() {
     }))
   ) ?? []
 
+  const seeMore = (student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail)
+  console.log('VerMas?: ', seeMore)
+
   const uniqueSubjects = subjects.filter(
     (s, i, arr) => arr.findIndex(x => x.subjectId === s.subjectId) === i,
   )
