@@ -169,7 +169,7 @@ export default function StudentDetailPage() {
   ) ?? []
 
   const seeMore = (student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail)
-  console.log('VerMas?: ', seeMore)
+  console.log('VerMas?: ', seeMore ? 'True' : 'False')
 
   const uniqueSubjects = subjects.filter(
     (s, i, arr) => arr.findIndex(x => x.subjectId === s.subjectId) === i,
@@ -291,7 +291,7 @@ export default function StudentDetailPage() {
             onClick={() => setExpandedInfo(!expandedInfo)}
             className="text-sm cursor-pointer transition-colors"
             style={{ color: 'var(--color-primary)' }}
-            hidden={seeMore ? true : false}
+            hidden={seeMore ? false : true}
           >
             {expandedInfo ? 'Ver menos' : 'Ver más'}
           </button>
