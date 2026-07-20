@@ -312,7 +312,7 @@ export default function StudentDetailPage() {
             </span>
             <a
               href={`tel:${student?.tutorPhone}`}
-              className={`text-sm ${!student?.tutorName ? 'pointer-events-none opacity-30' : 'cursor-pointer'}`}
+              className={`text-sm ${!student?.tutorName ? 'pointer-events-none' : 'cursor-pointer'}`}
               style={{ color: 'var(--color-secondary)' }}
             >
               {student?.tutorPhone ?? 'No asignado'}
