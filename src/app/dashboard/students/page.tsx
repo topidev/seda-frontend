@@ -161,7 +161,7 @@ export default function StudentsPage() {
                           : '1px solid var(--color-divider)',
                       }}
                       onMouseEnter={e => {
-                        e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
+                        e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.backgroundColor = virtualRow.index % 2 === 0
