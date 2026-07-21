@@ -178,7 +178,7 @@ export default function StudentsPage() {
                       >
                         {student.name[0]}{student.firstLastName[0]}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 flex w-full justify-between min-w-0">
                         <p
                           className="font-medium text-sm truncate"
                           style={{ color: 'var(--color-text-primary)' }}
@@ -190,7 +190,7 @@ export default function StudentsPage() {
                           className="text-xs truncate"
                           style={{ color: 'var(--color-text-secondary)' }}
                         >
-                          {student.groupTerms?.[0]?.group?.letter ?? 'Sin grupo asignado'}
+                          {student.groupTerms?.[0]?.group?.grade + student.groupTerms?.[0]?.group?.letter}
                         </p>
                       </div>
                     </div>
