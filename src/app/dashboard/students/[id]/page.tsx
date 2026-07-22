@@ -23,6 +23,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AppButton from '@/components/AppButton'
 import { useRemoveStudent, useUpdateStudent } from '@/hooks/useStudents'
+import { useSchool, useSchools } from '@/hooks/useSchools'
+import Spinner from '@/components/Spinner'
 
 interface StudentDetail {
   id: string
@@ -74,6 +76,9 @@ export default function StudentDetailPage() {
   const [openEdit, setOpenEdit] = useState(false)
   const [expandedInfo, setExpandedInfo] = useState(false)
 
+  const [selectedStgId, setSelectedStgId] = useState<string>('')
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
+
   // abrir el modal de confirmación
   const [openConfirm, setOpenConfirm] = useState(false)
   const [openReport, setOpenReport] = useState(false)
@@ -87,6 +92,9 @@ export default function StudentDetailPage() {
     },
     enabled: !!studentId,
   })
+
+  const { data: schools } = useSchools()
+
   const { data: reports } = useStudentReports(studentId)
 
   const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent(studentId)
@@ -159,14 +167,32 @@ export default function StudentDetailPage() {
     })
 
   // Obtiene todas las materias únicas del alumno a través de sus grupos
-  const subjects = student?.groupTerms.flatMap(gt =>
-    gt.group.subjectTermGroups.map(stg => ({
+  const subjects = student?.groupTerms.flatMap(gt => {
+    const periods = schools?.flatMap(s => s.academicTerms).find(t => t.id === gt.academicTermId)?.periods ?? []
+    return gt.group.subjectTermGroups.map(stg => ({
       subjectId: stg.subject.id,
       subjectTermGroupId: stg.id,
       name: stg.subject.name,
-      academicTermId: gt.academicTermId
+      academicTermId: gt.academicTermId,
+      periods
     }))
+  }
   ) ?? []
+
+  const selectedSubject = subjects.find(s => s.subjectTermGroupId === selectedStgId)
+  const activePeriodId = selectedPeriodId || selectedSubject?.periods[0]?.id
+
+  const { data: attendanceSummary, isLoading: isLoadingAttendance } = useQuery({
+    queryKey: ['attendance-history', studentId, selectedStgId, activePeriodId],
+    queryFn: async () => {
+      const { data } = await api.get(
+        `/students/${studentId}/subjects/${selectedStgId}/summary`,
+        { params: { periodId: activePeriodId } },
+      )
+      return data
+    },
+    enabled: !!selectedStgId && !!activePeriodId,
+  })
 
   const seeMore = (student?.curp || student?.birthDate || student?.tutorName || student?.tutorPhone || student?.tutorEmail)
 
@@ -532,6 +558,171 @@ export default function StudentDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Historial de asistencias */}
+      <div
+        className="rounded-2xl p-6"
+        style={{
+          backgroundColor: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
+        <h2
+          className="text-base font-medium mb-4"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Historial de asistencias
+        </h2>
+
+        {/* Selector de materia */}
+        <select
+          value={selectedStgId}
+          onChange={e => {
+            setSelectedStgId(e.target.value)
+            setSelectedPeriodId('')
+          }}
+          className="w-full px-4 py-3 rounded-xl outline-none text-sm mb-3 cursor-pointer"
+          style={{
+            backgroundColor: 'var(--color-bg-tertiary)',
+            border: '1px solid var(--color-border)',
+            color: selectedStgId ? 'var(--color-text-primary)' : 'var(--color-text-disabled)',
+          }}
+        >
+          <option value="">Selecciona una materia</option>
+          {subjects.map(subject => (
+            <option key={subject.subjectTermGroupId} value={subject.subjectTermGroupId}>
+              {subject.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Selector de bimestre */}
+        {selectedStgId && selectedSubject && (
+          <div className="flex gap-2 mb-4">
+            {selectedSubject.periods.map(period => (
+              <button
+                key={period.id}
+                onClick={() => setSelectedPeriodId(period.id)}
+                className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                style={{
+                  backgroundColor: activePeriodId === period.id
+                    ? 'var(--color-primary)'
+                    : 'var(--color-bg-tertiary)',
+                  border: `1px solid ${activePeriodId === period.id
+                    ? 'var(--color-primary)'
+                    : 'var(--color-border)'}`,
+                  color: activePeriodId === period.id
+                    ? 'white'
+                    : 'var(--color-text-secondary)',
+                }}
+              >
+                B{period.number}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Lista de asistencias */}
+        {isLoadingAttendance && <Spinner />}
+
+        {!isLoadingAttendance && selectedStgId && attendanceSummary && (
+          attendanceSummary.attendance.length === 0 ? (
+            <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-disabled)' }}>
+              Sin registros de asistencia en este bimestre
+            </p>
+          ) : (
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{ border: '1px solid var(--color-border)' }}
+            >
+              {/* Header */}
+              <div
+                className="grid grid-cols-8 px-3 py-2 text-xs font-medium uppercase tracking-wider"
+                style={{
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                  color: 'var(--color-text-disabled)',
+                }}
+              >
+                <span className="col-span-4">Fecha</span>
+                <span className="col-span-1 text-center">P</span>
+                <span className="col-span-1 text-center">A</span>
+                <span className="col-span-1 text-center">T</span>
+                <span className="col-span-1 text-center">J</span>
+              </div>
+
+              {/* Filas */}
+              {attendanceSummary.attendance.map((entry: any, index: number) => {
+                const isLast = index === attendanceSummary.attendance.length - 1
+                const statusColors: Record<string, string> = {
+                  PRESENT: 'var(--color-success)',
+                  ABSENT: 'var(--color-error)',
+                  LATE: 'var(--color-warning)',
+                  EXCUSED: 'var(--color-info)',
+                }
+
+                return (
+                  <div
+                    key={entry.date}
+                    className="grid grid-cols-8 items-center px-3 py-2.5"
+                    style={{
+                      backgroundColor: index % 2 === 0
+                        ? 'var(--color-bg-elevated)'
+                        : 'var(--color-bg-secondary)',
+                      borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
+                    }}
+                  >
+                    <span
+                      className="col-span-4 text-sm"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {new Date(entry.date).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+
+                    {(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'] as const).map(status => (
+                      <div key={status} className="col-span-1 flex justify-center">
+                        {entry.status === status ? (
+                          <div
+                            className="w-5 h-5 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: statusColors[status] }}
+                          >
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                              <path
+                                d="M1 4L3.5 6.5L9 1"
+                                stroke="white"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div
+                            className="w-5 h-5 rounded-full"
+                            style={{ border: '1.5px solid var(--color-border)' }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        )}
+
+        {!selectedStgId && (
+          <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-disabled)' }}>
+            Selecciona una materia para ver el historial
+          </p>
+        )}
+      </div>
+
+
+
 
       {/* Modal editar */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>

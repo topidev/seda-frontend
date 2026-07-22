@@ -6,6 +6,7 @@ import Spinner from "@/components/Spinner"
 import { useClassDetail } from "@/hooks/useClassroom"
 import api from "@/lib/api/axios"
 import { exportStudentSummary } from "@/lib/excel/exportStudentSummary"
+import { usePreferencesStore } from "@/store/preferences.store"
 import { useQuery } from "@tanstack/react-query"
 import { Download } from "lucide-react"
 import { useParams, useSearchParams } from "next/navigation"
@@ -51,9 +52,20 @@ export default function StudenSubjectSummaryPage() {
   const { data: cls } = useClassDetail(subjectTermGroupId)
   const periods = cls?.academicTerm.periods ?? []
 
-  const [selectedPeriodId, setSelectedPeriodId] = useState('')
+  const setSelectedPeriod = usePreferencesStore(s => s.setSelectedPeriod)
+  const getSelectedPeriod = usePreferencesStore(s => s.getSelectedPeriod)
+
+  const savePeriodId = getSelectedPeriod(subjectTermGroupId)
+  const [selectedPeriod, setSelectedPeriodLocal] = useState(savePeriodId)
+
+  // const [selectedPeriodId, setSelectedPeriodId] = useState('')
   const [isExporting, setIsExporting] = useState(false)
-  const activePeriodId = selectedPeriodId || periods[0]?.id
+  const activePeriodId = selectedPeriod || periods[0]?.id
+
+  const handlePeriodChange = (periodId: string) => {
+    setSelectedPeriodLocal(periodId)
+    setSelectedPeriod(subjectTermGroupId, periodId)
+  }
 
   const { data: summary, isLoading } = useQuery({
     queryKey: ['student-summary', studentId, subjectTermGroupId, activePeriodId],
@@ -185,7 +197,7 @@ export default function StudenSubjectSummaryPage() {
           {periods.map(period => (
             <button
               key={period.id}
-              onClick={() => setSelectedPeriodId(period.id)}
+              onClick={() => handlePeriodChange(period.id)}
               className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
               style={{
                 backgroundColor: activePeriodId === period.id

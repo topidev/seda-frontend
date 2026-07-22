@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/dialog'
 import { Plus, Trash2 } from 'lucide-react'
 import BackButton from '@/components/BackButton'
-import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
@@ -28,6 +27,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useActivities, useCreateActivity, useDeleteActivity, useMyClasses } from '@/hooks/useClassroom'
 import Spinner from '@/components/Spinner'
+import { usePreferencesStore } from '@/store/preferences.store'
 
 export default function SubjectDetailPage() {
   const params = useParams()
@@ -35,16 +35,23 @@ export default function SubjectDetailPage() {
   const subjectId = params.id as string
   const queryClient = useQueryClient()
 
+  const setSelectedPeriod = usePreferencesStore(s => s.setSelectedPeriod)
+  const getSelectedPeriod = usePreferencesStore(s => s.getSelectedPeriod)
+
   const { data: subject, isLoading } = useSubject(subjectId)
   const { data: classes } = useMyClasses()
   const { mutate: createCategory, isPending, isError } = useCreateGradeCategory(subjectId)
   const { mutate: deleteCategory } = useDeleteGradeCategory(subjectId)
+
+  // const savePeriodId = getSelectedPeriod(subjectTermGroupId)
+  // const [selectedPeriod, setSelectedPeriodLocal] = useState(savePeriodId)
 
   const [open, setOpen] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
   const [openActivity, setOpenActivity] = useState(false)
   const [confirmActivityId, setConfirmActivityId] = useState<string | null>(null)
+
 
   const subjectClass = classes?.find(c => c.subject.id === subjectId)
   const periods = subjectClass?.academicTerm.periods ?? []
