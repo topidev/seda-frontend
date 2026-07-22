@@ -47,10 +47,33 @@ export default function FinalGradesPage() {
 			setIsExporting(false)
 		}
 	}
-	console.log('Califinaciones finales: ', finalGrades)
+
+	if (isLoading) return (
+		<ProtectedPage>
+			<Spinner />
+		</ProtectedPage>
+	)
+
+	if (!finalGrades) return (
+		<ProtectedPage>
+			<div
+				className="rounded-2xl p-12 flex flex-col items-center gap-3 mt-6"
+				style={{
+					backgroundColor: 'var(--color-bg-elevated)',
+					border: '1px solid var(--color-border)',
+				}}
+			>
+				<p style={{ color: 'var(--color-text-secondary)' }}>
+					No hay calificaciones finales disponibles
+				</p>
+			</div>
+		</ProtectedPage>
+	)
 
 	return (
 		<ProtectedPage>
+			{isLoading && <Spinner />}
+
 			<div className="flex items-center gap-3 mb-6">
 				<BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
 				<div className="flex-1">
@@ -97,97 +120,8 @@ export default function FinalGradesPage() {
 				</div>
 			</div>
 
-			{isLoading && <Spinner />}
 
 			{!isLoading && finalGrades && (
-				// <div
-				// 	className="rounded-2xl overflow-hidden"
-				// 	style={{ border: '1px solid var(--color-border)' }}
-				// >
-				// 	{/* Header tabla */}
-				// 	<div
-				// 		className="grid px-4 py-3 text-xs font-medium uppercase tracking-wider gap-2"
-				// 		style={{
-				// 			backgroundColor: 'var(--color-bg-tertiary)',
-				// 			color: 'var(--color-text-disabled)',
-				// 			gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
-				// 		}}
-				// 	>
-				// 		<span>Alumno</span>
-				// 		{finalGrades.periods.map(period => (
-				// 			<span key={period.id} className="text-center">
-				// 				B{period.number}
-				// 			</span>
-				// 		))}
-				// 		<span className="text-center">Final</span>
-				// 	</div>
-
-				// 	{/* Filas de alumnos */}
-				// 	{finalGrades.students.map((student, index) => {
-				// 		const isLast = index === finalGrades.students.length - 1
-
-				// 		return (
-				// 			<div
-				// 				key={student.student.id}
-				// 				className="grid items-center px-4 py-3 gap-2"
-				// 				style={{
-				// 					backgroundColor: index % 2 === 0
-				// 						? 'var(--color-bg-elevated)'
-				// 						: 'var(--color-bg-secondary)',
-				// 					borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
-				// 					gridTemplateColumns: `2fr repeat(${finalGrades.periods.length}, 1fr) 1fr`,
-				// 				}}
-				// 			>
-				// 				{/* Nombre */}
-				// 				<div className="flex items-center gap-2">
-				// 					<div
-				// 						className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
-				// 						style={{
-				// 							backgroundColor: 'var(--color-bg-tertiary)',
-				// 							color: 'var(--color-primary)',
-				// 						}}
-				// 					>
-				// 						{student.student.name[0]}{student.student.firstLastName[0]}
-				// 					</div>
-				// 					<span
-				// 						className="text-sm truncate"
-				// 						style={{ color: 'var(--color-text-primary)' }}
-				// 					>
-				// 						{student.student.name} {student.student.firstLastName}
-				// 					</span>
-				// 				</div>
-
-				// 				{/* Calificaciones por bimestre */}
-				// 				{student.grades.map(grade => {
-				// 					const score = grade.finalScore ?? grade.calculatedScore
-				// 					return (
-				// 						<div key={grade.periodId} className="text-center">
-				// 							<span
-				// 								className="text-sm font-medium"
-				// 								style={{ color: getScoreColor(score) }}
-				// 							>
-				// 								{score ?? '-'}
-				// 							</span>
-				// 						</div>
-				// 					)
-				// 				})}
-
-				// 				{/* Promedio final */}
-				// 				<div className="text-center">
-				// 					<span
-				// 						className="text-sm font-semibold"
-				// 						style={{
-				// 							color: getScoreColor(student.average),
-				// 							fontFamily: 'var(--font-geist)',
-				// 						}}
-				// 					>
-				// 						{student.average ?? '-'}
-				// 					</span>
-				// 				</div>
-				// 			</div>
-				// 		)
-				// 	})}
-				// </div>
 				<div
 					className="rounded-2xl overflow-hidden"
 					style={{ border: '1px solid var(--color-border)' }}
