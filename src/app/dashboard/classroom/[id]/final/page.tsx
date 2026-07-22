@@ -174,6 +174,7 @@ export default function FinalGradesPage() {
 							{/* Body */}
 							<tbody>
 								{finalGrades.students.map((student, index) => {
+									console.log('Student:', student)
 									const isLast = index === finalGrades.students.length - 1
 									const rowBg = index % 2 === 0
 										? 'var(--color-bg-elevated)'
