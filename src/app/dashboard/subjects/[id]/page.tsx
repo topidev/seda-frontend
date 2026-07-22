@@ -20,7 +20,6 @@ import AppButton from '@/components/AppButton'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
-// import { queryClient } from '@/lib/query-client'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
@@ -43,20 +42,24 @@ export default function SubjectDetailPage() {
   const { mutate: createCategory, isPending, isError } = useCreateGradeCategory(subjectId)
   const { mutate: deleteCategory } = useDeleteGradeCategory(subjectId)
 
-  // const savePeriodId = getSelectedPeriod(subjectTermGroupId)
-  // const [selectedPeriod, setSelectedPeriodLocal] = useState(savePeriodId)
-
   const [open, setOpen] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
   const [openActivity, setOpenActivity] = useState(false)
   const [confirmActivityId, setConfirmActivityId] = useState<string | null>(null)
 
 
   const subjectClass = classes?.find(c => c.subject.id === subjectId)
   const periods = subjectClass?.academicTerm.periods ?? []
-  const activePeriodId = selectedPeriodId || periods[0]?.id
   const activeStgId = subjectClass?.id ?? ''
+
+  const savedPeriodId = getSelectedPeriod(subjectId)
+  const [selectedPeriodId, setSelectedPeriodLocal] = useState(savedPeriodId)
+  const activePeriodId = selectedPeriodId || periods[0]?.id
+
+  const handlePeriodChange = (periodId: string) => {
+    setSelectedPeriodLocal(periodId)
+    setSelectedPeriod(subjectId, periodId)
+  }
 
   const { data: activities, isLoading: isLoadingActivities } = useActivities(subjectId, activePeriodId, activeStgId)
   const { mutate: createActivity, isPending: isCreatingActivity } = useCreateActivity(activeStgId, activePeriodId)
@@ -375,7 +378,7 @@ export default function SubjectDetailPage() {
               {periods.map(period => (
                 <button
                   key={period.id}
-                  onClick={() => setSelectedPeriodId(period.id)}
+                  onClick={() => handlePeriodChange(period.id)}
                   className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
                   style={{
                     backgroundColor: activePeriodId === period.id
