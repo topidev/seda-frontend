@@ -7,10 +7,10 @@ import ConfirmDialog from "@/components/ConfirmDialog"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { Dialog, DialogTitle, DialogContent, DialogHeader } from "@/components/ui/dialog"
-import { shiftLabel, useCreateTerm, useSchool } from "@/hooks/useSchools"
+import { shiftLabel, useCreateTerm, useSchool, useToggleTermClose } from "@/hooks/useSchools"
 import api from "@/lib/api/axios"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Plus, Calendar, Trash2 } from "lucide-react"
+import { Plus, Calendar, Trash2, Lock } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -41,7 +41,14 @@ export default function SchooldDetailPage() {
 
 	const [open, setOpen] = useState(false)
 	const [openConfirm, setOpenConfirm] = useState(false)
-	
+
+	const { mutate: toggleTermClose } = useToggleTermClose(schoolId)
+	const [confirmTerm, setConfirmTerm] = useState<{
+		id: string
+		name: string
+		active: boolean
+	} | null>(null)
+
 	const {
 		register,
 		handleSubmit,
@@ -91,12 +98,12 @@ export default function SchooldDetailPage() {
 	}
 
 	if (isLoading) {
-    return (
-      <ProtectedPage>
-        <Spinner />
-      </ProtectedPage>
-    )
-  }
+		return (
+			<ProtectedPage>
+				<Spinner />
+			</ProtectedPage>
+		)
+	}
 
 	return (
 		<ProtectedPage>
@@ -108,7 +115,7 @@ export default function SchooldDetailPage() {
 					<div className='flex items-center justify-between w-full'>
 						<div>
 							<h1
-            					className="text-xl md:text-2xl font-semibold"
+								className="text-xl md:text-2xl font-semibold"
 								style={{
 									color: 'var(--color-text-primary)',
 									fontFamily: 'var(--font-geist)',
@@ -221,7 +228,7 @@ export default function SchooldDetailPage() {
 							className="rounded-2xl p-5"
 							style={{
 								backgroundColor: 'var(--color-bg-elevated)',
-								border: '1px solid var(--color-border)',
+								border: `1px solid ${term.active ? 'var(--color-border)' : 'var(--color-success)'}`,
 							}}
 						>
 							{/* Header del ciclo */}
@@ -240,19 +247,45 @@ export default function SchooldDetailPage() {
 										{formatDate(term.startDate)} → {formatDate(term.endDate)}
 									</p>
 								</div>
-								<span
-									className="text-xs px-2 py-1 rounded-lg"
-									style={{
-										backgroundColor: term.active
-											? 'rgba(16, 185, 129, 0.1)'
-											: 'var(--color-bg-tertiary)',
-										color: term.active
-											? 'var(--color-success)'
-											: 'var(--color-text-disabled)',
-									}}
-								>
-									{term.active ? 'Activo' : 'Cerrado'}
-								</span>
+								<div className="flex items-center gap-2">
+									<span
+										className="text-xs px-2 py-1 rounded-lg"
+										style={{
+											backgroundColor: term.active
+												? 'rgba(16, 185, 129, 0.1)'
+												: 'var(--color-bg-tertiary)',
+											color: term.active
+												? 'var(--color-success)'
+												: 'var(--color-text-disabled)',
+										}}
+									>
+										{term.active ? 'Activo' : 'Cerrado'}
+									</span>
+									<button
+										onClick={() => setConfirmTerm({
+											id: term.id,
+											name: term.name,
+											active: term.active
+										})}
+										className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+										style={{
+											backgroundColor: term.active
+												? 'rgba(239, 68, 68, 0.1)'
+												: 'rgba(16, 185, 129, 0.1)',
+											border: `1px solid ${term.active
+												? 'var(--color-error)'
+												: 'var(--color-success)'}`,
+											color: term.active
+												? 'var(--color-error)'
+												: 'var(--color-success)',
+										}}
+									>
+										{term.active
+											? <><Lock size={12} /> Cerrar ciclo</>
+											: <><Lock size={12} /> Reabrir ciclo</>
+										}
+									</button>
+								</div>
 							</div>
 
 							{/* Bimestres */}
@@ -295,12 +328,12 @@ export default function SchooldDetailPage() {
 			)}
 
 			{/* Modal nuevo ciclo */}
-			<Dialog 
-				open={open} 
+			<Dialog
+				open={open}
 				onOpenChange={
-					(val) => { 
+					(val) => {
 						setOpen(val)
-						if(!val) reset()
+						if (!val) reset()
 					}
 				}
 			>
@@ -326,33 +359,33 @@ export default function SchooldDetailPage() {
 						{/* Nombre */}
 						<div className="flex flex-col gap-2 w-full">
 							<label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-                Nombre del ciclo
-              </label>
-              <input
-                {...register('name')}
-                placeholder="Ej. 2024-2025"
-                className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-tertiary)',
-                  border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-border)'}`,
-                  color: 'var(--color-text-primary)',
-                }}
-                onFocus={e => {
-                  e.currentTarget.style.borderColor = errors.name
-                    ? 'var(--color-error)'
-                    : 'var(--color-primary)'
-                }}
-                onBlur={e => {
-                  e.currentTarget.style.borderColor = errors.name
-                    ? 'var(--color-error)'
-                    : 'var(--color-border)'
-                }}
-              />
+								Nombre del ciclo
+							</label>
+							<input
+								{...register('name')}
+								placeholder="Ej. 2024-2025"
+								className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+								style={{
+									backgroundColor: 'var(--color-bg-tertiary)',
+									border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-border)'}`,
+									color: 'var(--color-text-primary)',
+								}}
+								onFocus={e => {
+									e.currentTarget.style.borderColor = errors.name
+										? 'var(--color-error)'
+										: 'var(--color-primary)'
+								}}
+								onBlur={e => {
+									e.currentTarget.style.borderColor = errors.name
+										? 'var(--color-error)'
+										: 'var(--color-border)'
+								}}
+							/>
 							{errors.name && (
-                <p className="text-xs" style={{ color: 'var(--color-error)' }}>
-                  {errors.name.message}
-                </p>
-              )}
+								<p className="text-xs" style={{ color: 'var(--color-error)' }}>
+									{errors.name.message}
+								</p>
+							)}
 						</div>
 
 						{/* Fechas */}
@@ -363,34 +396,34 @@ export default function SchooldDetailPage() {
 							].map(({ field, label }) => (
 								<div key={field} className="flex flex-col gap-2 flex-1">
 									<label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-                    {label}
-                  </label>
-                  <input
-                    {...register(field)}
-                    type="date"
-                    className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
-                    style={{
-                      backgroundColor: 'var(--color-bg-tertiary)',
-                      border: `1px solid ${errors[field] ? 'var(--color-error)' : 'var(--color-border)'}`,
-                      color: 'var(--color-text-primary)',
-                      colorScheme: 'dark',
-                    }}
-                    onFocus={e => {
-                      e.currentTarget.style.borderColor = errors[field]
-                        ? 'var(--color-error)'
-                        : 'var(--color-primary)'
-                    }}
-                    onBlur={e => {
-                      e.currentTarget.style.borderColor = errors[field]
-                        ? 'var(--color-error)'
-                        : 'var(--color-border)'
-                    }}
-                  />
-                  {errors[field] && (
-                    <p className="text-xs" style={{ color: 'var(--color-error)' }}>
-                      {errors[field]?.message}
-                    </p>
-                  )}
+										{label}
+									</label>
+									<input
+										{...register(field)}
+										type="date"
+										className="w-full px-4 py-3 rounded-xl outline-none transition-colors"
+										style={{
+											backgroundColor: 'var(--color-bg-tertiary)',
+											border: `1px solid ${errors[field] ? 'var(--color-error)' : 'var(--color-border)'}`,
+											color: 'var(--color-text-primary)',
+											colorScheme: 'dark',
+										}}
+										onFocus={e => {
+											e.currentTarget.style.borderColor = errors[field]
+												? 'var(--color-error)'
+												: 'var(--color-primary)'
+										}}
+										onBlur={e => {
+											e.currentTarget.style.borderColor = errors[field]
+												? 'var(--color-error)'
+												: 'var(--color-border)'
+										}}
+									/>
+									{errors[field] && (
+										<p className="text-xs" style={{ color: 'var(--color-error)' }}>
+											{errors[field]?.message}
+										</p>
+									)}
 								</div>
 							))}
 						</div>
@@ -428,6 +461,28 @@ export default function SchooldDetailPage() {
 					setOpenConfirm(false)
 				}}
 			/>
+
+			<ConfirmDialog
+				open={!!confirmTerm}
+				onOpenChange={open => { if (!open) setConfirmTerm(null) }}
+				title={confirmTerm?.active ? 'Cerrar ciclo escolar' : 'Reabrir ciclo escolar'}
+				description={
+					confirmTerm?.active
+						? `¿Seguro que deseas cerrar el ciclo ${confirmTerm?.name}? El ciclo quedará bloqueado para nuevos cambios. Podrás reabrirlo cuando necesites.`
+						: `¿Seguro que deseas reabrir el ciclo ${confirmTerm?.name}? Podrás volver a editar grupos, materias y calificaciones.`
+				}
+				confirmLabel={confirmTerm?.active ? 'Cerrar ciclo' : 'Reabrir'}
+				onConfirm={() => {
+					if (confirmTerm) {
+						toggleTermClose({
+							termId: confirmTerm.id,
+							active: !confirmTerm.active,
+						})
+						setConfirmTerm(null)
+					}
+				}}
+			/>
+
 		</ProtectedPage >
 	)
 

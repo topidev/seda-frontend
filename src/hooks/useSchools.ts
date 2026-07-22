@@ -2,6 +2,7 @@ import api from "@/lib/api/axios"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import type { School, CreateSchoolDto, AcademicTerm, CreateTermDto } from "@/types"
+import { boolean, string } from "zod"
 
 const shiftLabel = {
   MORNING: 'Matutino',
@@ -71,5 +72,30 @@ export function useCreateTerm(schoolId: string) {
     onError: () => {
       toast.error('Error al crear el ciclo escolar')
     }
+  })
+}
+
+export function useToggleTermClose(schoolId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      termId,
+      active,
+    }: {
+      termId: string
+      active: boolean
+    }) => {
+      const { data } = await api.patch(
+        `/school/${schoolId}/terms/${termId}/toggle-close`,
+        { active }
+      )
+      return data
+    },
+    onSuccess: (_, active) => {
+      queryClient.invalidateQueries({ queryKey: ['schools', schoolId] })
+      toast.success(active ? 'Ciclo reabierto' : 'Ciclo cerrado')
+    },
+    onError: () => toast.error('Error al cambiar el estado del ciclo')
   })
 }
