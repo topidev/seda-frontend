@@ -266,7 +266,7 @@ export default function FinalGradesPage() {
 														className="text-sm"
 														style={{ color: 'var(--color-text-primary)' }}
 													>
-														{student.student.firstLastName} {student.student.name}
+														{student?.student?.firstLastName} {student.student.name}
 													</span>
 												</div>
 											</td>
