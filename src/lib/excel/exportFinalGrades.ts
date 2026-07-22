@@ -11,6 +11,8 @@ export function exportFinalGrades({
   const workbook = XLSX.utils.book_new()
   const rows: (string | number | null)[][] = []
 
+  console.log('Students en export:', students)
+
 
   rows.push([`${subjectName} - Calificaciones Finales`])
   rows.push([`${groupName} · ${academicTermName}`])
@@ -24,6 +26,8 @@ export function exportFinalGrades({
   rows.push(header)
 
   students.forEach(s => {
+    if (!s.student) return
+
     const row: (string | number | null)[] = [
       `${s.student.name} ${s.student.firstLastName} ${s.student.secondLastName ?? ''}`.trim(),
     ]
