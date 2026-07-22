@@ -246,7 +246,7 @@ export default function FinalGradesPage() {
 
 									return (
 										<tr
-											key={student.student.id}
+											key={student?.student?.id}
 											style={{
 												borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
 											}}
