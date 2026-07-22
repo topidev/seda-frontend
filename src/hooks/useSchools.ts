@@ -87,7 +87,7 @@ export function useToggleTermClose(schoolId: string) {
       active: boolean
     }) => {
       const { data } = await api.patch(
-        `/school/${schoolId}/terms/${termId}/toggle-close`,
+        `/schools/${schoolId}/terms/${termId}/toggle-close`,
         { active }
       )
       return data
