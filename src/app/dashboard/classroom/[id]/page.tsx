@@ -5,25 +5,32 @@ import ProtectedPage from "@/components/ProtectedPage";
 import ReportDialog from "@/components/ReportDialog";
 import Spinner from "@/components/Spinner";
 import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom";
+import { usePreferencesStore } from "@/store/preferences.store";
 import { ChevronRight, FileWarning } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { string } from "zod";
 
 export default function ClassDetailPage() {
   const params = useParams()
   const subjectTermGroupId = params.id as string
+  const setSelectedPeriod = usePreferencesStore(s => s.setSelectedPeriod)
+  const getSelectedPeriod = usePreferencesStore(s => s.getSelectedPeriod)
+
+  const savePeriodId = getSelectedPeriod(subjectTermGroupId)
+  const [selectedPeriod, setSelectedPeriodLocal] = useState(savePeriodId)
 
   const { data: cls, isLoading } = useClassDetail(subjectTermGroupId)
   const { data: finalGradesData } = useFinalGrades(subjectTermGroupId)
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
+  // const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
 
   const [openReport, setOpenReport] = useState(false)
   const [reportStudent, setReportStudent] = useState<{
     id: string
     name: string
-  } | null> (null)
+  } | null>(null)
+
+  const activePeriod = selectedPeriod || cls?.academicTerm.periods?.[0]?.id
 
   if (isLoading) {
     return (
@@ -33,7 +40,10 @@ export default function ClassDetailPage() {
     )
   }
 
-  const activePeriod = selectedPeriod ?? cls?.academicTerm.periods?.[0]?.id
+  const handlePeriodChange = (periodId: string) => {
+    setSelectedPeriodLocal(periodId)
+    setSelectedPeriod(subjectTermGroupId, periodId)
+  }
 
   return (
     <ProtectedPage>
@@ -61,7 +71,7 @@ export default function ClassDetailPage() {
         {cls?.academicTerm.periods?.map(period => (
           <button
             key={period.id}
-            onClick={() => setSelectedPeriod(period.id)}
+            onClick={() => handlePeriodChange(period.id)}
             className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer"
             style={{
               backgroundColor: activePeriod === period.id
@@ -225,27 +235,27 @@ export default function ClassDetailPage() {
                     >
                       {sgt.student.name} {sgt.student.firstLastName} {sgt.student.secondLastName}
                     </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setReportStudent({
+                        id: sgt.student.id,
+                        name: `${sgt.student.name} ${sgt.student.firstLastName}`,
+                      })
+                      setOpenReport(true)
+                    }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                    style={{ color: 'var(--color-text-disabled)' }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = 'var(--color-warning)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = 'var(--color-text-disabled)'
+                    }}
+                  >
+                    <FileWarning size={14} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setReportStudent({
-                      id: sgt.student.id,
-                      name: `${sgt.student.name} ${sgt.student.firstLastName}`,
-                    })
-                    setOpenReport(true)
-                  }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
-                  style={{ color: 'var(--color-text-disabled)' }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.color = 'var(--color-warning)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.color = 'var(--color-text-disabled)'
-                  }}
-                >
-                  <FileWarning size={14} />
-                </button>
-              </div>
               ))}
             </div>
           </div>
@@ -295,8 +305,8 @@ export default function ClassDetailPage() {
           studentName={reportStudent.name}
           subjectTermGroupId={subjectTermGroupId}
         />
-      )}      
+      )}
     </ProtectedPage>
-    
+
   )
 }
