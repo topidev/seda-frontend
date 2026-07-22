@@ -123,7 +123,7 @@ export default function StudentsPage() {
           style={{
             height: 'calc(100vh - 280px)',
             overflow: 'auto',
-            border: '1px solid var(--color-border)',
+            // border: '1px solid var(--color-border)',
             borderRadius: '16px'
           }}
         >
@@ -156,9 +156,13 @@ export default function StudentsPage() {
                         backgroundColor: virtualRow.index % 2 === 0
                           ? 'var(--color-bg-elevated)'
                           : 'var(--color-bg-secondary)',
-                        borderBottom: isLast
-                          ? 'none'
-                          : '1px solid var(--color-divider)',
+                        borderBottom: '1px solid var(--color-divider)',
+                        borderBottomLeftRadius: isLast
+                          ? '16px'
+                          : '0px',
+                        borderBottomRightRadius: isLast
+                          ? '16px'
+                          : '0px'
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
