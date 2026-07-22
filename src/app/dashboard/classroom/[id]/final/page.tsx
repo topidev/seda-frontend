@@ -48,6 +48,8 @@ export default function FinalGradesPage() {
 		}
 	}
 
+	console.log('Calificacion Final: ', finalGrades)
+
 	if (isLoading) return (
 		<ProtectedPage>
 			<Spinner />
