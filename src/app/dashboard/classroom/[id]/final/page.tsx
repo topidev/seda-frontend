@@ -74,7 +74,6 @@ export default function FinalGradesPage() {
 
 	return (
 		<ProtectedPage>
-			{isLoading && <Spinner />}
 
 			<div className="flex items-center gap-3 mb-6">
 				<BackButton href={`/dashboard/classroom/${subjectTermGroupId}`} />
@@ -174,7 +173,7 @@ export default function FinalGradesPage() {
 
 							{/* Body */}
 							<tbody>
-								{finalGrades?.students?.map((student, index) => {
+								{finalGrades.students.map((student, index) => {
 									const isLast = index === finalGrades.students.length - 1
 									const rowBg = index % 2 === 0
 										? 'var(--color-bg-elevated)'
@@ -182,7 +181,7 @@ export default function FinalGradesPage() {
 
 									return (
 										<tr
-											key={student?.student?.id}
+											key={student.student.id}
 											style={{
 												borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
 											}}
@@ -202,13 +201,13 @@ export default function FinalGradesPage() {
 														className="text-sm"
 														style={{ color: 'var(--color-text-primary)' }}
 													>
-														{student?.student?.firstLastName} {student?.student?.name}
+														{student.student.firstLastName} {student.student.name}
 													</span>
 												</div>
 											</td>
 
 											{/* Calificaciones por bimestre */}
-											{student?.grades?.map(grade => {
+											{student.grades.map(grade => {
 												const score = grade.finalScore ?? grade.calculatedScore
 												return (
 													<td
