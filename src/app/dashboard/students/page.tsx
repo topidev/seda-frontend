@@ -123,7 +123,6 @@ export default function StudentsPage() {
           style={{
             height: 'calc(100vh - 280px)',
             overflow: 'auto',
-            // border: '1px solid var(--color-border)',
             borderRadius: '16px'
           }}
         >
@@ -176,6 +175,10 @@ export default function StudentsPage() {
                       <div
                         className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium shrink-0"
                         style={{
+
+                          border: virtualRow.index % 2 === 0
+                            ? '1px solid var(--color-border)'
+                            : '',
                           backgroundColor: 'var(--color-bg-tertiary)',
                           color: 'var(--color-primary)',
                         }}
