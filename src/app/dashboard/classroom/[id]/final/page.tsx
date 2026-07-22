@@ -47,6 +47,7 @@ export default function FinalGradesPage() {
 			setIsExporting(false)
 		}
 	}
+	console.log('Califinaciones finales: ', finalGrades)
 
 	return (
 		<ProtectedPage>
@@ -237,7 +238,7 @@ export default function FinalGradesPage() {
 
 							{/* Body */}
 							<tbody>
-								{finalGrades.students.map((student, index) => {
+								{finalGrades?.students?.map((student, index) => {
 									const isLast = index === finalGrades.students.length - 1
 									const rowBg = index % 2 === 0
 										? 'var(--color-bg-elevated)'
