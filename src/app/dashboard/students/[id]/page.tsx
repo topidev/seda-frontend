@@ -168,6 +168,9 @@ export default function StudentDetailPage() {
 
   // Obtiene todas las materias únicas del alumno a través de sus grupos
   const subjects = student?.groupTerms.flatMap(gt => {
+    console.log('academicTermId del alumno:', gt.academicTermId)
+    console.log('academicTerms disponibles:', schools?.flatMap(s => s.academicTerms).map(t => ({ id: t.id, name: t.name, periods: t.periods?.length })))
+  
     const periods = schools?.flatMap(s => s.academicTerms).find(t => t.id === gt.academicTermId)?.periods ?? []
     console.log('Periodos: ', periods)
 
@@ -178,8 +181,7 @@ export default function StudentDetailPage() {
       academicTermId: gt.academicTermId,
       periods
     }))
-  }
-  ) ?? []
+  }) ?? []
 
   const selectedSubject = subjects.find(s => s.subjectTermGroupId === selectedStgId)
   const activePeriodId = selectedPeriodId || selectedSubject?.periods[0]?.id
@@ -580,10 +582,13 @@ export default function StudentDetailPage() {
         <select
           value={selectedStgId}
           onChange={e => {
-            setSelectedStgId(e.target.value)
+            const newStgId = e.target.value
+            setSelectedStgId(newStgId)
             setSelectedPeriodId('')
-            console.log('Materia: ', e.target.value)
-            console.log('selectedSubject: ', selectedSubject)
+            // Buscar directamente con el nuevo valor, no con el estado
+            const found = subjects.find(s => s.subjectTermGroupId === newStgId)
+            console.log('Materia seleccionada:', newStgId)
+            console.log('Subject encontrado:', found)
           }}
           className="w-full px-4 py-3 rounded-xl outline-none text-sm mb-3 cursor-pointer"
           style={{
