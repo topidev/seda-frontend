@@ -169,6 +169,8 @@ export default function StudentDetailPage() {
   // Obtiene todas las materias únicas del alumno a través de sus grupos
   const subjects = student?.groupTerms.flatMap(gt => {
     const periods = schools?.flatMap(s => s.academicTerms).find(t => t.id === gt.academicTermId)?.periods ?? []
+    console.log('Periodos: ', periods)
+
     return gt.group.subjectTermGroups.map(stg => ({
       subjectId: stg.subject.id,
       subjectTermGroupId: stg.id,
@@ -580,6 +582,8 @@ export default function StudentDetailPage() {
           onChange={e => {
             setSelectedStgId(e.target.value)
             setSelectedPeriodId('')
+            console.log('Materia: ', e.target.value)
+            console.log('selectedSubject: ', selectedSubject)
           }}
           className="w-full px-4 py-3 rounded-xl outline-none text-sm mb-3 cursor-pointer"
           style={{
