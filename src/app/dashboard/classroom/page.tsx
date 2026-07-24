@@ -7,8 +7,10 @@ import { useMyClasses } from '@/hooks/useClassroom'
 import { Monitor, BookOpen, Search } from 'lucide-react'
 import Link from 'next/link'
 import { ClassCardSkeleton } from '@/components/Skeleton'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function ClassroomPage() {
+  usePageTitle('Mis Clases')
   const { data: classes, isLoading } = useMyClasses()
   const [search, setSearch] = useState('')
   const [selectedSchool, setSelectedSchool] = useState('')

@@ -7,8 +7,10 @@ import { UserSquare, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { StudentRowSkeleton } from '@/components/Skeleton'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function StudentsPage() {
+  usePageTitle('Alumnos')
   const [search, setSearch] = useState('')
   const [showInactive, setShowInactive] = useState(false)
 

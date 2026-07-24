@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePageTitle } from "@/hooks/usePageTitle"
 
 const createTermSchema = z.object({
 	name: z.string().min(2, 'Ej. 2024-2025'),
@@ -35,8 +36,9 @@ export default function SchooldDetailPage() {
 	const schoolId = params.id as string
 	const router = useRouter()
 	const queryClient = useQueryClient()
-
+	
 	const { data: school, isLoading } = useSchool(schoolId)
+	usePageTitle(school?.name ?? 'Escuela')
 	const { mutate: createTerm, isPending, isError } = useCreateTerm(schoolId)
 
 	const [open, setOpen] = useState(false)

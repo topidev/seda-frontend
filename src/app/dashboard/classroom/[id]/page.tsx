@@ -6,6 +6,7 @@ import ReportDialog from "@/components/ReportDialog";
 import { DetailCardSkeleton } from "@/components/Skeleton";
 import Spinner from "@/components/Spinner";
 import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { usePreferencesStore } from "@/store/preferences.store";
 import { ChevronRight, FileWarning } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +25,7 @@ export default function ClassDetailPage() {
   const { data: cls, isLoading } = useClassDetail(subjectTermGroupId)
   const { data: finalGradesData } = useFinalGrades(subjectTermGroupId)
   // const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
-
+  usePageTitle(cls ? `${cls.subject.name} · ${cls.group.grade}°${cls.group.letter}` : 'Clase')
   const [openReport, setOpenReport] = useState(false)
   const [reportStudent, setReportStudent] = useState<{
     id: string

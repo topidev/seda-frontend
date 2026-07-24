@@ -17,6 +17,7 @@ import Spinner from '@/components/Spinner'
 import z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const schema = z.object({
   name: z.string().min(2, 'El nombre debe tener por lo menos 2 caracteres')
@@ -25,6 +26,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function SubjectsPage() {
+  usePageTitle('Materias')
   const { data: subjects, isLoading } = useSubjects()
   const { mutate: createSubject, isPending, isError } = useCreateSubject()
 

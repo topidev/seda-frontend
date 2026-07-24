@@ -22,6 +22,7 @@ import BackButton from '@/components/BackButton'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const newStudentSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -47,6 +48,7 @@ export default function GroupDetailPage() {
   const router = useRouter()
 
   const { data: group, isLoading } = useGroup(groupId, academicTermId)
+  usePageTitle(`${group?.grade}°${group?.letter}`)
   const { data: subjects } = useSubjects()
   const { data: allStudents } = useStudents()
 

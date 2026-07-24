@@ -4,6 +4,7 @@ import BackButton from "@/components/BackButton"
 import ProtectedPage from "@/components/ProtectedPage"
 import Spinner from "@/components/Spinner"
 import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom"
+import { usePageTitle } from "@/hooks/usePageTitle"
 import { exportFinalGrades } from "@/lib/excel/exportFinalGrades"
 import { Download } from "lucide-react"
 import { useParams } from "next/navigation"
@@ -13,6 +14,7 @@ import { toast } from "sonner"
 export default function FinalGradesPage() {
 	const params = useParams()
 	const subjectTermGroupId = params.id as string
+	usePageTitle('Calificaciones finales')
 
 	const { data: cls } = useClassDetail(subjectTermGroupId)
 	const { data: finalGrades, isLoading } = useFinalGrades(subjectTermGroupId)

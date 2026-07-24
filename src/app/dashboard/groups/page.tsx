@@ -19,6 +19,7 @@ import { usePreferencesStore } from '@/store/preferences.store'
 import z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const grades = ['1', '2', '3']
 const letters = ['A', 'B', 'C', 'D', 'E']
@@ -32,6 +33,7 @@ const createGroupSchema = z.object({
 type CreateGroupFormData = z.infer<typeof createGroupSchema>
 
 export default function GroupsPage() {
+  usePageTitle('Grupos')
   const { data: schools } = useSchools()
   const { data: subjects } = useSubjects()
 
@@ -84,15 +86,6 @@ export default function GroupsPage() {
     setSelectedSchool(schoolId)
     setSelectedTerm('')
   }
-
-  // const toggleSubject = (subjectId: string) => {
-  //   setSelectedSubjectIds(prev =>
-  //     prev.includes(subjectId)
-  //       ? prev.filter(id => id !== subjectId)
-  //       : [...prev, subjectId],
-  //   )
-  // }
-
 
   return (
     <ProtectedPage>

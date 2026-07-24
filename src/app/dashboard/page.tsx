@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { Users, Monitor, ClipboardList } from 'lucide-react'
 import InstallBanner from '@/components/InstallBanner'
 import { ClassCardSkeleton, StatCardSkeleton } from '@/components/Skeleton'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 interface DashboardSummary {
   totalStudents: number
@@ -25,6 +26,7 @@ interface DashboardSummary {
 }
 
 export default function DashboardPage() {
+  usePageTitle('Inicio')
   const teacher = useAuthStore(state => state.teacher)
 
   const { data: summary, isLoading } = useQuery({

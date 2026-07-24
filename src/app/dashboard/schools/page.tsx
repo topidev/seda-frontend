@@ -17,6 +17,7 @@ import Spinner from '@/components/Spinner'
 import AppInput from '@/components/AppInput'
 import AppButton from '@/components/AppButton'
 import { Controller, useForm } from 'react-hook-form'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const shifts = [
   { value: 'MORNING', label: 'Matutino' },
@@ -32,6 +33,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function SchoolsPage() {
+  usePageTitle('Escuelas')
   const { data: schools, isLoading } = useSchools()
   const { mutate: createSchool, isPending, isError } = useCreateSchool()
   const [open, setOpen] = useState(false)

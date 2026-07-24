@@ -11,6 +11,7 @@ import {
   useAttendanceByDate,
   useSaveAttendance,
 } from '@/hooks/useClassroom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
 
@@ -45,6 +46,7 @@ const statusCycle: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']
 export default function AttendancePage() {
   const params = useParams()
   const subjectTermGroupId = params.id as string
+  usePageTitle('Pasar lista')
 
   const today = new Date().toISOString().split('T')[0]
   const [selectedDate, setSelectedDate] = useState(today)

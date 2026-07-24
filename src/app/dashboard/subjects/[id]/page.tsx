@@ -27,6 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useActivities, useCreateActivity, useDeleteActivity, useMyClasses } from '@/hooks/useClassroom'
 import Spinner from '@/components/Spinner'
 import { usePreferencesStore } from '@/store/preferences.store'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function SubjectDetailPage() {
   const params = useParams()
@@ -38,6 +39,7 @@ export default function SubjectDetailPage() {
   const getSelectedPeriod = usePreferencesStore(s => s.getSelectedPeriod)
 
   const { data: subject, isLoading } = useSubject(subjectId)
+  usePageTitle(subject?.name ?? 'Inicio')
   const { data: classes } = useMyClasses()
   const { mutate: createCategory, isPending, isError } = useCreateGradeCategory(subjectId)
   const { mutate: deleteCategory } = useDeleteGradeCategory(subjectId)

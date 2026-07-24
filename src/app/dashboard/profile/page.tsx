@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ProtectedPage from "@/components/ProtectedPage";
 import Spinner from "@/components/Spinner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function ProfilePage() {
   const { data: teacher, isLoading, isError } = useTeacher()
   const logout = useAuthStore((state) => state.logout)
   const router = useRouter()
+  usePageTitle('Perfil')
 
   const handleLogout = async () => {
     try {

@@ -25,6 +25,7 @@ import AppButton from '@/components/AppButton'
 import { useRemoveStudent, useUpdateStudent } from '@/hooks/useStudents'
 import { useSchool, useSchools } from '@/hooks/useSchools'
 import Spinner from '@/components/Spinner'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 interface StudentDetail {
   id: string
@@ -92,6 +93,8 @@ export default function StudentDetailPage() {
     },
     enabled: !!studentId,
   })
+
+  usePageTitle(student ? `${student.name} ${student.firstLastName}` : 'Alumno')
 
   const { data: schools } = useSchools()
 
