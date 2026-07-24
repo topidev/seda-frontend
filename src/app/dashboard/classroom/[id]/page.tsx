@@ -3,6 +3,7 @@
 import BackButton from "@/components/BackButton";
 import ProtectedPage from "@/components/ProtectedPage";
 import ReportDialog from "@/components/ReportDialog";
+import { DetailCardSkeleton } from "@/components/Skeleton";
 import Spinner from "@/components/Spinner";
 import { useClassDetail, useFinalGrades } from "@/hooks/useClassroom";
 import { usePreferencesStore } from "@/store/preferences.store";
@@ -35,7 +36,11 @@ export default function ClassDetailPage() {
   if (isLoading) {
     return (
       <ProtectedPage>
-        <Spinner />
+        <div className="flex flex-col gap-4">
+          <DetailCardSkeleton />
+          <DetailCardSkeleton />
+          <DetailCardSkeleton />
+        </div>
       </ProtectedPage>
     )
   }

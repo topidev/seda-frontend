@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/auth.store'
 import Link from 'next/link'
 import { Users, Monitor, ClipboardList } from 'lucide-react'
 import InstallBanner from '@/components/InstallBanner'
+import { ClassCardSkeleton, StatCardSkeleton } from '@/components/Skeleton'
 
 interface DashboardSummary {
   totalStudents: number
@@ -104,7 +105,16 @@ export default function DashboardPage() {
 
       <InstallBanner />
 
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <>
+          <div className="grid grid-cols-2 gap-3 mb-8">
+            {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
+          </div>
+          <div className="flex flex-col gap-3">
+            {[...Array(3)].map((_, i) => <ClassCardSkeleton key={i} />)}
+          </div>
+        </>
+      )}
 
       {!isLoading && (
         <>

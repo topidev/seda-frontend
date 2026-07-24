@@ -6,6 +6,7 @@ import Spinner from '@/components/Spinner'
 import { useMyClasses } from '@/hooks/useClassroom'
 import { Monitor, BookOpen, Search } from 'lucide-react'
 import Link from 'next/link'
+import { ClassCardSkeleton } from '@/components/Skeleton'
 
 export default function ClassroomPage() {
   const { data: classes, isLoading } = useMyClasses()
@@ -170,7 +171,11 @@ export default function ClassroomPage() {
         )}
       </div>
 
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <div className="flex flex-col gap-3">
+          {[...Array(5)].map((_, i) => <ClassCardSkeleton key={i} />)}
+        </div>
+      )}
 
       {!isLoading && classes?.length === 0 && (
         <div

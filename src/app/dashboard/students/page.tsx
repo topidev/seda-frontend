@@ -6,6 +6,7 @@ import { useStudents } from '@/hooks/useStudents'
 import { UserSquare, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { StudentRowSkeleton } from '@/components/Skeleton'
 
 export default function StudentsPage() {
   const [search, setSearch] = useState('')
@@ -87,11 +88,11 @@ export default function StudentsPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex justify-center py-12">
-          <div
-            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-            style={{ borderColor: 'var(--color-primary)' }}
-          />
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: '1px solid var(--color-border)' }}
+        >
+          {[...Array(8)].map((_, i) => <StudentRowSkeleton key={i} />)}
         </div>
       )}
 
