@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
 import type { Group, CreateGroupDto } from '@/types'
+import { getErrorMessage } from '@/lib/api/error'
 
 
 export function useGroups(schoolId: string, academicTermId: string) {
@@ -44,8 +45,8 @@ export function useCreateGroup() {
       })
       toast.success('Grupo creado')
     },
-    onError: () => {
-      toast.error('Error al crear el grupo')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear el grupo'))
     }
   })
 }
@@ -62,8 +63,8 @@ export function useAssignSubjectToGroup(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
       toast.success('Materia asignada')
     },
-    onError: () => {
-      toast.error('Error al asignar materia')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al asignar materia'))
     }
   })
 }
@@ -79,8 +80,8 @@ export function useRemoveSubjectFromGroup(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
       toast.success('Materia removida del grupo')
     },
-    onError: () => {
-      toast.error('Error al remover la materia')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al remover la materia'))
     },
   })
 }
@@ -96,8 +97,8 @@ export function useRemoveStudentFromGroup(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
       toast.success('Alumno removido del grupo')
     },
-    onError: () => {
-      toast.error('Error al remover al alumno')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al remover al alumno'))
     },
   })
 }
@@ -113,8 +114,8 @@ export function useDeleteGroup() {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
       toast.success('Grupo eliminado correctamente')
     },
-    onError: () => {
-      toast.error('Error al eliminar el grupo')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al eliminar el grupo'))
     },
   })
 }

@@ -3,6 +3,7 @@ import api from '@/lib/api/axios'
 import { toast } from 'sonner'
 import type { Student, CreateStudentDto, UpdateStudentDto } from '@/types'
 import { useRouter } from 'next/navigation'
+import { getErrorMessage } from '@/lib/api/error'
 
 
 export function useStudents(filters?: {
@@ -35,8 +36,8 @@ export function useCreateStudent(groupId: string, academicTermId: string) {
       queryClient.invalidateQueries({ queryKey: ['groups', groupId] })
       toast.success('Alumno creado')
     },
-    onError: () => {
-      toast.error('Error al crear alumno')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear alumno'))
     }
   })
 }
@@ -61,8 +62,8 @@ export function useAssignStudentToGroup() {
       queryClient.invalidateQueries({ queryKey: ['groups', variables.groupId] })
       toast.success('Alumno asignado')
     },
-    onError: () => {
-      toast.error('Error al asignar alumno')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al asignar alumno'))
     }
   })
 }
@@ -80,8 +81,8 @@ export function useUpdateStudent(studentId: string) {
         queryClient.invalidateQueries({ queryKey: ['students'] }),
         toast.success('Alumno actualizado')
     },
-    onError: () => {
-      toast.error('Error al actualizar alumno')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al actualizar alumno'))
     }
   })
 }
@@ -99,8 +100,8 @@ export function useRemoveStudent(studentId: string) {
       toast.success('Alumno eliminado correctamente')
       router.replace('/dashboard/students')
     },
-    onError: () => {
-      toast.error('Error al eliminar el alumno')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al eliminar el alumno'))
     },
   })
 }

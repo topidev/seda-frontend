@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import type { School, CreateSchoolDto, AcademicTerm, CreateTermDto } from "@/types"
 import { boolean, string } from "zod"
+import { getErrorMessage } from "@/lib/api/error"
 
 const shiftLabel = {
   MORNING: 'Matutino',
@@ -51,8 +52,8 @@ export function useCreateSchool() {
       })
       toast.success('Escuela creada')
     },
-    onError: () => {
-      toast.error('Error al crear la escuela')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear la escuela'))
     }
   })
 }
@@ -69,8 +70,8 @@ export function useCreateTerm(schoolId: string) {
       queryClient.invalidateQueries({ queryKey: ['schools', schoolId] })
       toast.success('Ciclo escolar creado')
     },
-    onError: () => {
-      toast.error('Error al crear el ciclo escolar')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear el ciclo escolar'))
     }
   })
 }
@@ -96,6 +97,6 @@ export function useToggleTermClose(schoolId: string) {
       queryClient.invalidateQueries({ queryKey: ['schools', schoolId] })
       toast.success(active ? 'Ciclo reabierto' : 'Ciclo cerrado')
     },
-    onError: () => toast.error('Error al cambiar el estado del ciclo')
+    onError: (error) => toast.error(getErrorMessage(error, 'Error al cambiar el estado del ciclo'))
   })
 }

@@ -2,6 +2,7 @@ import api from "@/lib/api/axios"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { type SubjectTermGroup, type Activity, type FinalGrade, type AttendanceRecord, type CreateActivityDto, type StudentGradeDto, FinalGradesResponse } from '@/types'
+import { getErrorMessage } from "@/lib/api/error"
 
 
 export function useMyClasses() {
@@ -50,8 +51,8 @@ export function useCreateActivity(subjectTermGroupId: string, periodId: string) 
       })
       toast.success('Actividad creada')
     },
-    onError: () => {
-      toast.error('Error al crear la actividad')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear la actividad'))
     }
   })
 }
@@ -72,8 +73,8 @@ export function useDeleteActivity(
       })
       toast.success('Actividad eliminada')
     },
-    onError: () => {
-      toast.error('Error al eliminar la actividad')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al eliminar la actividad'))
     },
   })
 }
@@ -94,8 +95,8 @@ export function useGradeActivity(activityId: string, subjectTermGroupId: string)
       queryClient.invalidateQueries({ queryKey: ['period-grades'] })
       toast.success('Calificaciones guardadas')
     },
-    onError: () => {
-      toast.error('Error al guardar las calificaciones')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al guardar las calificaciones'))
     },
   })
 }
@@ -140,8 +141,8 @@ export function useOverrideFinalGrade() {
         queryKey: ['period-grades']
       })
     },
-    onError: () => {
-      toast.error('Error al actualizar calificación')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al actualizar calificación'))
     }
   })
 }
@@ -183,8 +184,8 @@ export function useSaveAttendance(subjectTermGroupId: string) {
       })
       toast.success('Lista guardada correctamente')
     },
-    onError: () => {
-      toast.error('Error al guardar la lista')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al guardar la lista'))
     },
   })
 }
@@ -219,8 +220,8 @@ export function useTogglePeriodClose(subjectTermGroupId: string, periodId: strin
       })
       toast.success(closed ? 'Bimestre cerrado' : 'Bimestre reabierto')
     },
-    onError: () => {
-      toast.error('Error al cambiar el estado del bimestre')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al cambiar el estado del bimestre'))
     }
   })
 }

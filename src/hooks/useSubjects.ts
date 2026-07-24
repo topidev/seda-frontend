@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api/axios'
 import { toast } from 'sonner'
 import type { Subject, CreateSubjectDto, CreateGradeCategoryDto } from '@/types'
+import { getErrorMessage } from '@/lib/api/error'
 
 
 
@@ -38,8 +39,8 @@ export function useCreateSubject() {
       queryClient.invalidateQueries({ queryKey: ['subjects'] })
       toast.success('Materia creada')
     },
-    onError: () => {
-      toast.error('Error al crear materia')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear materia'))
     }
   })
 }
@@ -56,8 +57,8 @@ export function useCreateGradeCategory(subjectId: string) {
       queryClient.invalidateQueries({ queryKey: ['subjects', subjectId] })
       toast.success('Categoría creada')
     },
-    onError: () => {
-      toast.error('Error al crear categoría')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear categoría'))
     }
   })
 }
@@ -73,8 +74,8 @@ export function useDeleteGradeCategory(subjectId: string) {
       queryClient.invalidateQueries({ queryKey: ['subjects', subjectId] })
       toast.success('Categoría eliminada')
     },
-    onError: () => {
-      toast.error('Error al eliminar')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al eliminar'))
     }
   })
 }

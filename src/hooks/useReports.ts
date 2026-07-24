@@ -3,6 +3,7 @@ import { CreateReportDto } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { Report } from "@/types";
+import { getErrorMessage } from "@/lib/api/error";
 
 export function useStudentReports(studentId: string) {
   return useQuery({
@@ -30,8 +31,8 @@ export function useCreateReport(studentId: string) {
       queryClient.invalidateQueries({ queryKey: ['reports', studentId] })
       toast.success('Reporte creado correctamente')
     },
-    onError: () => {
-      toast.error('Error al crear el reporte')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al crear el reporte'))
     }
   })
 }
@@ -48,8 +49,8 @@ export function useDeleteReport(studentId: string) {
       queryClient.invalidateQueries({ queryKey: ['reports', studentId] })
       toast.success('Reporte eliminado')
     },
-    onError: () => {
-      toast.error('Error al borrar el reporte')
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'Error al borrar el reporte'))
     }
   })
 }
