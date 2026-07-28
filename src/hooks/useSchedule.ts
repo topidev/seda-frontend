@@ -75,7 +75,7 @@ export function useWeeklySchedule(weekOffSet: number = 0) {
 }
 
 export function useTodaySchedule() {
-  useQuery({
+  return useQuery({
     queryKey: ['today-schedule'],
     queryFn: async () => {
       const { data } = await api.get<DaySchedule[]>(
