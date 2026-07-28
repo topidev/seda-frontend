@@ -344,3 +344,46 @@ export interface ExportFinalGradesParams {
   students: StudentFinalGradeExcel[]
   periodsCount: number
 }
+
+
+
+
+// ------------------- Schedule -----------------
+
+
+export interface Schedule {
+  id: string
+  subjectTermGroupId: string
+  dayOfWeek: number
+  startTime: string
+  endTime: string | null
+}
+
+interface ScheduleActivity {
+  id: string
+  title: string
+  dueDate: string | null
+  category: { name: string }
+}
+
+export interface DaySchedule {
+  id: string
+  startTime: string
+  endTime: string | null
+  subjectTermGroupId: string
+  subjectName: string
+  groupName: string
+  activities: ScheduleActivity[]
+}
+
+interface WeekDay {
+  dayOfWeek: number
+  date: string
+  schedules: DaySchedule[]
+}
+
+export interface WeeklySchedule {
+  weekStart: string
+  weekEnd: string
+  days: WeekDay[]
+}
