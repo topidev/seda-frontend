@@ -172,7 +172,6 @@ export default function ClassDetailPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Clock size={16} style={{ color: 'var(--color-primary)' }} />
                 <h2
                   className="text-base font-medium"
                   style={{ color: 'var(--color-text-primary)' }}

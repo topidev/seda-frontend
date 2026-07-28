@@ -10,6 +10,7 @@ import {
   UserSquare,
   User,
   Monitor,
+  CalendarDays,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -27,9 +28,10 @@ import Image from 'next/image'
 const navItems = [
   { href: '/dashboard', label: 'Inicio', icon: Home },
   { href: '/dashboard/classroom', label: 'Mis Clases', icon: Monitor },
+  { href: '/dashboard/activities', label: 'Actividades', icon: CalendarDays },
   { href: '/dashboard/schools', label: 'Escuelas', icon: GraduationCap },
-  { href: '/dashboard/subjects', label: 'Materias', icon: BookOpen },
   { href: '/dashboard/groups', label: 'Grupos', icon: Users },
+  { href: '/dashboard/subjects', label: 'Materias', icon: BookOpen },
   { href: '/dashboard/students', label: 'Alumnos', icon: UserSquare },
 ]
 
