@@ -103,7 +103,7 @@ export default function DashboardPage() {
   return (
     <ProtectedPage>
       {/* Saludo */}
-      <div className="mb-8">
+      <div className="mb-6  pb-6 border-b border-gray-700">
         <h1
           className="text-2xl font-semibold"
           style={{
@@ -143,7 +143,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h2
-                className="text-base font-medium"
+                className="text-lg font-medium"
                 style={{ color: 'var(--color-text-primary)' }}
               >
                 Clases de hoy
