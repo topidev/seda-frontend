@@ -162,10 +162,16 @@ export default function DashboardPage() {
             {todaySchedule.map(schedule => (
               <div
                 key={schedule.id}
-                className="rounded-xl overflow-hidden"
+                className="rounded-xl overflow-hidden transition-colors"
                 style={{
                   backgroundColor: 'var(--color-bg-elevated',
                   border: '1px solid var(--color-border)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)'
                 }}
               >
                 {/* Header clase */}
