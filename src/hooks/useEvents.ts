@@ -5,6 +5,17 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api/error";
 import { error } from "console";
 
+export function useAllEvents(schoolId?: string) {
+  return useQuery({
+    queryKey: ['events', 'all', schoolId],
+    queryFn: async () => {
+      const { data } = await api.get<Event[]>('/events', {
+        params: schoolId ? { schoolId } : undefined
+      })
+      return data
+    }
+  })
+}
 
 export function useUpcomingEvents(days: number = 30) {
   return useQuery({

@@ -33,6 +33,7 @@ const navItems = [
   { href: '/dashboard/groups', label: 'Grupos', icon: Users },
   { href: '/dashboard/subjects', label: 'Materias', icon: BookOpen },
   { href: '/dashboard/students', label: 'Alumnos', icon: UserSquare },
+  { href: '/dashboard/events', label: 'Eventos', icon: CalendarDays },
 ]
 
 export default function AppSidebar() {
