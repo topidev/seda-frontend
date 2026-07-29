@@ -277,7 +277,7 @@ export default function DashboardPage() {
       {!isLoading && (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 mt-6">
             {stats.map(stat => (
               <Link key={stat.label} href={stat.href}>
                 <div
