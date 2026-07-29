@@ -138,11 +138,7 @@ export default function DashboardPage() {
       {/* Actividades de hoy */}
       {!isLoadingToday && todaySchedule && todaySchedule.length > 0 && (
         <div
-          className='rounded-2xl p-5 mb-6'
-          style={{
-            backgroundColor: 'var(--color-bg-elevated)',
-            border: '1px solid var(--color-border)'
-          }}
+          className='mb-6'
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -168,6 +164,7 @@ export default function DashboardPage() {
                 key={schedule.id}
                 className="rounded-xl overflow-hidden"
                 style={{
+                  backgroundColor: 'var(--color-bg-elevated',
                   border: '1px solid var(--color-border)',
                 }}
               >
@@ -176,16 +173,10 @@ export default function DashboardPage() {
                   <div
                     className="flex items-center justify-between px-4 py-3 cursor-pointer transition-colors"
                     style={{
-                      backgroundColor: 'var(--color-bg-secondary)',
+                      backgroundColor: 'var(--color-bg-elevated)',
                       borderBottom: schedule.activities.length > 0
                         ? '1px solid var(--color-divider)'
                         : 'none',
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)'
                     }}
                   >
                     <div className="flex items-center gap-3">
