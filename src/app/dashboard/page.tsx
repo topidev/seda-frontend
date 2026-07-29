@@ -63,7 +63,7 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      label: 'Alumnos activos',
+      label: 'Alumnos',
       value: summary?.totalStudents ?? 0,
       icon: Users,
       href: '/dashboard/students',
@@ -280,7 +280,7 @@ export default function DashboardPage() {
       {!isLoading && (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             {stats.map(stat => (
               <Link key={stat.label} href={stat.href}>
                 <div
@@ -352,13 +352,6 @@ export default function DashboardPage() {
                 <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   Sin eventos próximos
                 </p>
-                <Link
-                  href="/dashboard/events"
-                  className="text-sm px-4 py-2 rounded-xl cursor-pointer"
-                  style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
-                >
-                  Agregar evento
-                </Link>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
