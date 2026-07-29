@@ -140,7 +140,7 @@ export default function DashboardPage() {
           {/* Actividades de hoy */}
           {!isLoadingToday && todaySchedule && todaySchedule.length > 0 && (
             <div
-              className='mb-6'
+              className='mb-8'
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
