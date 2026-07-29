@@ -79,7 +79,7 @@ export default function DashboardPage() {
       bg: 'rgba(16, 185, 129, 0.1)',
     },
     {
-      label: 'Clases activas',
+      label: 'Clases',
       value: summary?.totalClasses ?? 0,
       icon: Monitor,
       href: '/dashboard/classroom',
@@ -284,7 +284,7 @@ export default function DashboardPage() {
             {stats.map(stat => (
               <Link key={stat.label} href={stat.href}>
                 <div
-                  className="rounded-2xl p-5 cursor-pointer transition-colors"
+                  className="flex items-center flex-col rounded-2xl p-5 md:p-3 lg:p-4 xl:p-5 cursor-pointer transition-colors"
                   style={{
                     backgroundColor: 'var(--color-bg-elevated)',
                     border: '1px solid var(--color-border)',
