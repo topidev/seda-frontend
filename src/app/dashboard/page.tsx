@@ -135,147 +135,146 @@ export default function DashboardPage() {
         </>
       )}
 
-      {/* Actividades de hoy */}
-      {!isLoadingToday && todaySchedule && todaySchedule.length > 0 && (
-        <div
-          className='mb-6'
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h2
-                className="text-lg font-medium"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                Clases de hoy
-              </h2>
-            </div>
-            <Link
-              href="/dashboard/activities"
-              className="text-sm"
-              style={{ color: 'var(--color-primary)' }}
+      {!isLoading && (
+        <>
+          {/* Actividades de hoy */}
+          {!isLoadingToday && todaySchedule && todaySchedule.length > 0 && (
+            <div
+              className='mb-6'
             >
-              Ver semana
-            </Link>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {todaySchedule.map(schedule => (
-              <div
-                key={schedule.id}
-                className="rounded-xl overflow-hidden transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-elevated',
-                  border: '1px solid var(--color-border)',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)'
-                }}
-              >
-                {/* Header clase */}
-                <Link href={`/dashboard/classroom/${schedule.subjectTermGroupId}`}>
-                  <div
-                    className="flex items-center justify-between px-4 py-3 cursor-pointer transition-colors"
-                    style={{
-                      backgroundColor: 'var(--color-bg-elevated)',
-                      borderBottom: schedule.activities.length > 0
-                        ? '1px solid var(--color-divider)'
-                        : 'none',
-                    }}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h2
+                    className="text-lg font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <p
-                          className="text-sm font-medium"
-                          style={{ color: 'var(--color-text-primary)' }}
-                        >
-                          {schedule.subjectName}
-                        </p>
-                        <p
-                          className="text-xs"
-                          style={{ color: 'var(--color-text-secondary)' }}
-                        >
-                          {schedule.groupName} · {schedule.startTime}
-                          {schedule.endTime && ` - ${schedule.endTime}`}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {schedule.activities.length > 0 && (
-                        <span
-                          className="text-xs px-2 py-1 rounded-lg"
-                          style={{
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            color: 'var(--color-warning)',
-                          }}
-                        >
-                          {schedule.activities.length} actividad{schedule.activities.length > 1 ? 'es' : ''}
-                        </span>
-                      )}
-                      <ChevronRight size={14} style={{ color: 'var(--color-text-disabled)' }} />
-                    </div>
-                  </div>
+                    Clases de hoy
+                  </h2>
+                </div>
+                <Link
+                  href="/dashboard/activities"
+                  className="text-sm"
+                  style={{ color: 'var(--color-primary)' }}
+                >
+                  Ver semana
                 </Link>
+              </div>
 
-                {/* Actividades */}
-                {schedule.activities.map((activity, idx) => (
+              <div className="flex flex-col gap-3">
+                {todaySchedule.map(schedule => (
                   <div
-                    key={activity.id}
-                    className="flex items-center justify-between px-4 py-2.5"
+                    key={schedule.id}
+                    className="rounded-xl overflow-hidden transition-colors"
                     style={{
-                      backgroundColor: 'var(--color-bg-elevated)',
-                      borderBottom: idx < schedule.activities.length - 1
-                        ? '1px solid var(--color-divider)'
-                        : 'none',
+                      backgroundColor: 'var(--color-bg-elevated',
+                      border: '1px solid var(--color-border)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-primary)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-border)'
                     }}
                   >
-                    <div className="flex items-center gap-2">
+                    {/* Header clase */}
+                    <Link href={`/dashboard/classroom/${schedule.subjectTermGroupId}`}>
                       <div
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: 'var(--color-warning)' }}
-                      />
-                      <span
-                        className="text-sm"
-                        style={{ color: 'var(--color-text-primary)' }}
+                        className="flex items-center justify-between px-4 py-3 cursor-pointer transition-colors"
+                        style={{
+                          backgroundColor: 'var(--color-bg-elevated)',
+                          borderBottom: schedule.activities.length > 0
+                            ? '1px solid var(--color-divider)'
+                            : 'none',
+                        }}
                       >
-                        {activity.title}
-                      </span>
-                    </div>
-                    <span
-                      className="text-xs"
-                      style={{ color: 'var(--color-text-disabled)' }}
-                    >
-                      {activity.category.name}
-                    </span>
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p
+                              className="text-sm font-medium"
+                              style={{ color: 'var(--color-text-primary)' }}
+                            >
+                              {schedule.subjectName}
+                            </p>
+                            <p
+                              className="text-xs"
+                              style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                              {schedule.groupName} · {schedule.startTime}
+                              {schedule.endTime && ` - ${schedule.endTime}`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {schedule.activities.length > 0 && (
+                            <span
+                              className="text-xs px-2 py-1 rounded-lg"
+                              style={{
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                color: 'var(--color-warning)',
+                              }}
+                            >
+                              {schedule.activities.length} actividad{schedule.activities.length > 1 ? 'es' : ''}
+                            </span>
+                          )}
+                          <ChevronRight size={14} style={{ color: 'var(--color-text-disabled)' }} />
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Actividades */}
+                    {schedule.activities.map((activity, idx) => (
+                      <div
+                        key={activity.id}
+                        className="flex items-center justify-between px-4 py-2.5"
+                        style={{
+                          backgroundColor: 'var(--color-bg-elevated)',
+                          borderBottom: idx < schedule.activities.length - 1
+                            ? '1px solid var(--color-divider)'
+                            : 'none',
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ backgroundColor: 'var(--color-warning)' }}
+                          />
+                          <span
+                            className="text-sm"
+                            style={{ color: 'var(--color-text-primary)' }}
+                          >
+                            {activity.title}
+                          </span>
+                        </div>
+                        <span
+                          className="text-xs"
+                          style={{ color: 'var(--color-text-disabled)' }}
+                        >
+                          {activity.category.name}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
 
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Sin clases hoy pero tiene horario configurado */}
-      {!isLoadingToday && todaySchedule && todaySchedule.length === 0 && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6"
-          style={{
-            backgroundColor: 'var(--color-bg-elevated)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            No tienes clases hoy
-          </p>
-        </div>
-      )}
-
-      {!isLoading && (
-        <>
+          {/* Sin clases hoy pero tiene horario configurado */}
+          {!isLoadingToday && todaySchedule && todaySchedule.length === 0 && (
+            <div
+              className="flex items-center gap-3 px-4 py-3 rounded-xl mb-6"
+              style={{
+                backgroundColor: 'var(--color-bg-elevated)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                No tienes clases hoy
+              </p>
+            </div>
+          )}
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 mt-6">
             {stats.map(stat => (
