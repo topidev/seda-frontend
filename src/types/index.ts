@@ -387,3 +387,24 @@ export interface WeeklySchedule {
   weekEnd: string
   days: WeekDay[]
 }
+
+
+// --------- EVENTOS ------------
+
+export interface Event {
+  id: string
+  title: string
+  description: string | null
+  date: string
+  type: 'SCHOOL' | 'NATIONAL_HOLIDAY' | 'PERSONAL' | 'OTHER'
+  schoolName: string | null
+  isHoliday: boolean
+}
+
+export interface CreateEventDto {
+  title: string
+  description?: string
+  date: string
+  type?: 'SCHOOL' | 'NATIONAL_HOLIDAY' | 'PERSONAL' | 'OTHER'
+  schoolId?: string
+}
