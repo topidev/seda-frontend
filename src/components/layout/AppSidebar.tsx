@@ -11,6 +11,7 @@ import {
   User,
   Monitor,
   CalendarDays,
+  Sparkles,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/dashboard', label: 'Inicio', icon: Home },
   { href: '/dashboard/classroom', label: 'Mis Clases', icon: Monitor },
   { href: '/dashboard/activities', label: 'Actividades', icon: CalendarDays },
+  { href: '', label: '', icon: Sparkles },
   { href: '/dashboard/schools', label: 'Escuelas', icon: GraduationCap },
   { href: '/dashboard/groups', label: 'Grupos', icon: Users },
   { href: '/dashboard/subjects', label: 'Materias', icon: BookOpen },
